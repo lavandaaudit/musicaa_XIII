@@ -227,7 +227,27 @@ body.learn-active .palette * { cursor: crosshair !important; }
 .step-led { width: 8px; height: 8px; border-radius: 2px; background: #1a1a28; transition: all 0.08s; }
 .step-led.on { background: var(--accent); box-shadow: 0 0 6px rgba(0,232,162,0.5); }
 /* ===== MIXER CONSOLE (5-channel looper) ===== */
-.bottom-bar { height: 130px !important; }
+.bottom-bar { height: 162px !important; }
+.ch-strip { width: 78px !important; }
+/* SOLO button — blue */
+.ch-btn.solo { color: #66aaff; }
+.ch-btn.solo:hover { border-color: #66aaff; color: #66aaff; }
+.ch-btn.solo.active { background: #4488ff; color: #fff; border-color: #4488ff; box-shadow: 0 0 6px rgba(68,136,255,0.5); }
+/* OD (overdub) button — purple */
+.ch-btn.od { color: #bb88ff; font-size: 7px; }
+.ch-btn.od:hover { border-color: #bb88ff; color: #bb88ff; }
+.ch-btn.od.active { background: #9944ff; color: #fff; border-color: #9944ff; box-shadow: 0 0 6px rgba(153,68,255,0.5); }
+/* Q (quantize) button — cyan */
+.ch-btn.q { color: #44ddcc; font-size: 7px; }
+.ch-btn.q:hover { border-color: #44ddcc; color: #44ddcc; }
+.ch-btn.q.active { background: #00ccbb; color: #000; border-color: #00ccbb; box-shadow: 0 0 6px rgba(0,204,187,0.5); }
+/* Button row (2 buttons side by side) */
+.ch-btns-row { display: flex; gap: 2px; width: 100%; padding: 0 5px; box-sizing: border-box; }
+.ch-btns-row .ch-btn { flex: 1; width: auto; min-width: 0; }
+/* LEN select dropdown */
+.ch-len { background: #0a0a12; border: 1px solid #2a2a3c; color: var(--text-dim); font-family: var(--font-mono); font-size: 8px; font-weight: 700; padding: 2px 3px; border-radius: 2px; cursor: pointer; width: calc(100% - 10px); margin: 0 5px; text-align: center; }
+.ch-len:focus { outline: none; border-color: var(--accent); color: var(--accent); }
+.ch-len-label { font-family: var(--font-mono); font-size: 6px; color: var(--text-dim); letter-spacing: 0.5px; text-align: center; }
 .transport { min-width: 220px !important; padding: 0 10px !important; flex-direction: column; align-items: stretch; justify-content: center; gap: 4px !important; }
 .transport-row { display: flex; align-items: center; gap: 5px; }
 .transport-row .sep { width: 1px; height: 16px; background: var(--border); margin: 0 3px; }
@@ -303,7 +323,7 @@ body.learn-active .palette * { cursor: crosshair !important; }
     <header>
         <h1>POLYGRID</h1>
         <div class="hdr-controls">
-            <div class="master-vol"><span>VOL</span><input type="range" id="master-vol" min="0" max="100" value="80"></div>
+            <div class="master-vol"><span>VOL</span><input type="range" id="master-vol" min="0" max="100" value="60"></div>
             <button id="btn-power">POWER</button>
             <button id="btn-clean">CLEAN</button>
             <button id="btn-test">TEST</button>
@@ -352,7 +372,7 @@ body.learn-active .palette * { cursor: crosshair !important; }
                 <span id="midi-status" class="midi-status" title="Web MIDI API status">MIDI</span>
             </div>
             <div class="transport-row">
-                <div class="master-mini"><span>VOL</span><input type="range" id="master-vol" min="0" max="100" value="80"></div>
+                <div class="master-mini"><span>VOL</span><input type="range" id="master-vol" min="0" max="100" value="60"></div>
                 <div class="sep"></div>
                 <div class="step-leds step-leds-mini" id="step-leds"></div>
             </div>
@@ -447,15 +467,15 @@ const MODULE_DEFS={
 class AudioEngine{
 constructor(){
 this.ctx=new(window.AudioContext||window.webkitAudioContext)();
-this.masterGain=this.ctx.createGain();this.masterGain.gain.value=0.8;
-this.limiter=this.ctx.createDynamicsCompressor();this.limiter.threshold.value=-1;this.limiter.knee.value=0;this.limiter.ratio.value=20;this.limiter.attack.value=0.001;this.limiter.release.value=0.05;
+this.masterGain=this.ctx.createGain();this.masterGain.gain.value=0.6;
+this.limiter=this.ctx.createDynamicsCompressor();this.limiter.threshold.value=-3;this.limiter.knee.value=6;this.limiter.ratio.value=12;this.limiter.attack.value=0.003;this.limiter.release.value=0.15;
 this.analyser=this.ctx.createAnalyser();this.analyser.fftSize=2048;
 this.masterGain.connect(this.limiter);this.limiter.connect(this.analyser);this.analyser.connect(this.ctx.destination);
 this.modules=new Map();this.connections=[];this.heldNotes=new Map();
-this.isPlaying=false;this.tempo=120;this.currentStep=0;this.nextStepTime=0;this.scheduleAhead=0.1;this.timerID=null;this.stepCallbacks=[];
+this.isPlaying=false;this.tempo=120;this.currentStep=0;this.absStep=0;this.nextStepTime=0;this.scheduleAhead=0.1;this.timerID=null;this.stepCallbacks=[];
 this.loops=[];
 for(let i=0;i<5;i++){
-this.loops.push({armed:false,recording:false,events:[],loopLen:24,loopStartTime:0,replayTimerIds:[],muted:false,volume:1,hasContent:false});
+this.loops.push({armed:false,recording:false,events:[],loopLen:24,loopStartTime:0,replayTimerIds:[],muted:false,volume:1,hasContent:false,overdub:false,solo:false,quantize:0});
 }
 this.selectedLoop=0; // currently selected channel for recording
 this.midiRec=this.loops[0]; // back-compat alias (older code references engine.midiRec)
@@ -463,41 +483,79 @@ this.noteCallbacks=[]; // subscribers to note on/off events (for visual feedback
 }
 resume(){if(this.ctx.state==='suspended')return this.ctx.resume();return Promise.resolve();}
 setMasterVol(v){this.masterGain.gain.setTargetAtTime(v,this.ctx.currentTime,0.02);}
-startTransport(){if(this.isPlaying)return;this.resume();this.isPlaying=true;this.currentStep=0;this.nextStepTime=this.ctx.currentTime+0.05;this._schedulerLoop();}
-stopTransport(){this.isPlaying=false;this.currentStep=0;clearTimeout(this.timerID);
+// Async start: awaits ctx.resume() so the scheduler sees an advancing currentTime.
+startTransport(){
+if(this.isPlaying)return;
+// Mark as playing immediately so UI updates; scheduler waits for ctx to actually run.
+this.isPlaying=true;this.currentStep=0;this.absStep=0;
+this.resume().then(()=>{
+// If user hit stop while waiting for resume, abort.
+if(!this.isPlaying)return;
+// Now ctx.currentTime should be advancing.
+this.nextStepTime=this.ctx.currentTime+0.05;
+this._schedulerLoop();
+}).catch(err=>{
+console.warn('[transport] resume failed:',err&&err.message);
+// Roll back state — transport didn't actually start.
+this.isPlaying=false;
+const pb=document.getElementById('btn-play');if(pb)pb.classList.remove('active');
+});
+}
+stopTransport(){this.isPlaying=false;this.currentStep=0;this.absStep=0;clearTimeout(this.timerID);
 // Stop ALL looper channels' replay timers
-this.loops.forEach(ch=>{ch.replayTimerIds.forEach(id=>clearTimeout(id));ch.replayTimerIds=[];ch.recording=false;});
+this.loops.forEach(ch=>{ch.replayTimerIds.forEach(id=>clearTimeout(id));ch.replayTimerIds=[];ch.recording=false;ch.armed=false;});
 // Back-compat
 this.midiRec.recording=false;
+// Release all held notes so synth voices don't sustain forever
+const heldFreqs=Array.from(this.heldNotes.keys());this.heldNotes.clear();heldFreqs.forEach(f=>{this.modules.forEach(m=>{if(m.type==='note-input')m.onNoteOff(f);});});
 this.stepCallbacks.forEach(cb=>cb(-1));
 this.modules.forEach(m=>{if(m.type==='sequencer')m.onStop();if(m.type==='arpeggiator')m.onStop();if(m.type==='drums')m.onStop();if(m.type==='gross-beat')m.onStop();if(m.type==='chords')m.onStop();if(m.type==='percussion')m.onStop();if(m.type==='automation')m.onStop();});
 // Notify UI to release all piano key visuals
 this._notifyNoteSubs('stop',0,false);
 }
-_schedulerLoop(){while(this.nextStepTime<this.ctx.currentTime+this.scheduleAhead){this._fireStep(this.currentStep,this.nextStepTime);this.nextStepTime+=0.25*(60/this.tempo);this.currentStep=(this.currentStep+1)%24;}if(this.isPlaying)this.timerID=setTimeout(()=>this._schedulerLoop(),25);}
-_fireStep(step,time){
+_schedulerLoop(){
+// If ctx got suspended again (autoplay block / tab inactive), wait and retry.
+if(this.ctx.state!=='running'){
+if(this.isPlaying)this.timerID=setTimeout(()=>this._schedulerLoop(),100);
+return;
+}
+const now=this.ctx.currentTime;
+// If we've drifted way behind (e.g., tab was inactive), snap forward to avoid catching up many steps at once.
+if(this.nextStepTime<now-1.0){this.nextStepTime=now+0.02;}
+while(this.nextStepTime<now+this.scheduleAhead){
+this._fireStep(this.currentStep,this.nextStepTime,this.absStep);
+this.nextStepTime+=0.25*(60/this.tempo);
+this.currentStep=(this.currentStep+1)%24;
+this.absStep++;
+}
+if(this.isPlaying)this.timerID=setTimeout(()=>this._schedulerLoop(),25);
+}
+_fireStep(step,time,absStep){
 const delay=Math.max(0,(time-this.ctx.currentTime)*1000);
 setTimeout(()=>{
 if(!this.isPlaying)return;
-// ===== LOOPER: per-channel start recording on step 0 if armed =====
-if(step===0){
+// ===== LOOPER: per-channel loop point (independent lengths via absStep) =====
+// Each channel checks its own loop length: loop point hit when absStep % loopLen === 0
+const stepDur=0.25*(60/this.tempo);
+const anySolo=this.loops.some(c=>c.solo);
 this.loops.forEach((ch,ci)=>{
+// Skip if this channel's loop point is not hit
+if(absStep%ch.loopLen!==0)return;
 ch.loopStartTime=time;
+// Start recording if armed
 if(ch.armed&&!ch.recording){
 ch.recording=true;
-ch.events=[];
-// Auto-disarm (one-shot recording)
+// In overdub mode with existing content, DON'T clear events
+if(!ch.overdub||!ch.hasContent){ch.events=[];}
 ch.armed=false;
-// Notify UI
 this._notifyNoteSubs('loopRecStart',ci,false);
 }
-});
-}
-// ===== LOOPER: parallel replay of all non-muted channels with content =====
-if(step===0){
-const stepDur=0.25*(60/this.tempo);
-this.loops.forEach((ch,ci)=>{
-if(ch.events.length===0||ch.recording||ch.muted||ch.volume<=0)return;
+// Replay: skip if empty, muted, or volume=0
+if(ch.events.length===0||ch.muted||ch.volume<=0)return;
+// Skip replay if recording WITHOUT overdub (prevents double-trigger)
+if(ch.recording&&!ch.overdub)return;
+// Solo: if any channel is soloed, only soloed channels play
+if(anySolo&&!ch.solo)return;
 const loopDur=stepDur*ch.loopLen;
 ch.events.forEach(ev=>{
 const fireTime=time+ev.offset;
@@ -514,7 +572,6 @@ if(ch.replayTimerIds.length>500){
 ch.replayTimerIds=ch.replayTimerIds.slice(-200);
 }
 });
-}
 this.stepCallbacks.forEach(cb=>cb(step));
 this.modules.forEach(m=>{if(m.type==='sequencer')m.onClock(step,time);if(m.type==='arpeggiator')m.onClock(step,time);if(m.type==='random')m.onClock(step,time);if(m.type==='drums')m.onClock(step,time);if(m.type==='gross-beat')m.onClock(step,time);if(m.type==='chords')m.onClock(step,time);if(m.type==='percussion')m.onClock(step,time);if(m.type==='automation')m.onClock(step,time);});
 },delay);
@@ -527,7 +584,9 @@ const ch=this.loops[this.selectedLoop];
 if(ch&&ch.recording){
 const stepDur=0.25*(60/this.tempo);
 const loopDur=stepDur*ch.loopLen;
-const offset=((this.ctx.currentTime-ch.loopStartTime)%loopDur+loopDur)%loopDur;
+let offset=((this.ctx.currentTime-ch.loopStartTime)%loopDur+loopDur)%loopDur;
+// Apply quantize if enabled (snap to nearest step grid)
+if(ch.quantize>0){const qStep=stepDur*ch.quantize;offset=Math.round(offset/qStep)*qStep;offset=((offset%loopDur)+loopDur)%loopDur;}
 ch.events.push({type:'on',freq,offset});
 ch.hasContent=true;
 this._notifyNoteSubs('on',freq,false);
@@ -543,7 +602,9 @@ const ch=this.loops[this.selectedLoop];
 if(ch&&ch.recording){
 const stepDur=0.25*(60/this.tempo);
 const loopDur=stepDur*ch.loopLen;
-const offset=((this.ctx.currentTime-ch.loopStartTime)%loopDur+loopDur)%loopDur;
+let offset=((this.ctx.currentTime-ch.loopStartTime)%loopDur+loopDur)%loopDur;
+// Apply quantize if enabled
+if(ch.quantize>0){const qStep=stepDur*ch.quantize;offset=Math.round(offset/qStep)*qStep;offset=((offset%loopDur)+loopDur)%loopDur;}
 ch.events.push({type:'off',freq,offset});
 this._notifyNoteSubs('off',freq,false);
 }
@@ -709,6 +770,34 @@ if(idx<0||idx>=this.loops.length)return;
 this.loops[idx].volume=Math.max(0,Math.min(1,v));
 this._notifyNoteSubs('loopVol',idx,false);
 }
+toggleLoopOverdub(idx){
+if(idx<0||idx>=this.loops.length)return;
+this.loops[idx].overdub=!this.loops[idx].overdub;
+this._notifyNoteSubs('loopOverdub',idx,false);
+}
+toggleLoopSolo(idx){
+if(idx<0||idx>=this.loops.length)return;
+this.loops[idx].solo=!this.loops[idx].solo;
+this._notifyNoteSubs('loopSolo',idx,false);
+}
+cycleLoopQuantize(idx){
+if(idx<0||idx>=this.loops.length)return;
+const cycle=[0,1,2,4];
+const cur=this.loops[idx].quantize||0;
+const ci=cycle.indexOf(cur);
+this.loops[idx].quantize=cycle[(ci+1)%cycle.length];
+this._notifyNoteSubs('loopQuantize',idx,false);
+}
+setLoopLength(idx,len){
+if(idx<0||idx>=this.loops.length)return;
+const valid=[4,8,12,16,24,32,48];
+if(valid.indexOf(len)<0)return;
+this.loops[idx].loopLen=len;
+// Clear pending replay timers since loop structure changed
+this.loops[idx].replayTimerIds.forEach(id=>clearTimeout(id));
+this.loops[idx].replayTimerIds=[];
+this._notifyNoteSubs('loopLen',idx,false);
+}
 // Legacy back-compat (used by older UI code that may still call these)
 armMidiRec(){this.armLoop(this.selectedLoop);}
 disarmMidiRec(){this.disarmLoop(this.selectedLoop);}
@@ -738,7 +827,7 @@ case 'noise':{const bs=ctx.sampleRate*4;const buf=makeNoiseBuffer(ctx,4,'white')
 case 'envelope':{const e=ctx.createGain();e.gain.value=0;this.audioNodes.env=e;this.outputNodes.cv=e;this._envState='idle';break;}
 case 'filter':{const f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=5000;f.Q.value=1;this.audioNodes.filter=f;this.inputNodes.audio=ctx.createGain();this.inputNodes.audio.connect(f);this.inputNodes.cutoff_cv=ctx.createGain();this.inputNodes.cutoff_cv.gain.value=0;this.inputNodes.cutoff_cv.connect(f.frequency);this.inputNodes.res_cv=ctx.createGain();this.inputNodes.res_cv.gain.value=0;this.inputNodes.res_cv.connect(f.Q);this.outputNodes.audio=f;break;}
 case 'gain':{const g=ctx.createGain();g.gain.value=1;this.audioNodes.gain=g;this.inputNodes.audio=ctx.createGain();this.inputNodes.audio.connect(g);this.inputNodes.cv=ctx.createGain();this.inputNodes.cv.gain.value=0;this.inputNodes.cv.connect(g.gain);this.outputNodes.audio=g;break;}
-case 'mixer':{const g1=ctx.createGain();g1.gain.value=1;const g2=ctx.createGain();g2.gain.value=1;const g3=ctx.createGain();g3.gain.value=1;const g4=ctx.createGain();g4.gain.value=1;const mx=ctx.createGain();mx.gain.value=0.5;g1.connect(mx);g2.connect(mx);g3.connect(mx);g4.connect(mx);this.inputNodes.in1=g1;this.inputNodes.in2=g2;this.inputNodes.in3=g3;this.inputNodes.in4=g4;this.audioNodes.mix=mx;this.outputNodes.audio=mx;break;}
+case 'mixer':{const g1=ctx.createGain();g1.gain.value=0.75;const g2=ctx.createGain();g2.gain.value=0.75;const g3=ctx.createGain();g3.gain.value=0.75;const g4=ctx.createGain();g4.gain.value=0.75;const mx=ctx.createGain();mx.gain.value=0.22;g1.connect(mx);g2.connect(mx);g3.connect(mx);g4.connect(mx);this.inputNodes.in1=g1;this.inputNodes.in2=g2;this.inputNodes.in3=g3;this.inputNodes.in4=g4;this.audioNodes.mix=mx;this.outputNodes.audio=mx;break;}
 case 'delay':{const inp=ctx.createGain();const del=ctx.createDelay(2);del.delayTime.value=0.3;const fb=ctx.createGain();fb.gain.value=0.4;const wet=ctx.createGain();wet.gain.value=0.5;const dry=ctx.createGain();dry.gain.value=0.5;const out=ctx.createGain();inp.connect(dry);inp.connect(del);del.connect(fb);fb.connect(del);del.connect(wet);dry.connect(out);wet.connect(out);this.audioNodes.delay=del;this.audioNodes.fb=fb;this.audioNodes.wet=wet;this.audioNodes.dry=dry;this.inputNodes.audio=inp;this.inputNodes.time_cv=ctx.createGain();this.inputNodes.time_cv.gain.value=0.5;this.inputNodes.time_cv.connect(del.delayTime);this.inputNodes.fb_cv=ctx.createGain();this.inputNodes.fb_cv.gain.value=1;this.inputNodes.fb_cv.connect(fb.gain);this.outputNodes.audio=out;break;}
 case 'reverb':{const inp=ctx.createGain();const conv=ctx.createConvolver();conv.buffer=this._makeIR(2,2);const wet=ctx.createGain();wet.gain.value=0.5;const dry=ctx.createGain();dry.gain.value=0.5;const out=ctx.createGain();inp.connect(dry);inp.connect(conv);conv.connect(wet);dry.connect(out);wet.connect(out);this.audioNodes.conv=conv;this.audioNodes.wet=wet;this.audioNodes.dry=dry;this.inputNodes.audio=inp;this.inputNodes.mix_cv=ctx.createGain();this.inputNodes.mix_cv.gain.value=1;this.inputNodes.mix_cv.connect(wet.gain);this.outputNodes.audio=out;break;}
 
@@ -761,7 +850,7 @@ case 'bitcrusher':{const inp=ctx.createGain();const proc=ctx.createScriptProcess
 case 'gross-beat':{const inp=ctx.createGain();const gate=ctx.createGain();gate.gain.value=1;const wet=ctx.createGain();wet.gain.value=0.7;const dry=ctx.createGain();dry.gain.value=0.3;const out=ctx.createGain();inp.connect(dry);inp.connect(gate);gate.connect(wet);dry.connect(out);wet.connect(out);this.audioNodes={gate,wet,dry};this.inputNodes.audio=inp;this.inputNodes.clock=ctx.createGain();this.inputNodes.mix_cv=ctx.createGain();this.inputNodes.mix_cv.gain.value=1;this.inputNodes.mix_cv.connect(wet.gain);this.outputNodes.audio=out;this._gbStep=-1;this._gbPattern=[1,0,0,0,1,0,1,0,1,0,0,1,0,0,1,0];break;}
 
 // ===== NEW: DRUMS =====
-case 'drums':{this._pattern={kick:Array(16).fill(false).map((_,i)=>i%4===0),snare:Array(16).fill(false).map((_,i)=>i%4===2),hihat:Array(16).fill(false).map((_,i)=>i%2===0)};this._currentStep=-1;const mix=ctx.createGain();mix.gain.value=0.8;this.audioNodes.mix=mix;this.inputNodes.clock=ctx.createGain();this.inputNodes.reset=ctx.createGain();this.outputNodes.audio=mix;break;}
+case 'drums':{this._pattern={kick:Array(16).fill(false).map((_,i)=>i%4===0),snare:Array(16).fill(false).map((_,i)=>i%4===2),hihat:Array(16).fill(false).map((_,i)=>i%2===0)};this._currentStep=-1;const mix=ctx.createGain();mix.gain.value=0.5;this.audioNodes.mix=mix;this.inputNodes.clock=ctx.createGain();this.inputNodes.reset=ctx.createGain();this.outputNodes.audio=mix;break;}
 
 // ===== NEW: ORGAN =====
 case 'organ':{const harmonics=[0.5,1,2,3,4,6,8];const oscs=[];const gains=[];const mix=ctx.createGain();mix.gain.value=0.12;const defaultDrawbars=[0.6,0.8,0.5,0.3,0.2,0.1,0.05];harmonics.forEach((h,i)=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=440*h;const g=ctx.createGain();g.gain.value=0;o.connect(g);g.connect(mix);o.start();oscs.push(o);gains.push(g);});this.audioNodes={oscs,gains,mix};this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._organHarmonics=harmonics;this._organBaseFreq=440;this.outputNodes.audio=mix;break;}
@@ -770,7 +859,7 @@ case 'organ':{const harmonics=[0.5,1,2,3,4,6,8];const oscs=[];const gains=[];con
 case 'piano':{
 // ===== POLYPHONIC PIANO =====
 const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=5000;filt.Q.value=0.7;
-const masterGain=ctx.createGain();masterGain.gain.value=0.35;
+const masterGain=ctx.createGain();masterGain.gain.value=0.25;
 filt.connect(masterGain);
 this.audioNodes={filt,masterGain};
 this.inputNodes.note=ctx.createGain();
@@ -786,7 +875,7 @@ break;}
 case 'rhodes':{
 // ===== POLYPHONIC RHODES (FM electric piano) =====
 const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=3000;filt.Q.value=0.5;
-const masterGain=ctx.createGain();masterGain.gain.value=0.5;
+const masterGain=ctx.createGain();masterGain.gain.value=0.32;
 // Tremolo LFO (always running, modulates master gain)
 const tremLfo=ctx.createOscillator();tremLfo.type='sine';tremLfo.frequency.value=4;
 const tremGain=ctx.createGain();tremGain.gain.value=0.15; // depth
@@ -806,7 +895,7 @@ this._voiceSeq=0;
 break;}
 
 // ===== NEW: BASS =====
-case 'bass':{const osc=ctx.createOscillator();osc.type='sawtooth';osc.frequency.value=110;const sub=ctx.createOscillator();sub.type='sine';sub.frequency.value=55;const oscG=ctx.createGain();oscG.gain.value=0;const subG=ctx.createGain();subG.gain.value=0;const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=400;filt.Q.value=2;const drive=ctx.createWaveShaper();drive.curve=makeDistCurve(10);drive.oversample='4x';const mix=ctx.createGain();mix.gain.value=0.5;osc.connect(oscG);sub.connect(subG);oscG.connect(filt);subG.connect(filt);filt.connect(drive);drive.connect(mix);osc.start();sub.start();this.audioNodes={osc,sub,oscG,subG,filt,drive,mix};this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._bassBaseFreq=110;this.outputNodes.audio=mix;break;}
+case 'bass':{const osc=ctx.createOscillator();osc.type='sawtooth';osc.frequency.value=110;const sub=ctx.createOscillator();sub.type='sine';sub.frequency.value=55;const oscG=ctx.createGain();oscG.gain.value=0;const subG=ctx.createGain();subG.gain.value=0;const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=400;filt.Q.value=2;const drive=ctx.createWaveShaper();drive.curve=makeDistCurve(10);drive.oversample='4x';const mix=ctx.createGain();mix.gain.value=0.32;osc.connect(oscG);sub.connect(subG);oscG.connect(filt);subG.connect(filt);filt.connect(drive);drive.connect(mix);osc.start();sub.start();this.audioNodes={osc,sub,oscG,subG,filt,drive,mix};this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._bassBaseFreq=110;this.outputNodes.audio=mix;break;}
 
 // ===== NEW: CHORDS =====
 case 'chords':{this._heldNotes=[];this._chordIndex=0;this._chordSemitones=[0,4,7,12];break;}
@@ -864,10 +953,10 @@ case 'ping-pong':{const inp=ctx.createGain();const delL=ctx.createDelay(2);delL.
 case 'shimmer':{
 const inp=ctx.createGain();
 const summer=ctx.createGain();summer.gain.value=1;
-const conv=ctx.createConvolver();conv.buffer=this._makeIR(4,2);
+const conv=ctx.createConvolver();conv.buffer=this._makeIR(2,2);
 const dry=ctx.createGain();dry.gain.value=0.5;
 const wet=ctx.createGain();wet.gain.value=0.5;
-const fb=ctx.createGain();fb.gain.value=0.36;
+const fb=ctx.createGain();fb.gain.value=0.22;
 const out=ctx.createGain();
 // Pitch shifter (granular)
 const pitchProc=ctx.createScriptProcessor(4096,1,1);
@@ -878,16 +967,20 @@ pitchProc.onaudioprocess=function(e){
 const inD=e.inputBuffer.getChannelData(0);const outD=e.outputBuffer.getChannelData(0);
 const ratio=Math.pow(2,(shThis.params.pitch||12)/12);
 for(let i=0;i<inD.length;i++){
-psBuf[psWrite]=inD[i];psWrite=(psWrite+1)%8192;
+// Sanitize input — guard against NaN/Infinity from feedback loop
+const inSamp=isFinite(inD[i])?Math.max(-1,Math.min(1,inD[i])):0;
+psBuf[psWrite]=inSamp;psWrite=(psWrite+1)%8192;
 const idx=Math.floor(psRead);const fr=psRead-idx;
-const s1=psBuf[idx];const s2=psBuf[(idx+1)%8192];
+const s1=psBuf[idx]||0;const s2=psBuf[(idx+1)%8192]||0;
 let s=s1*(1-fr)+s2*fr;
-// Crossfade window to reduce glitches
-const win=Math.sin(psPhase*0.5)*0.5+0.5;
+// Sanitize output
+if(!isFinite(s))s=0;
+s=Math.max(-1,Math.min(1,s));
 outD[i]=s*0.85;
 psRead=(psRead+ratio)%8192;
 psPhase=(psPhase+ratio*0.5)%6.2831853;
-if(((psWrite-psRead+8192)%8192)<200)psRead=psWrite-200;
+// Wrap-safe reset: never let psRead go negative
+if(((psWrite-psRead+8192)%8192)<200)psRead=(psWrite-200+8192)%8192;
 }
 };
 summer.connect(pitchProc);pitchProc.connect(conv);
@@ -1179,9 +1272,9 @@ _setPluckFreq(freq,time){this._pluckBaseFreq=freq;}
 // ===== CHORDS: handle note input =====
 _onChordNote(freq){if(!this._heldNotes.includes(freq)){this._heldNotes.push(freq);this._heldNotes.sort((a,b)=>a-b);}}
 
-_playStep(step,time){const ls=step%24;this._currentStep=ls;const s=this._steps[ls];if(s&&s.active){app.fireConnectionEvent(this,'note',s.freq,time);app.fireConnectionEvent(this,'gate',1,time);const dur=0.25*(60/this.engine.tempo)*0.8;setTimeout(()=>app.fireConnectionEvent(this,'gate',0,this.engine.ctx.currentTime),Math.max(0,(time+dur-this.engine.ctx.currentTime)*1000));}if(this.el){this.el.querySelectorAll('.seq-step').forEach((el,i)=>el.classList.toggle('current',i===ls));}}
+_playStep(step,time){const ls=step%24;this._currentStep=ls;const s=this._steps[ls];if(s&&s.active){app.fireConnectionEvent(this,'note',s.freq,time);app.fireConnectionEvent(this,'gate',1,time);const dur=0.25*(60/this.engine.tempo)*0.8;const myStep=step;setTimeout(()=>{if(!this.engine.isPlaying)return;app.fireConnectionEvent(this,'gate',0,this.engine.ctx.currentTime);},Math.max(0,(time+dur-this.engine.ctx.currentTime)*1000));}if(this.el){this.el.querySelectorAll('.seq-step').forEach((el,i)=>el.classList.toggle('current',i===ls));}}
 
-_arpTick(step,time){if(!this._heldNotes.length)return;const rate=this.params.rate||2;this._subStep++;if(this._subStep<Math.round(4/rate))return;this._subStep=0;const pat=this.params.pattern||'up';const octs=this.params.octaves||1;const notes=this._heldNotes;const len=notes.length*octs;if(!len)return;let idx;if(pat==='up')idx=this._arpStep%len;else if(pat==='down')idx=(len-1)-(this._arpStep%len);else if(pat==='up-down'){const fl=len*2-2;const p=this._arpStep%Math.max(1,fl);idx=p<len?p:fl-p;}else idx=Math.floor(Math.random()*len);const ni=idx%notes.length;const os=Math.floor(idx/notes.length);const freq=notes[ni]*Math.pow(2,os);this._arpStep++;app.fireConnectionEvent(this,'note',freq,time);app.fireConnectionEvent(this,'gate',1,time);const gl=(this.params.gate_len||0.8)*0.25*(60/this.engine.tempo);setTimeout(()=>app.fireConnectionEvent(this,'gate',0,this.engine.ctx.currentTime),Math.max(0,(time+gl-this.engine.ctx.currentTime)*1000));}
+_arpTick(step,time){if(!this._heldNotes.length)return;const rate=this.params.rate||2;this._subStep++;if(this._subStep<Math.round(4/rate))return;this._subStep=0;const pat=this.params.pattern||'up';const octs=this.params.octaves||1;const notes=this._heldNotes;const len=notes.length*octs;if(!len)return;let idx;if(pat==='up')idx=this._arpStep%len;else if(pat==='down')idx=(len-1)-(this._arpStep%len);else if(pat==='up-down'){const fl=len*2-2;const p=this._arpStep%Math.max(1,fl);idx=p<len?p:fl-p;}else idx=Math.floor(Math.random()*len);const ni=idx%notes.length;const os=Math.floor(idx/notes.length);const freq=notes[ni]*Math.pow(2,os);this._arpStep++;app.fireConnectionEvent(this,'note',freq,time);app.fireConnectionEvent(this,'gate',1,time);const gl=(this.params.gate_len||0.8)*0.25*(60/this.engine.tempo);setTimeout(()=>{if(!this.engine.isPlaying)return;app.fireConnectionEvent(this,'gate',0,this.engine.ctx.currentTime);},Math.max(0,(time+gl-this.engine.ctx.currentTime)*1000));}
 
 _randomTick(step,time){if(Math.random()>(this.params.prob||0.5))return;const mode=this.params.mode||'random';const mn=this.params.min||0;const mx=this.params.max||1;let v;if(mode==='random')v=mn+Math.random()*(mx-mn);else if(mode==='walk'){this._walkVal+=(Math.random()-0.5)*0.15;this._walkVal=Math.max(mn,Math.min(mx,this._walkVal));v=this._walkVal;}else v=mn+Math.random()*(mx-mn);this._lastVal=v;if(this.audioNodes.src)this.audioNodes.src.offset.setTargetAtTime(v,this.engine.ctx.currentTime,0.005);app.fireConnectionEvent(this,'trigger',1,time);}
 
@@ -1253,7 +1346,7 @@ this._chordIndex++;
 app.fireConnectionEvent(this,'note',freq,time);
 app.fireConnectionEvent(this,'gate',1,time);
 const dur=0.25*(60/this.engine.tempo)*0.8;
-setTimeout(()=>app.fireConnectionEvent(this,'gate',0,this.engine.ctx.currentTime),Math.max(0,(time+dur-this.engine.ctx.currentTime)*1000));
+setTimeout(()=>{if(!this.engine.isPlaying)return;app.fireConnectionEvent(this,'gate',0,this.engine.ctx.currentTime);},Math.max(0,(time+dur-this.engine.ctx.currentTime)*1000));
 }
 
 // ===== PERCUSSION: clock tick =====
@@ -2093,13 +2186,12 @@ strip.appendChild(num);
 // LED
 const led=document.createElement('div');led.className='ch-led';
 strip.appendChild(led);
-// REC button
+// REC button (full width)
 const recBtn=document.createElement('button');recBtn.className='ch-btn rec';recBtn.textContent='REC';
 recBtn.title='Arm recording on channel '+(i+1)+'. Recording starts on next loop point.';
 recBtn.addEventListener('click',e=>{
 e.stopPropagation();
 const armed=this.engine.toggleLoopArm(i);
-// Auto-start transport if not playing
 if(armed&&!this.engine.isPlaying){
 this.engine.resume();this.engine.startTransport();
 document.getElementById('btn-play').classList.add('active');
@@ -2108,11 +2200,38 @@ this.modules.forEach(m=>{if(m.type==='automation'&&m._updateHint)m._updateHint()
 this._updateLooperUI();
 });
 strip.appendChild(recBtn);
-// MUTE button
+// MUTE + SOLO row
+const muteSoloRow=document.createElement('div');muteSoloRow.className='ch-btns-row';
 const muteBtn=document.createElement('button');muteBtn.className='ch-btn mute';muteBtn.textContent='MUTE';
 muteBtn.title='Mute/unmute loop playback on channel '+(i+1);
 muteBtn.addEventListener('click',e=>{e.stopPropagation();this.engine.toggleLoopMute(i);this._updateLooperUI();});
-strip.appendChild(muteBtn);
+const soloBtn=document.createElement('button');soloBtn.className='ch-btn solo';soloBtn.textContent='SOLO';
+soloBtn.title='Solo channel '+(i+1)+' — all other channels are silenced';
+soloBtn.addEventListener('click',e=>{e.stopPropagation();this.engine.toggleLoopSolo(i);this._updateLooperUI();});
+muteSoloRow.appendChild(muteBtn);muteSoloRow.appendChild(soloBtn);
+strip.appendChild(muteSoloRow);
+// OD + Q row
+const odQRow=document.createElement('div');odQRow.className='ch-btns-row';
+const odBtn=document.createElement('button');odBtn.className='ch-btn od';odBtn.textContent='OD';
+odBtn.title='Overdub mode: when ON, recording adds notes to the existing loop instead of replacing it';
+odBtn.addEventListener('click',e=>{e.stopPropagation();this.engine.toggleLoopOverdub(i);this._updateLooperUI();});
+const qBtn=document.createElement('button');qBtn.className='ch-btn q';qBtn.textContent='Q';
+qBtn.title='Quantize: click to cycle OFF → 1/16 → 1/8 → 1/4. Snaps recorded notes to grid.';
+qBtn.addEventListener('click',e=>{e.stopPropagation();this.engine.cycleLoopQuantize(i);this._updateLooperUI();});
+odQRow.appendChild(odBtn);odQRow.appendChild(qBtn);
+strip.appendChild(odQRow);
+// LEN dropdown
+const lenLabel=document.createElement('div');lenLabel.className='ch-len-label';lenLabel.textContent='LEN';
+strip.appendChild(lenLabel);
+const lenSel=document.createElement('select');lenSel.className='ch-len';
+[4,8,12,16,24,32,48].forEach(l=>{
+const opt=document.createElement('option');opt.value=l;opt.textContent=l;
+if(l===24)opt.selected=true;
+lenSel.appendChild(opt);
+});
+lenSel.title='Loop length in steps (1 step = 1/16 note). Different lengths create polyrhythms.';
+lenSel.addEventListener('change',e=>{e.stopPropagation();this.engine.setLoopLength(i,parseInt(e.target.value));this._updateLooperUI();});
+strip.appendChild(lenSel);
 // Vertical fader
 const faderWrap=document.createElement('div');faderWrap.className='ch-fader-wrap';
 const track=document.createElement('div');track.className='ch-fader-track';
@@ -2143,7 +2262,7 @@ const count=document.createElement('div');count.className='ch-count';count.textC
 strip.appendChild(count);
 // Click anywhere on strip (except buttons) to select
 strip.addEventListener('click',e=>{
-if(e.target===num||e.target===recBtn||e.target===muteBtn||e.target===track||e.target===fill||e.target===thumb)return;
+if(e.target===num||e.target===recBtn||e.target===muteBtn||e.target===soloBtn||e.target===odBtn||e.target===qBtn||e.target===lenSel||e.target===track||e.target===fill||e.target===thumb)return;
 this.engine.selectLoop(i);this._updateLooperUI();
 });
 // Clear button (small × at bottom)
@@ -2152,7 +2271,7 @@ clrBtn.title='Clear recorded loop on channel '+(i+1);
 clrBtn.addEventListener('click',e=>{e.stopPropagation();this.engine.clearLoop(i);this._updateLooperUI();});
 strip.appendChild(clrBtn);
 console_el.appendChild(strip);
-this._looperEls.push({strip,num,led,recBtn,muteBtn,track,fill,thumb,status,count,clrBtn});
+this._looperEls.push({strip,num,led,recBtn,muteBtn,soloBtn,odBtn,qBtn,lenSel,track,fill,thumb,status,count,clrBtn});
 }
 // Initial selection
 this.engine.selectLoop(0);
@@ -2160,34 +2279,49 @@ this._updateLooperUI();
 }
 _updateLooperUI(){
 if(!this._looperEls)return;
+const anySolo=this.engine.loops.some(c=>c.solo);
 this.engine.loops.forEach((ch,i)=>{
 const els=this._looperEls[i];if(!els)return;
 // Selected state
 els.strip.classList.toggle('selected',this.engine.selectedLoop===i);
 // Recording state
 els.strip.classList.toggle('recording',ch.recording);
-// Muted state
-els.strip.classList.toggle('muted',ch.muted);
+// Muted state (or implicitly muted by solo)
+const implicitMute=ch.muted||(anySolo&&!ch.solo);
+els.strip.classList.toggle('muted',implicitMute);
 // LED states (priority: recording > armed > playing > empty)
 els.led.className='ch-led';
 if(ch.recording){els.led.classList.add('recording');}
 else if(ch.armed){els.led.classList.add('armed');}
-else if(ch.hasContent&&ch.events.length>0&&!ch.muted){els.led.classList.add('playing');}
+else if(ch.hasContent&&ch.events.length>0&&!implicitMute){els.led.classList.add('playing');}
 // REC button state
 els.recBtn.classList.toggle('armed',ch.armed||ch.recording);
 // Mute button state
 els.muteBtn.classList.toggle('active',ch.muted);
+// Solo button state
+els.soloBtn.classList.toggle('active',ch.solo);
+// OD button state
+els.odBtn.classList.toggle('active',ch.overdub);
+// Q button state — show current quantize value
+const qLabels={0:'Q',1:'16',2:'8',4:'4'};
+els.qBtn.textContent=qLabels[ch.quantize||0];
+els.qBtn.classList.toggle('active',ch.quantize>0);
+// LEN dropdown
+els.lenSel.value=String(ch.loopLen);
 // Fader position
 const volPct=Math.round((ch.volume||0)*100);
 els.fill.style.height=volPct+'%';
 els.thumb.style.bottom=volPct+'%';
 // Status text
 if(ch.recording){
-els.status.textContent='● REC';els.status.className='ch-status rec';
+const odTxt=ch.overdub?' ● OD':'';
+els.status.textContent='● REC'+odTxt;els.status.className='ch-status rec';
 }else if(ch.armed){
-els.status.textContent='ARMED';els.status.className='ch-status rec';
+const odTxt=ch.overdub?' OD':'';
+els.status.textContent='ARMED'+odTxt;els.status.className='ch-status rec';
 }else if(ch.events.length>0){
 if(ch.muted){els.status.textContent='MUTED';els.status.className='ch-status';}
+else if(anySolo&&!ch.solo){els.status.textContent='SOLOED';els.status.className='ch-status';}
 else{els.status.textContent='LOOP';els.status.className='ch-status loop';}
 }else{
 els.status.textContent='empty';els.status.className='ch-status';
@@ -2251,14 +2385,14 @@ this.addConnection(seq.id,'note',bass.id,'note');this.addConnection(seq.id,'gate
 this.addConnection(mix.id,'audio',dly.id,'audio');this.addConnection(dly.id,'audio',rvb.id,'audio');
 this.addConnection(rvb.id,'audio',out.id,'audio_l');this.addConnection(rvb.id,'audio',out.id,'audio_r');
 this.addConnection(rnd.id,'cv',dly.id,'time_cv');
-oscA.setParam('wave','sawtooth');oscB.setParam('wave','triangle');oscB.setParam('detune',7);
+oscA.setParam('wave','sawtooth');oscB.setParam('wave','triangle');oscB.setParam('detune',5);
 flt.setParam('cutoff',3000);flt.setParam('resonance',3);
 lfo.setParam('rate',0.5);lfo.setParam('depth',2000);
-dly.setParam('time',0.35);dly.setParam('feedback',0.3);dly.setParam('mix',0.4);
-rvb.setParam('decay',3);rvb.setParam('mix',0.3);
+dly.setParam('time',0.35);dly.setParam('feedback',0.22);dly.setParam('mix',0.32);
+rvb.setParam('decay',3);rvb.setParam('mix',0.22);
 rnd.setParam('mode','walk');arp.setParam('pattern','up');arp.setParam('rate',2);
-phaser.setParam('rate',0.3);phaser.setParam('depth',2000);phaser.setParam('mix',0.4);
-bass.setParam('wave','sawtooth');bass.setParam('cutoff',500);bass.setParam('drive',0.3);bass.setParam('sub',0.5);
+phaser.setParam('rate',0.3);phaser.setParam('depth',2000);phaser.setParam('mix',0.3);
+bass.setParam('wave','sawtooth');bass.setParam('cutoff',500);bass.setParam('drive',0.2);bass.setParam('sub',0.4);
 
 // ===== NEW MODULES: percussion, shimmer, automation =====
 const perc=this.addModule('percussion',40,840);
@@ -2282,13 +2416,13 @@ this.addConnection(noteIn.id,'gate',chordsMod.id,'gate');
 // Percussion: route to output directly (parallel to mixer)
 // We'll create a small gain to combine
 const percGain=this.addModule('gain',280,840);
-percGain.setParam('gain',0.7);
+percGain.setParam('gain',0.4);
 this.addConnection(perc.id,'audio',percGain.id,'audio');
 this.addConnection(percGain.id,'audio',out.id,'audio_l');
 
 // Set params for new modules
-perc.setParam('master_vol',0.6);
-shimmer.setParam('pitch',12);shimmer.setParam('decay',5);shimmer.setParam('feedback',0.4);shimmer.setParam('mix',0.4);
+perc.setParam('master_vol',0.4);
+shimmer.setParam('pitch',12);shimmer.setParam('decay',2.5);shimmer.setParam('feedback',0.22);shimmer.setParam('mix',0.3);
 auto.setParam('length',16);auto.setParam('shape','smooth');auto.setParam('slew',0.05);auto.setParam('depth',0.8);
 chordsMod.setParam('progression','I-V-vi-IV');chordsMod.setParam('chord','maj7');chordsMod.setParam('rate',1);chordsMod.setParam('prog_len',4);
 
@@ -2298,7 +2432,7 @@ this.addConnection(noteIn.id,'note',rhodes.id,'note');
 this.addConnection(noteIn.id,'gate',rhodes.id,'gate');
 // Route rhodes to mixer channel (parallel to other synths)
 const rhodesGain=this.addModule('gain',1080,640);
-rhodesGain.setParam('gain',0.6);
+rhodesGain.setParam('gain',0.4);
 this.addConnection(rhodes.id,'audio',rhodesGain.id,'audio');
 this.addConnection(rhodesGain.id,'audio',mix.id,'in1');
 // Move existing in1 (oscA) to a spare mixer input? Mixer only has 4 channels.
