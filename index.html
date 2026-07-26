@@ -337,8 +337,7 @@ body.learn-active .palette * { cursor: crosshair !important; }
     <header>
         <h1>ibonarium musica<span class="brand-xiii">XIII</span></h1>
         <div class="hdr-controls">
-            <div class="master-vol"><span>VOL</span><input type="range" id="master-vol" min="0" max="100" value="60"></div>
-            <button id="btn-power">POWER</button>
+            <div class="master-vol"><span>VOL</span><input type="range" id="master-vol" min="0" max="100" value="80"></div>
             <button id="btn-clean">CLEAN</button>
             <button id="btn-test">TEST</button>
             <span style="color:var(--text-dim);font-size:9px;font-family:var(--font-mono)">BPM</span>
@@ -386,7 +385,7 @@ body.learn-active .palette * { cursor: crosshair !important; }
                 <button id="btn-stop" class="tp-btn tp-stop" title="Stop transport">■</button>
             </div>
             <div class="transport-row">
-                <div class="master-mini"><span>VOL</span><input type="range" id="master-vol" min="0" max="100" value="60"></div>
+                <div class="master-mini"><span>VOL</span><input type="range" id="master-vol" min="0" max="100" value="80"></div>
             </div>
             <div class="transport-row">
                 <span style="font-family:var(--font-mono);font-size:8px;color:var(--text-dim)">BPM</span>
@@ -460,6 +459,9 @@ const MODULE_DEFS={
 'wavetable':{name:'Wavetable',color:'#22ddff',cat:'Source',desc:'Wavetable oscillator',inputs:[{id:'freq',name:'FREQ',type:'note'},{id:'morph_cv',name:'MORPH',type:'cv'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'wave',name:'WAVE',type:'select',options:['sine','triangle','sawtooth','square','organ','pad'],default:'sine'},{id:'morph',name:'MORPH',type:'range',min:0,max:1,default:0,unit:''},{id:'detune',name:'DETUNE',type:'range',min:-100,max:100,default:0,unit:'ct'},{id:'octave',name:'OCT',type:'range',min:-3,max:3,default:0,step:1,unit:''}]},
 'granular':{name:'Granular',color:'#ff88ff',cat:'Source',desc:'Granular processor',inputs:[{id:'audio',name:'IN',type:'audio'},{id:'trigger',name:'TRIG',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'grain_size',name:'SIZE',type:'range',min:10,max:500,default:80,unit:'ms'},{id:'density',name:'DENS',type:'range',min:1,max:30,default:10,unit:'/s'},{id:'spread',name:'SPREAD',type:'range',min:0,max:1,default:0.5,unit:''},{id:'pitch',name:'PITCH',type:'range',min:-2,max:2,default:0,unit:'st'}]},
 'pluck':{name:'Pluck',color:'#aadd44',cat:'Source',desc:'Karplus-Strong pluck',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:0.1,max:5,default:1,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:0,max:1,default:0.5,unit:''},{id:'damping',name:'DAMP',type:'range',min:0,max:1,default:0.3,unit:''},{id:'octave',name:'OCT',type:'range',min:-2,max:2,default:0,step:1,unit:''}]},
+'bell':{name:'Bell',color:'#ffeebb',cat:'Source',desc:'Ambient temple bell (FM, poly)',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:1,max:12,default:6,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:1000,max:8000,default:3000,unit:'Hz'},{id:'strike',name:'STRIKE',type:'range',min:0,max:1,default:0.6,unit:''},{id:'inharmonic',name:'INHARM',type:'range',min:1,max:5,default:2.7,step:0.1,unit:''},{id:'octave',name:'OCT',type:'range',min:-3,max:2,default:-1,step:1,unit:''}]},
+'drone':{name:'Drone',color:'#bb88ff',cat:'Source',desc:'Sustained multi-osc drone',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'wave',name:'WAVE',type:'select',options:['sawtooth','triangle','sine'],default:'sawtooth'},{id:'detune',name:'DETUNE',type:'range',min:0,max:50,default:8,unit:'ct'},{id:'voices',name:'VOICES',type:'range',min:1,max:5,default:3,step:1,unit:''},{id:'cutoff',name:'CUT',type:'range',min:80,max:3000,default:500,unit:'Hz'},{id:'resonance',name:'RES',type:'range',min:0.1,max:15,default:3,unit:''},{id:'swell',name:'SWELL',type:'range',min:0.1,max:8,default:2,unit:'s'},{id:'octave',name:'OCT',type:'range',min:-3,max:1,default:-1,step:1,unit:''}]},
+'kalimba':{name:'Kalimba',color:'#ffcc88',cat:'Source',desc:'Thumb piano (poly, plucked)',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:0.3,max:5,default:1.5,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:1000,max:8000,default:3500,unit:'Hz'},{id:'body',name:'BODY',type:'range',min:0,max:1,default:0.4,unit:''},{id:'octave',name:'OCT',type:'range',min:-2,max:2,default:0,step:1,unit:''}]},
 'mult':{name:'Mult',color:'#888899',cat:'Utility',desc:'Signal splitter 1>4',inputs:[{id:'in',name:'IN',type:'cv'}],outputs:[{id:'out1',name:'OUT 1',type:'cv'},{id:'out2',name:'OUT 2',type:'cv'},{id:'out3',name:'OUT 3',type:'cv'},{id:'out4',name:'OUT 4',type:'cv'}],controls:[]},
 'cv-mixer':{name:'CV Mixer',color:'#9988cc',cat:'Utility',desc:'4-ch CV mixer',inputs:[{id:'in1',name:'CV 1',type:'cv'},{id:'in2',name:'CV 2',type:'cv'},{id:'in3',name:'CV 3',type:'cv'},{id:'in4',name:'CV 4',type:'cv'}],outputs:[{id:'cv',name:'CV',type:'cv'}],controls:[]},
 'slew':{name:'Slew',color:'#88aa88',cat:'Utility',desc:'Slew limiter / portamento',inputs:[{id:'cv',name:'IN',type:'cv'}],outputs:[{id:'cv',name:'OUT',type:'cv'}],controls:[{id:'time',name:'TIME',type:'range',min:0.001,max:5,default:0.05,unit:'s'}]},
@@ -486,7 +488,7 @@ const MODULE_DEFS={
 class AudioEngine{
 constructor(){
 this.ctx=new(window.AudioContext||window.webkitAudioContext)();
-this.masterGain=this.ctx.createGain();this.masterGain.gain.value=0.6;
+this.masterGain=this.ctx.createGain();this.masterGain.gain.value=0.85;
 this.limiter=this.ctx.createDynamicsCompressor();this.limiter.threshold.value=-3;this.limiter.knee.value=6;this.limiter.ratio.value=12;this.limiter.attack.value=0.003;this.limiter.release.value=0.15;
 this.analyser=this.ctx.createAnalyser();this.analyser.fftSize=2048;
 this.masterGain.connect(this.limiter);this.limiter.connect(this.analyser);this.analyser.connect(this.ctx.destination);
@@ -936,6 +938,12 @@ break;}
 case 'granular':{this._grainInterval=null;const inp=ctx.createGain();const out=ctx.createGain();out.gain.value=0.8;const proc=ctx.createScriptProcessor(4096,1,1);const gr=this;proc.onaudioprocess=function(e){const iData=e.inputBuffer.getChannelData(0);const oData=e.outputBuffer.getChannelData(0);for(let i=0;i<iData.length;i++)oData[i]=iData[i]*0.3;};inp.connect(proc);proc.connect(out);this.audioNodes={proc,out,inp};this.inputNodes.audio=inp;this.inputNodes.trigger=ctx.createGain();this.outputNodes.audio=out;this._grainBuf=null;break;}
 // ===== PLUCK =====
 case 'pluck':{const inp=ctx.createGain();const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=4000;filt.Q.value=1;const out=ctx.createGain();out.gain.value=0.8;inp.connect(filt);filt.connect(out);this.audioNodes={filt,out};this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._pluckBaseFreq=440;break;}
+// ===== BELL (polyphonic ambient temple bell — FM synthesis) =====
+case 'bell':{const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=3000;filt.Q.value=0.7;const masterGain=ctx.createGain();masterGain.gain.value=0.5;filt.connect(masterGain);this.audioNodes={filt,masterGain};this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._voices=new Map();this._voiceSeq=0;this._maxVoices=10;this._heldFreqs=new Set();this._lastFreq=440;this.outputNodes.audio=masterGain;break;}
+// ===== DRONE (sustained multi-oscillator drone w/ slow filter) =====
+case 'drone':{const oscs=[];const gains=[];const numV=3;for(let i=0;i<numV;i++){const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=110*(1+(i-1)*0.003);const g=ctx.createGain();g.gain.value=0.32/numV;o.connect(g);o.start();oscs.push(o);gains.push(g);}const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=500;filt.Q.value=3;gains.forEach(g=>g.connect(filt));const vca=ctx.createGain();vca.gain.value=0;filt.connect(vca);const mix=ctx.createGain();mix.gain.value=0.55;vca.connect(mix);const lfo=ctx.createOscillator();lfo.type='sine';lfo.frequency.value=0.07;const lfoG=ctx.createGain();lfoG.gain.value=180;lfo.connect(lfoG);lfoG.connect(filt.frequency);lfo.start();this.audioNodes={oscs,gains,filt,vca,mix,lfo,lfoG};this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._droneBaseFreq=110;this.outputNodes.audio=mix;break;}
+// ===== KALIMBA (polyphonic thumb piano — plucked tine + body resonance) =====
+case 'kalimba':{const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=3500;filt.Q.value=1.2;const body=ctx.createBiquadFilter();body.type='lowpass';body.frequency.value=1200;body.Q.value=2;const masterGain=ctx.createGain();masterGain.gain.value=0.55;filt.connect(masterGain);body.connect(masterGain);this.audioNodes={filt,body,masterGain};this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._voices=new Map();this._voiceSeq=0;this._maxVoices=12;this._heldFreqs=new Set();this._lastFreq=440;this.outputNodes.audio=masterGain;break;}
 // ===== MULT (1 in -> 4 out, any signal type) =====
 case 'mult':{const inp=ctx.createGain();inp.gain.value=1;const o1=ctx.createGain();o1.gain.value=1;const o2=ctx.createGain();o2.gain.value=1;const o3=ctx.createGain();o3.gain.value=1;const o4=ctx.createGain();o4.gain.value=1;inp.connect(o1);inp.connect(o2);inp.connect(o3);inp.connect(o4);this.inputNodes.in=inp;this.outputNodes.out1=o1;this.outputNodes.out2=o2;this.outputNodes.out3=o3;this.outputNodes.out4=o4;break;}
 // ===== CV MIXER =====
@@ -1078,6 +1086,9 @@ case 'shimmer':if(id==='decay')this.audioNodes.conv.buffer=this._makeIR(value,2)
 case 'percussion':if(id==='master_vol'&&this.audioNodes.mix)this.audioNodes.mix.gain.setTargetAtTime(value,t,0.02);break;
 case 'automation':if(id==='length')this._length=Math.max(2,Math.min(32,Math.round(value)));break;
 case 'pluck':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);if(id==='damping')this._pluckDamping=value;break;
+case 'bell':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);break;
+case 'drone':if(id==='wave'&&this.audioNodes.oscs)this.audioNodes.oscs.forEach(o=>o.type=value);if(id==='cutoff'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);if(id==='resonance'&&this.audioNodes.filt)this.audioNodes.filt.Q.setTargetAtTime(value,t,0.02);break;
+case 'kalimba':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);break;
 case 'slew':if(id==='time')this._slewTime=value;break;
 case 'quantizer':if(id==='scale')this._quantScale=value;if(id==='root')this._quantRoot=value;break;
 case 'clock-div':if(id==='divide')this._clkDiv=value;break;
@@ -1110,6 +1121,9 @@ if(this.type==='rhodes'){this._heldFreqs=this._heldFreqs||new Set();this._heldFr
 if(this.type==='bass')this._setBassFreq(freq,time);
 if(this.type==='chords')this._onChordNote(freq);
 if(this.type==='pluck')this._setPluckFreq(freq,time);
+if(this.type==='bell'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='kalimba'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='drone')this._setDroneFreq(freq,time);
 if(this.type==='wavetable'&&this.audioNodes.osc){const oct=this.params.octave||0;const det=(this.params.detune||0)/1200;const f=freq*Math.pow(2,oct+det);this._wtBaseFreq=f;this.audioNodes.osc.frequency.setTargetAtTime(f,time||this.engine.ctx.currentTime,0.01);}
 if(this.type==='shimmer'&&this.inputNodes.pitch_cv){/* pitch handled by param; cv adds offset */}
 if(this.type==='slew'&&this.audioNodes.src){const prev=this._slewVal;this._slewVal=freq/440;const slewTime=this.params.time||0.05;this.audioNodes.src.offset.setTargetAtTime(this._slewVal,time||this.engine.ctx.currentTime,Math.max(0.001,slewTime/3));}
@@ -1127,6 +1141,9 @@ if(this.type==='envelope'){const env=this.audioNodes.env;if(value>0){const atk=M
 if(this.type==='organ'){const gs=this.audioNodes.gains;if(value>0){const drawIds=['d16','d8','d4','d223','d2','d113','d1'];gs.forEach((g,i)=>{const v=this.params[drawIds[i]]||0;g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+0.005);});}else{gs.forEach(g=>{g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(g.gain.value,t);g.gain.linearRampToValueAtTime(0,t+0.08);});}}
 if(this.type==='piano'){this._polyGate(value,t);}
 if(this.type==='rhodes'){this._polyGate(value,t);}
+if(this.type==='bell'){this._polyGate(value,t);}
+if(this.type==='kalimba'){this._polyGate(value,t);}
+if(this.type==='drone'){const vca=this.audioNodes.vca;if(!vca)return;const swell=Math.max(0.05,this.params.swell||2);if(value>0){vca.gain.cancelScheduledValues(t);vca.gain.setValueAtTime(Math.max(0,vca.gain.value),t);vca.gain.linearRampToValueAtTime(1,t+swell);}else{vca.gain.cancelScheduledValues(t);vca.gain.setValueAtTime(Math.max(0,vca.gain.value),t);vca.gain.linearRampToValueAtTime(0,t+swell);}}
 if(this.type==='bass'){if(value>0){this.audioNodes.oscG.gain.cancelScheduledValues(t);this.audioNodes.oscG.gain.setValueAtTime(0,t);this.audioNodes.oscG.gain.linearRampToValueAtTime(1,t+0.005);this.audioNodes.subG.gain.cancelScheduledValues(t);this.audioNodes.subG.gain.setValueAtTime(0,t);this.audioNodes.subG.gain.linearRampToValueAtTime(this.params.sub||0.5,t+0.005);}else{this.audioNodes.oscG.gain.cancelScheduledValues(t);this.audioNodes.oscG.gain.setValueAtTime(this.audioNodes.oscG.gain.value,t);this.audioNodes.oscG.gain.linearRampToValueAtTime(0,t+0.15);this.audioNodes.subG.gain.cancelScheduledValues(t);this.audioNodes.subG.gain.setValueAtTime(this.audioNodes.subG.gain.value,t);this.audioNodes.subG.gain.linearRampToValueAtTime(0,t+0.15);}}
 if(this.type==='pluck'&&value>0&&this._pluckBaseFreq>0){const ctx=this.engine.ctx;const freq=this._pluckBaseFreq;const dur=this.params.decay||1;const bright=this.params.brightness||0.5;const damp=this.params.damping||0.3;const oct=this.params.octave||0;const f=freq*Math.pow(2,oct);const nLen=Math.floor(ctx.sampleRate*Math.min(4,dur));const buf=ctx.createBuffer(1,Math.max(1,nLen),ctx.sampleRate);const d=buf.getChannelData(0);const period=Math.floor(ctx.sampleRate/f);const bFilt=1-damp*0.5;const first=(bright*0.5+0.5);d[0]=Math.random()*2-1;if(period>1)d[1]=d[0];for(let i=1;i<nLen-1;i++){d[i]=(bFilt*(d[i]+d[i-1]))*Math.pow(1-i/nLen,0.3/first);if(i===period)d[i]*=0.5;}d[0]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const g=ctx.createGain();g.gain.value=0;const tt=ctx.currentTime;g.gain.setValueAtTime(0,tt);g.gain.linearRampToValueAtTime(0.6,tt+0.005);g.gain.exponentialRampToValueAtTime(0.001,tt+dur);src.connect(g);g.connect(this.audioNodes.filt);src.start(tt);src.stop(tt+dur+0.01);}
 if(this.type==='logic'){const mode=this.params.mode||'AND';if(mode==='AND')this._logicOut=(this._logicA>0&&this._logicB>0)?1:0;else if(mode==='OR')this._logicOut=(this._logicA>0||this._logicB>0)?1:0;else if(mode==='XOR')this._logicOut=((this._logicA>0)!==(this._logicB>0))?1:0;else if(mode==='NAND')this._logicOut=(this._logicA>0&&this._logicB>0)?0:1;else this._logicOut=(this._logicA>0||this._logicB>0)?0:1;if(this.audioNodes.src)this.audioNodes.src.offset.setTargetAtTime(this._logicOut,t,0.001);}
@@ -1162,6 +1179,8 @@ _spawnVoice(freq,t){
 const ctx=this.engine.ctx;
 if(this.type==='piano')this._spawnPianoVoice(freq,t);
 else if(this.type==='rhodes')this._spawnRhodesVoice(freq,t);
+else if(this.type==='bell')this._spawnBellVoice(freq,t);
+else if(this.type==='kalimba')this._spawnKalimbaVoice(freq,t);
 }
 _spawnPianoVoice(freq,t){
 const ctx=this.engine.ctx;
@@ -1256,6 +1275,10 @@ voice.voiceGain.gain.exponentialRampToValueAtTime(0.001,t+relTime);
 voice.ampEnv.gain.cancelScheduledValues(t);
 voice.ampEnv.gain.setValueAtTime(voice.ampEnv.gain.value,t);
 voice.ampEnv.gain.exponentialRampToValueAtTime(0.001,t+relTime);
+}else if((this.type==='bell'||this.type==='kalimba')&&voice.voiceGain){
+voice.voiceGain.gain.cancelScheduledValues(t);
+voice.voiceGain.gain.setValueAtTime(Math.max(0.001,voice.voiceGain.gain.value),t);
+voice.voiceGain.gain.exponentialRampToValueAtTime(0.001,t+relTime);
 }
 // Always cleanup this voice's nodes after release (regardless of Map state)
 setTimeout(()=>this._cleanupVoice(voice,this.engine.ctx.currentTime),(relTime+0.1)*1000);
@@ -1264,7 +1287,7 @@ _cleanupVoice(voice,t){
 if(!voice||voice._cleaned)return;
 voice._cleaned=true;
 const stop=[voice.oscs,voice.carrier,voice.modulator,voice.tineSrc];
-const disc=[voice.oscs,voice.voiceGain,voice.carrier,voice.modulator,voice.modGain,voice.ampEnv,voice.tineSrc,voice.tineGain,voice.tineFilt];
+const disc=[voice.oscs,voice.voiceGain,voice.carrier,voice.modulator,voice.modGain,voice.ampEnv,voice.tineSrc,voice.tineGain,voice.tineFilt,voice.extra];
 stop.forEach(n=>{if(Array.isArray(n))n.forEach(x=>{try{x.stop(t+0.05);}catch(e){}});else if(n){try{n.stop(t+0.05);}catch(e){}}});
 setTimeout(()=>{
 disc.forEach(n=>{if(Array.isArray(n))n.forEach(x=>{try{x.disconnect();}catch(e){}});else if(n){try{n.disconnect();}catch(e){}}});
@@ -1286,6 +1309,94 @@ _setPianoFreq(freq,time){const t=time||this.engine.ctx.currentTime;this._pianoBa
 // ===== BASS: set frequency =====
 _setBassFreq(freq,time){const t=time||this.engine.ctx.currentTime;this._bassBaseFreq=freq;const oct=this.params.octave||-1;this.audioNodes.osc.frequency.setTargetAtTime(freq*Math.pow(2,oct),t,0.005);this.audioNodes.sub.frequency.setTargetAtTime(freq*Math.pow(2,oct)*0.5,t,0.005);}
 _setPluckFreq(freq,time){this._pluckBaseFreq=freq;}
+
+// ===== DRONE: set base frequency (updates all oscillators) =====
+_setDroneFreq(freq,time){const t=time||this.engine.ctx.currentTime;this._droneBaseFreq=freq;const oct=this.params.octave||-1;const det=(this.params.detune||8)/1200;const numV=this.audioNodes.oscs?this.audioNodes.oscs.length:3;this.audioNodes.oscs.forEach((o,i)=>{const spread=(i-(numV-1)/2)*det;o.frequency.setTargetAtTime(freq*Math.pow(2,oct)*(1+spread),t,0.01);});}
+
+// ===== BELL voice (FM synthesis: carrier + modulator with inharmonic ratio) =====
+_spawnBellVoice(freq,t){
+const ctx=this.engine.ctx;
+const oct=this.params.octave||-1;
+const f=freq*Math.pow(2,oct);
+const decay=Math.max(1,this.params.decay||6);
+const strikeAmt=this.params.strike!==undefined?this.params.strike:0.6;
+const inharmonic=this.params.inharmonic||2.7;
+// Carrier (sine)
+const carrier=ctx.createOscillator();carrier.type='sine';
+carrier.frequency.value=f;
+// Modulator (sine at inharmonic ratio)
+const modulator=ctx.createOscillator();modulator.type='sine';
+modulator.frequency.value=f*inharmonic;
+const modGain=ctx.createGain();modGain.gain.value=0;
+modulator.connect(modGain);
+modGain.connect(carrier.frequency);
+// Strike envelope (initial FM transient)
+modGain.gain.setValueAtTime(0,t);
+modGain.gain.linearRampToValueAtTime(strikeAmt*f*5,t+0.002);
+modGain.gain.exponentialRampToValueAtTime(0.001,t+0.5);
+// Amp envelope (long exp decay)
+const ampEnv=ctx.createGain();ampEnv.gain.value=0;
+carrier.connect(ampEnv);
+ampEnv.connect(this.audioNodes.filt);
+ampEnv.gain.setValueAtTime(0,t);
+ampEnv.gain.linearRampToValueAtTime(0.5,t+0.003);
+ampEnv.gain.exponentialRampToValueAtTime(0.001,t+decay);
+// Strike noise (subtle attack transient)
+const noiseBuf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.05),ctx.sampleRate);
+const ndata=noiseBuf.getChannelData(0);
+for(let i=0;i<ndata.length;i++)ndata[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.005));
+const noiseSrc=ctx.createBufferSource();noiseSrc.buffer=noiseBuf;
+const noiseGain=ctx.createGain();noiseGain.gain.value=strikeAmt*0.3;
+const noiseFilt=ctx.createBiquadFilter();noiseFilt.type='highpass';noiseFilt.frequency.value=2000;
+noiseSrc.connect(noiseFilt);noiseFilt.connect(noiseGain);noiseGain.connect(this.audioNodes.filt);
+noiseSrc.start(t);
+carrier.start(t);
+const stopAt=t+decay+0.2;
+carrier.stop(stopAt);modulator.stop(stopAt);
+const voice={freq,oscs:[carrier,modulator,noiseSrc],voiceGain:ampEnv,extra:[modGain,noiseGain,noiseFilt],seq:this._voiceSeq++,cleanupAt:stopAt,released:false,cleaned:false};
+this._voices.set(freq,voice);
+const self=this;
+setTimeout(()=>self._cleanupVoice(voice,ctx.currentTime),(decay+0.5)*1000);
+}
+
+// ===== KALIMBA voice (plucked tine + body resonance) =====
+_spawnKalimbaVoice(freq,t){
+const ctx=this.engine.ctx;
+const oct=this.params.octave||0;
+const f=freq*Math.pow(2,oct);
+const decay=Math.max(0.3,this.params.decay||1.5);
+const bodyAmt=this.params.body!==undefined?this.params.body:0.4;
+// Tine: short impulse (Karplus-Strong-style burst)
+const nLen=Math.floor(ctx.sampleRate*Math.min(4,decay*1.5));
+const buf=ctx.createBuffer(1,Math.max(1,nLen),ctx.sampleRate);
+const d=buf.getChannelData(0);
+const period=Math.max(2,Math.floor(ctx.sampleRate/f));
+d[0]=Math.random()*2-1;
+for(let i=1;i<nLen;i++){
+d[i]=(d[i]+d[i-1])*0.5*Math.pow(1-i/nLen,0.6);
+if(i%period===0)d[i]*=0.85;
+}
+const src=ctx.createBufferSource();src.buffer=buf;
+const tineGain=ctx.createGain();tineGain.gain.value=0.55;
+src.connect(tineGain);
+tineGain.connect(this.audioNodes.filt);
+// Body resonance: sine osc with short decay
+const bodyOsc=ctx.createOscillator();bodyOsc.type='sine';
+bodyOsc.frequency.value=f*2;
+const bodyGain=ctx.createGain();bodyGain.gain.value=0;
+bodyOsc.connect(bodyGain);
+bodyGain.connect(this.audioNodes.body);
+bodyGain.gain.setValueAtTime(0,t);
+bodyGain.gain.linearRampToValueAtTime(bodyAmt*0.4,t+0.003);
+bodyGain.gain.exponentialRampToValueAtTime(0.001,t+decay*0.8);
+src.start(t);bodyOsc.start(t);
+const stopAt=t+decay+0.1;
+src.stop(stopAt);bodyOsc.stop(stopAt);
+const voice={freq,oscs:[src,bodyOsc],voiceGain:tineGain,extra:[bodyGain],seq:this._voiceSeq++,cleanupAt:stopAt,released:false,cleaned:false};
+this._voices.set(freq,voice);
+const self=this;
+setTimeout(()=>self._cleanupVoice(voice,ctx.currentTime),(decay+0.3)*1000);
+}
 
 
 // ===== CHORDS: handle note input =====
@@ -2148,6 +2259,8 @@ if(c.type==='gate')toMod.onGateInput(value,time);else if(c.type==='note')toMod.o
 }
 // ===== TRANSPORT =====
 _setupTransport(){
+// Initialize master volume to match the default slider value (0.8)
+this.engine.setMasterVol(0.8);
 document.getElementById('btn-play').addEventListener('click',()=>{
 this.engine.resume();this.engine.startTransport();document.getElementById('btn-play').classList.add('active');
 this.modules.forEach(m=>{if(m.type==='automation'&&m._updateHint)m._updateHint();});
@@ -2181,7 +2294,6 @@ document.querySelectorAll('.pkey.replay-active').forEach(k=>k.classList.remove('
 this._updateLooperUI();
 }
 });
-document.getElementById('btn-power').addEventListener('click',()=>{this.engine.resume();document.getElementById('btn-power').classList.add('active');});
 document.getElementById('btn-clean').addEventListener('click',()=>{this.engine.stopTransport();document.getElementById('btn-play').classList.remove('active');[...this.modules.keys()].forEach(id=>this.removeModule(id));this.connections=[];document.getElementById('cables-svg').querySelectorAll('.cable-group,.cable-temp-path').forEach(e=>e.remove());});
 document.getElementById('btn-test').addEventListener('click',()=>{this.engine.resume().then(()=>{const c=this.engine.ctx;const o=c.createOscillator();o.type='sine';o.frequency.value=440;const g=c.createGain();g.gain.value=0;o.connect(g);g.connect(this.engine.masterGain);const n=c.currentTime;g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(0.3,n+0.02);g.gain.linearRampToValueAtTime(0,n+0.8);o.start(n);o.stop(n+0.85);});});
 const leds=document.getElementById('step-leds');
