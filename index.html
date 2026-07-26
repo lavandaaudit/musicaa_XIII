@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>POLYGRID — Node Modular Synth</title>
+<title>ibonarium musica XIII</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -19,7 +19,9 @@
 html, body { height: 100vh; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-ui); font-size: 12px; user-select: none; }
 #app { display: flex; flex-direction: column; height: 100vh; }
 header { display: flex; align-items: center; justify-content: space-between; padding: 0 12px; height: 34px; flex-shrink: 0; background: var(--panel); border-bottom: 1px solid var(--accent); box-shadow: 0 1px 10px rgba(0,232,162,0.12); }
-header h1 { font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing: 3px; font-weight: 700; }
+header h1 { font-family: var(--font-mono); font-size: 13px; color: var(--accent); letter-spacing: 2.5px; font-weight: 700; text-transform: lowercase; }
+header h1 .brand-xiii { color: var(--text); font-weight: 400; letter-spacing: 1.5px; margin-left: 4px; opacity: 0.7; }
+header h1::before { content: '◈'; color: var(--accent); margin-right: 8px; opacity: 0.6; font-size: 11px; }
 .hdr-controls { display: flex; gap: 5px; align-items: center; }
 .hdr-controls button, .transport button { background: #15151f; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-mono); font-size: 9px; padding: 3px 8px; cursor: pointer; border-radius: 3px; letter-spacing: 1px; transition: all 0.2s; }
 .hdr-controls button:hover, .transport button:hover { border-color: var(--accent); color: var(--accent); }
@@ -221,13 +223,25 @@ body.learn-active .palette * { cursor: crosshair !important; }
 .pkey.rec-flash { box-shadow: 0 0 16px rgba(255,51,102,0.9) !important; filter: brightness(1.3); }
 
 /* Bottom bar */
-.bottom-bar { display: flex; height: 90px; flex-shrink: 0; background: var(--panel); border-top: 1px solid var(--border); }
-.transport { display: flex; align-items: center; gap: 6px; padding: 0 12px; border-right: 1px solid var(--border); min-width: 340px; }
+.bottom-bar { display: flex; flex-direction: column; height: 190px; flex-shrink: 0; background: var(--panel); border-top: 1px solid var(--border); }
+.bottom-main-row { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+/* Brand strip — logo + name, far-left of bottom bar */
+.brand-strip { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 10px 5px; border-right: 1px solid var(--border); background: linear-gradient(180deg, #0c0c14 0%, #06060a 100%); flex-shrink: 0; width: 92px; }
+.brand-logo { width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(0,232,162,0.25)) brightness(0.95); transition: filter 0.3s; }
+.brand-logo:hover { filter: drop-shadow(0 0 10px rgba(0,232,162,0.55)) brightness(1.1); }
+.brand-name { font-family: var(--font-mono); font-size: 7px; color: var(--text-dim); letter-spacing: 1.3px; margin-top: 3px; text-align: center; line-height: 1.1; text-transform: lowercase; }
+.brand-name .brand-xiii-foot { color: var(--accent); font-weight: 700; margin-left: 2px; }
+.transport { display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 5px; padding: 6px 12px; border-right: 1px solid var(--border); min-width: 200px; flex-shrink: 0; }
+/* Full-width step grid bar — bottom row */
+.step-grid-bar { display: flex; align-items: stretch; gap: 2px; padding: 5px 10px; height: 30px; flex-shrink: 0; background: linear-gradient(180deg, #06060a 0%, #0a0a12 100%); border-top: 1px solid var(--border); }
+.step-grid-bar .step-led { flex: 1; min-width: 0; height: 100%; border-radius: 3px; background: #14141e; border: 1px solid #1f1f2c; transition: all 0.08s; position: relative; }
+.step-grid-bar .step-led.beat-marker { border-color: #2a2a3c; }
+.step-grid-bar .step-led.on { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px rgba(0,232,162,0.6); }
+.step-grid-bar .step-led.current { background: rgba(0,232,162,0.4); border-color: var(--accent); box-shadow: 0 0 12px rgba(0,232,162,0.8); }
 .step-leds { display: flex; gap: 1px; flex: 1; }
 .step-led { width: 8px; height: 8px; border-radius: 2px; background: #1a1a28; transition: all 0.08s; }
 .step-led.on { background: var(--accent); box-shadow: 0 0 6px rgba(0,232,162,0.5); }
 /* ===== MIXER CONSOLE (5-channel looper) ===== */
-.bottom-bar { height: 162px !important; }
 .ch-strip { width: 78px !important; }
 /* SOLO button — blue */
 .ch-btn.solo { color: #66aaff; }
@@ -248,7 +262,7 @@ body.learn-active .palette * { cursor: crosshair !important; }
 .ch-len { background: #0a0a12; border: 1px solid #2a2a3c; color: var(--text-dim); font-family: var(--font-mono); font-size: 8px; font-weight: 700; padding: 2px 3px; border-radius: 2px; cursor: pointer; width: calc(100% - 10px); margin: 0 5px; text-align: center; }
 .ch-len:focus { outline: none; border-color: var(--accent); color: var(--accent); }
 .ch-len-label { font-family: var(--font-mono); font-size: 6px; color: var(--text-dim); letter-spacing: 0.5px; text-align: center; }
-.transport { min-width: 220px !important; padding: 0 10px !important; flex-direction: column; align-items: stretch; justify-content: center; gap: 4px !important; }
+.transport { min-width: 200px !important; padding: 6px 10px !important; }
 .transport-row { display: flex; align-items: center; gap: 5px; }
 .transport-row .sep { width: 1px; height: 16px; background: var(--border); margin: 0 3px; }
 /* Compact buttons */
@@ -321,7 +335,7 @@ body.learn-active .palette * { cursor: crosshair !important; }
 <body>
 <div id="app">
     <header>
-        <h1>POLYGRID</h1>
+        <h1>ibonarium musica<span class="brand-xiii">XIII</span></h1>
         <div class="hdr-controls">
             <div class="master-vol"><span>VOL</span><input type="range" id="master-vol" min="0" max="100" value="60"></div>
             <button id="btn-power">POWER</button>
@@ -361,25 +375,30 @@ body.learn-active .palette * { cursor: crosshair !important; }
         </div>
     </div>
     <div class="bottom-bar">
+        <div class="bottom-main-row">
+        <div class="brand-strip" title="ibonarium musica XIII">
+            <img class="brand-logo" src="1.png" alt="ibonarium logo">
+            <div class="brand-name">ibonarium<span class="brand-xiii-foot">XIII</span></div>
+        </div>
         <div class="transport">
             <div class="transport-row">
                 <button id="btn-play" class="tp-btn" title="Play / Pause transport">▶</button>
                 <button id="btn-stop" class="tp-btn tp-stop" title="Stop transport">■</button>
-                <div class="sep"></div>
-                <span style="font-family:var(--font-mono);font-size:8px;color:var(--text-dim)">BPM</span>
-                <input type="number" class="tempo-mini" id="bpm" value="120" min="30" max="300">
-                <div class="sep"></div>
-                <span id="midi-status" class="midi-status" title="Web MIDI API status">MIDI</span>
             </div>
             <div class="transport-row">
                 <div class="master-mini"><span>VOL</span><input type="range" id="master-vol" min="0" max="100" value="60"></div>
-                <div class="sep"></div>
-                <div class="step-leds step-leds-mini" id="step-leds"></div>
+            </div>
+            <div class="transport-row">
+                <span style="font-family:var(--font-mono);font-size:8px;color:var(--text-dim)">BPM</span>
+                <input type="number" class="tempo-mini" id="bpm" value="120" min="30" max="300">
+                <span id="midi-status" class="midi-status" title="Web MIDI API status">MIDI</span>
             </div>
         </div>
         <div class="looper-console" id="looper-console"></div>
         <div class="keyboard-bar" id="keyboard-bar"></div>
         <div class="scope-bar"><canvas id="scope-canvas"></canvas></div>
+        </div>
+        <div class="step-grid-bar" id="step-leds"></div>
     </div>
 </div>
 <div class="tooltip" id="tooltip"></div>
@@ -2166,8 +2185,8 @@ document.getElementById('btn-power').addEventListener('click',()=>{this.engine.r
 document.getElementById('btn-clean').addEventListener('click',()=>{this.engine.stopTransport();document.getElementById('btn-play').classList.remove('active');[...this.modules.keys()].forEach(id=>this.removeModule(id));this.connections=[];document.getElementById('cables-svg').querySelectorAll('.cable-group,.cable-temp-path').forEach(e=>e.remove());});
 document.getElementById('btn-test').addEventListener('click',()=>{this.engine.resume().then(()=>{const c=this.engine.ctx;const o=c.createOscillator();o.type='sine';o.frequency.value=440;const g=c.createGain();g.gain.value=0;o.connect(g);g.connect(this.engine.masterGain);const n=c.currentTime;g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(0.3,n+0.02);g.gain.linearRampToValueAtTime(0,n+0.8);o.start(n);o.stop(n+0.85);});});
 const leds=document.getElementById('step-leds');
-for(let i=0;i<24;i++){const l=document.createElement('div');l.className='step-led';if(i%6===0)l.classList.add('beat');if(i%6===0&&i>0)l.style.marginLeft='3px';leds.appendChild(l);}
-this.engine.stepCallbacks.push(step=>{leds.querySelectorAll('.step-led').forEach((l,i)=>l.classList.toggle('on',i===step));});
+for(let i=0;i<24;i++){const l=document.createElement('div');l.className='step-led';if(i%4===0)l.classList.add('beat-marker');if(i%4===0&&i>0)l.style.marginLeft='4px';leds.appendChild(l);}
+this.engine.stepCallbacks.push(step=>{leds.querySelectorAll('.step-led').forEach((l,i)=>{l.classList.toggle('current',i===step);});});
 }
 // ===== LOOPER CONSOLE (5-channel mixer) =====
 _setupLooper(){
@@ -2354,99 +2373,167 @@ _setupScope(){this._scopeCanvas=document.getElementById('scope-canvas');this._sc
 _startScopeLoop(){const a=this.engine.analyser;const bl=a.frequencyBinCount;const td=new Uint8Array(bl);const fd=new Uint8Array(bl);const draw=()=>{requestAnimationFrame(draw);const c=this._scopeCanvas;const ctx=this._scopeCtx;const w=c.width,h=c.height;if(!w||!h)return;a.getByteTimeDomainData(td);a.getByteFrequencyData(fd);ctx.fillStyle='#08080d';ctx.fillRect(0,0,w,h);ctx.strokeStyle='#00e8a2';ctx.lineWidth=1.5;ctx.beginPath();const sw=w/bl;for(let i=0;i<bl;i++){const v=td[i]/128;const y=v*h/2;if(!i)ctx.moveTo(0,y);else ctx.lineTo(i*sw,y);}ctx.stroke();const bars=32;const bw=w/bars;const step=Math.floor(bl/bars);for(let i=0;i<bars;i++){const val=fd[i*step]/255;const bh=val*h*0.4;ctx.fillStyle=`hsl(${160+val*60},100%,${40+val*30}%)`;ctx.fillRect(i*bw,h-bh,bw-1,bh);}};draw();}
 // ===== DEFAULT PATCH =====
 _addDefaultPatch(){
+// ====================================================================
+// AMBIENT STARTUP PATCH — slow, melodic, evolving
+// Polyphonic Rhodes + sustained pad + sub bass + long FX tail
+// Auto-starts on first user interaction (browser autoplay policy)
+// ====================================================================
+
+// --- Sequencer with slow A-minor pentatonic ambient pattern ---
 const seq=this.addModule('sequencer',40,80);
-const oscA=this.addModule('oscillator',380,40);
-const envA=this.addModule('envelope',380,220);
-const noteIn=this.addModule('note-input',40,380);
-const arp=this.addModule('arpeggiator',380,380);
-const oscB=this.addModule('oscillator',620,310);
-const envB=this.addModule('envelope',620,480);
-const lfo=this.addModule('lfo',380,560);
-const rnd=this.addModule('random',40,640);
-const flt=this.addModule('filter',860,220);
-const gain=this.addModule('gain',860,420);
-const dly=this.addModule('delay',1090,260);
-const rvb=this.addModule('reverb',1090,460);
-const mix=this.addModule('mixer',1290,280);
-const out=this.addModule('output',1500,310);
-const drums=this.addModule('drums',40,540);
-const bass=this.addModule('bass',620,120);
-const phaser=this.addModule('phaser',1090,60);
-this.addConnection(seq.id,'note',oscA.id,'freq');this.addConnection(seq.id,'gate',envA.id,'gate');
-this.addConnection(noteIn.id,'note',arp.id,'note');this.addConnection(arp.id,'note',oscB.id,'freq');this.addConnection(arp.id,'gate',envB.id,'gate');
-this.addConnection(oscA.id,'audio',mix.id,'in1');
-this.addConnection(oscB.id,'audio',gain.id,'audio');this.addConnection(envB.id,'cv',gain.id,'cv');
-this.addConnection(gain.id,'audio',flt.id,'audio');this.addConnection(lfo.id,'cv',flt.id,'cutoff_cv');this.addConnection(envA.id,'cv',flt.id,'res_cv');
-this.addConnection(flt.id,'audio',phaser.id,'audio');
-this.addConnection(phaser.id,'audio',mix.id,'in2');
-this.addConnection(drums.id,'audio',mix.id,'in3');
-this.addConnection(bass.id,'audio',mix.id,'in4');
-this.addConnection(seq.id,'note',bass.id,'note');this.addConnection(seq.id,'gate',bass.id,'gate');
-this.addConnection(mix.id,'audio',dly.id,'audio');this.addConnection(dly.id,'audio',rvb.id,'audio');
-this.addConnection(rvb.id,'audio',out.id,'audio_l');this.addConnection(rvb.id,'audio',out.id,'audio_r');
-this.addConnection(rnd.id,'cv',dly.id,'time_cv');
-oscA.setParam('wave','sawtooth');oscB.setParam('wave','triangle');oscB.setParam('detune',5);
-flt.setParam('cutoff',3000);flt.setParam('resonance',3);
-lfo.setParam('rate',0.5);lfo.setParam('depth',2000);
-dly.setParam('time',0.35);dly.setParam('feedback',0.22);dly.setParam('mix',0.32);
-rvb.setParam('decay',3);rvb.setParam('mix',0.22);
-rnd.setParam('mode','walk');arp.setParam('pattern','up');arp.setParam('rate',2);
-phaser.setParam('rate',0.3);phaser.setParam('depth',2000);phaser.setParam('mix',0.3);
-bass.setParam('wave','sawtooth');bass.setParam('cutoff',500);bass.setParam('drive',0.2);bass.setParam('sub',0.4);
+// A minor pentatonic notes (Hz):
+// A3=220, C4=261.63, D4=293.66, E4=329.63, G4=392,
+// A4=440, C5=523.25, D5=587.33, E5=659.25, G5=783.99
+const ambientPattern=[
+[0,  220.00,'A3'],   // root — opens the phrase
+[4,  329.63,'E4'],   // perfect fifth
+[8,  440.00,'A4'],   // octave
+[12, 523.25,'C5'],   // minor third — ambient color
+[16, 659.25,'E5'],   // soaring fifth up high
+[20, 587.33,'D5'],   // step down
+[23, 329.63,'E4']    // resolve back
+];
+// Reset all 24 steps to inactive
+for(let i=0;i<24;i++)seq._steps[i]={active:false,freq:440,name:'A4'};
+// Apply ambient pattern
+ambientPattern.forEach(([idx,freq,name])=>{seq._steps[idx]={active:true,freq,name};});
+// Refresh sequencer UI to show new notes
+if(seq.el){
+seq.el.querySelectorAll('.seq-step').forEach((el,i)=>{
+const s=seq._steps[i];
+el.classList.toggle('active',s.active);
+el.textContent=s.active?s.name:'';
+el.title=s.active?s.name+' (scroll to change note)':'';
+});
+}
 
-// ===== NEW MODULES: percussion, shimmer, automation =====
-const perc=this.addModule('percussion',40,840);
-const shimmer=this.addModule('shimmer',1290,560);
-const auto=this.addModule('automation',1100,720);
-const chordsMod=this.addModule('chords',40,240);
+// --- Rhodes: main melodic voice (polyphonic electric piano with internal envelope) ---
+const rhodes=this.addModule('rhodes',380,80);
+rhodes.setParam('bell',0.45);
+rhodes.setParam('tine',0.35);
+rhodes.setParam('decay',5.0);      // long natural decay
+rhodes.setParam('brightness',2800);
+rhodes.setParam('tremolo',0.20);   // gentle tremolo
+this.addConnection(seq.id,'note',rhodes.id,'note');
+this.addConnection(seq.id,'gate',rhodes.id,'gate');
 
-// Connect shimmer in series after reverb (replace direct rvb->out)
-try{
-// Remove original rvb->out connections so shimmer is in series
-this.connections.filter(c=>c.fromMod===rvb.id && c.toMod===out.id).forEach(c=>this.removeConnection(c.id));
+// --- Pad: slow evolving detuned sawtooth through lowpass filter ---
+const padOsc=this.addModule('oscillator',380,360);
+padOsc.setParam('wave','sawtooth');
+padOsc.setParam('detune',9);
+const padEnv=this.addModule('envelope',620,360);
+padEnv.setParam('attack',2.8);     // very slow swell
+padEnv.setParam('decay',1.2);
+padEnv.setParam('sustain',0.55);
+padEnv.setParam('release',6.0);    // long release tail
+const padFlt=this.addModule('filter',620,560);
+padFlt.setParam('type','lowpass');
+padFlt.setParam('cutoff',750);
+padFlt.setParam('resonance',2.5);
+const padVCA=this.addModule('gain',860,460);
+padVCA.setParam('gain',0);         // base gain 0; envelope adds 0→1 via CV
+// Enable CV input gain so envelope actually modulates the VCA (input gain defaults to 0)
+if(padVCA.inputNodes.cv)padVCA.inputNodes.cv.gain.value=1.0;
+
+// --- Slow LFO sweeping pad filter cutoff for evolving texture ---
+const lfo=this.addModule('lfo',380,620);
+lfo.setParam('wave','sine');
+lfo.setParam('rate',0.07);         // ~14s period — very slow
+lfo.setParam('depth',1);           // full LFO amplitude
+// Enable cutoff_cv input gain so LFO actually modulates cutoff (±500 Hz sweep at depth=1)
+if(padFlt.inputNodes.cutoff_cv)padFlt.inputNodes.cutoff_cv.gain.value=500;
+
+// Pad wiring
+this.addConnection(seq.id,'note',padOsc.id,'freq');
+this.addConnection(seq.id,'gate',padEnv.id,'gate');
+this.addConnection(padOsc.id,'audio',padFlt.id,'audio');
+this.addConnection(padEnv.id,'cv',padVCA.id,'cv');
+this.addConnection(padFlt.id,'audio',padVCA.id,'audio');
+this.addConnection(lfo.id,'cv',padFlt.id,'cutoff_cv');
+
+// --- Sub bass: follows sequencer root note ---
+const bass=this.addModule('bass',380,780);
+bass.setParam('wave','sine');
+bass.setParam('sub',0.7);
+bass.setParam('cutoff',280);
+bass.setParam('resonance',1.5);
+bass.setParam('drive',0.08);
+bass.setParam('octave',-2);        // deep sub
+this.addConnection(seq.id,'note',bass.id,'note');
+this.addConnection(seq.id,'gate',bass.id,'gate');
+
+// --- Mixer: combine rhodes + pad + bass ---
+const mix=this.addModule('mixer',1090,360);
+this.addConnection(rhodes.id,'audio',mix.id,'in1');
+this.addConnection(padVCA.id,'audio',mix.id,'in2');
+this.addConnection(bass.id,'audio',mix.id,'in3');
+
+// --- FX chain: delay → reverb → shimmer → output (long ambient tail) ---
+const dly=this.addModule('delay',1290,260);
+dly.setParam('time',0.5);          // 500ms echo
+dly.setParam('feedback',0.42);     // long echoes
+dly.setParam('mix',0.35);
+const rvb=this.addModule('reverb',1290,460);
+rvb.setParam('decay',6.0);         // very long reverb
+rvb.setParam('mix',0.45);
+const shimmer=this.addModule('shimmer',1490,360);
+shimmer.setParam('pitch',12);      // +1 octave shimmer
+shimmer.setParam('decay',5.0);
+shimmer.setParam('feedback',0.32);
+shimmer.setParam('mix',0.32);
+const out=this.addModule('output',1690,360);
+out.setParam('volume',0.75);
+
+this.addConnection(mix.id,'audio',dly.id,'audio');
+this.addConnection(dly.id,'audio',rvb.id,'audio');
 this.addConnection(rvb.id,'audio',shimmer.id,'audio');
 this.addConnection(shimmer.id,'audio',out.id,'audio_l');
 this.addConnection(shimmer.id,'audio',out.id,'audio_r');
-}catch(e){}
 
-// Chords module: connect note input from note-input
-this.addConnection(noteIn.id,'note',chordsMod.id,'note');
-this.addConnection(noteIn.id,'gate',chordsMod.id,'gate');
+// --- Slow ambient tempo ---
+this.engine.tempo=62;
+const bpmInput=document.getElementById('bpm');
+if(bpmInput)bpmInput.value=62;
 
-// Percussion: route to output directly (parallel to mixer)
-// We'll create a small gain to combine
-const percGain=this.addModule('gain',280,840);
-percGain.setParam('gain',0.4);
-this.addConnection(perc.id,'audio',percGain.id,'audio');
-this.addConnection(percGain.id,'audio',out.id,'audio_l');
-
-// Set params for new modules
-perc.setParam('master_vol',0.4);
-shimmer.setParam('pitch',12);shimmer.setParam('decay',2.5);shimmer.setParam('feedback',0.22);shimmer.setParam('mix',0.3);
-auto.setParam('length',16);auto.setParam('shape','smooth');auto.setParam('slew',0.05);auto.setParam('depth',0.8);
-chordsMod.setParam('progression','I-V-vi-IV');chordsMod.setParam('chord','maj7');chordsMod.setParam('rate',1);chordsMod.setParam('prog_len',4);
-
-// ===== Rhodes (polyphonic electric piano) — connected to note-input for live play =====
-const rhodes=this.addModule('rhodes',860,640);
-this.addConnection(noteIn.id,'note',rhodes.id,'note');
-this.addConnection(noteIn.id,'gate',rhodes.id,'gate');
-// Route rhodes to mixer channel (parallel to other synths)
-const rhodesGain=this.addModule('gain',1080,640);
-rhodesGain.setParam('gain',0.4);
-this.addConnection(rhodes.id,'audio',rhodesGain.id,'audio');
-this.addConnection(rhodesGain.id,'audio',mix.id,'in1');
-// Move existing in1 (oscA) to a spare mixer input? Mixer only has 4 channels.
-// Better: route rhodes to phaser input (cascade)
-// Actually we'll route rhodes → delay input for ambient electric piano sound
-this.connections.filter(c=>c.fromMod===rhodesGain.id&&c.toMod===mix.id).forEach(c=>this.removeConnection(c.id));
-this.addConnection(rhodesGain.id,'audio',dly.id,'audio');
-rhodes.setParam('bell',0.7);rhodes.setParam('tine',0.5);rhodes.setParam('decay',3);rhodes.setParam('tremolo',0.2);
-
-// Automation targets (Bitwig-style multi-target): filter cutoff + delay feedback
-auto._targets=[{modId:flt.id,paramId:'cutoff'},{modId:dly.id,paramId:'feedback'}];
-setTimeout(()=>{auto.refreshTargetList();auto._targets.forEach(t=>auto._markBoundKnob(t.modId,t.paramId,true));},100);
-
+// Position workspace to show the patch
 this.wsPanX=15;this.wsPanY=15;this._updateTransform();
+
+// ====================================================================
+// AUTO-PLAY: browsers block autoplay until user interacts.
+// Listen for first click / keydown / touch anywhere and start transport.
+// ====================================================================
+const tryStartAmbient=()=>{
+if(this.engine.isPlaying)return;
+this.engine.resume().then(()=>{
+if(this.engine.isPlaying)return;        // user may have hit stop
+this.engine.startTransport();
+const pb=document.getElementById('btn-play');
+if(pb){pb.classList.add('active');pb.style.animation='';}
+this.modules.forEach(m=>{if(m.type==='automation'&&m._updateHint)m._updateHint();});
+});
+};
+const firstGesture=()=>{
+tryStartAmbient();
+document.removeEventListener('click',firstGesture);
+document.removeEventListener('keydown',firstGesture);
+document.removeEventListener('touchstart',firstGesture);
+};
+document.addEventListener('click',firstGesture);
+document.addEventListener('keydown',firstGesture);
+document.addEventListener('touchstart',firstGesture);
+
+// Pulse the Play button as a hint
+const pb=document.getElementById('btn-play');
+if(pb){
+pb.style.animation='recPulse 1.6s ease-in-out infinite';
+const stopHint=()=>{
+pb.style.animation='';
+document.removeEventListener('click',stopHint);
+document.removeEventListener('keydown',stopHint);
+};
+document.addEventListener('click',stopHint);
+document.addEventListener('keydown',stopHint);
+}
 }
 }
 window.addEventListener('DOMContentLoaded',()=>{window.app=new App();app.init();});
