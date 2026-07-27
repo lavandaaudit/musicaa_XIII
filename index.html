@@ -78,6 +78,10 @@ header h1::before { content: '◈'; color: var(--accent); margin-right: 8px; opa
 .node-delete:hover { background: var(--red); color: #fff; }
 /* Multi-select visual */
 .node.multi-selected { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan), 0 0 12px rgba(0,204,221,0.15), 0 4px 20px rgba(0,0,0,0.5); }
+/* Frozen module */
+.node.frozen-mod { pointer-events: auto; }
+.freeze-badge { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; background: rgba(0,180,255,0.25); border: 1px solid rgba(0,204,255,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; z-index: 20; transition: all 0.2s; opacity: 1; pointer-events: auto; }
+.freeze-badge:hover { background: rgba(0,204,255,0.5); border-color: var(--cyan); transform: scale(1.25); }
 /* Rubber-band selection */
 .rubber-band { position: absolute; border: 1px dashed var(--accent); background: rgba(0,232,162,0.06); pointer-events: none; z-index: 100; }
 /* Send-to-channel floating toolbar */
@@ -297,6 +301,9 @@ body.learn-active .palette * { cursor: crosshair !important; }
 .looper-console::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 2px; }
 .ch-add-btn { width: 36px; min-width: 36px; background: #0a0a12; border: 1px dashed #2a2a3c; border-radius: 4px; color: var(--text-dim); font-family: var(--font-mono); font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
 .ch-add-btn:hover { border-color: var(--accent); color: var(--accent); background: #0e0e16; box-shadow: 0 0 8px rgba(0,232,162,0.2); }
+/* Unfreeze button on channel strip */
+.ch-unfreeze-btn { font-size: 12px; background: rgba(0,180,255,0.12); border: 1px solid rgba(0,204,255,0.35); border-radius: 3px; color: rgba(0,204,255,0.8); cursor: pointer; width: 100%; text-align: center; padding: 1px 0; transition: all 0.2s; letter-spacing: 0; }
+.ch-unfreeze-btn:hover { background: rgba(0,204,255,0.3); color: #fff; border-color: var(--cyan); }
 .ch-strip { width: 62px; background: linear-gradient(180deg, #14141e 0%, #0a0a12 100%); border: 1px solid #1f1f2c; border-radius: 4px; display: flex; flex-direction: column; align-items: center; padding: 4px 0 3px; gap: 3px; position: relative; transition: all 0.15s; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
 .ch-strip:hover { border-color: #2a2a3c; }
 .ch-strip.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 12px rgba(0,232,162,0.3), inset 0 1px 0 rgba(255,255,255,0.05); }
@@ -1822,6 +1829,7 @@ this._isPanning=false;this._panStartX=0;this._panStartY=0;
 this._dragConn=null;this._dragMod=null;this._dragOffX=0;this._dragOffY=0;
 this._rubberBand=null;this._rbStart=null;this._rbActive=false;
 this._snapToolbar=null; // floating send-to-channel toolbar
+this._frozenByChannel={}; // chIdx -> Set of module IDs frozen in that channel
 this.cableStyle='smooth';
 this._cableDirty=true;
 this._learnArmed=null; // pointer to Automation module in LEARN mode
@@ -2102,12 +2110,43 @@ this.engine.resume();this.engine.startTransport();
 document.getElementById('btn-play').classList.add('active');
 }
 // Visually dim the snapshot modules and show they are "frozen"
+this._frozenByChannel[chIdx]=new Set(selIds);
 selIds.forEach(id=>{
 const m=this.modules.get(id);
-if(m?.el){m.el.style.opacity='0.4';m.el.style.pointerEvents='none';
-m.el.title='[Frozen — in looper Ch '+(chIdx+1)+']';}
+if(m?.el){
+m.el.style.opacity='0.4';
+m.el.classList.add('frozen-mod');
+m.el.title='[Frozen — in looper Ch '+(chIdx+1)+'] — click ❄ to unfreeze';
+// Add unfreeze badge
+let badge=m.el.querySelector('.freeze-badge');
+if(!badge){
+badge=document.createElement('div');badge.className='freeze-badge';badge.textContent='❄';
+m.el.appendChild(badge);
+badge.addEventListener('click',e=>{e.stopPropagation();this._unfreezeChannel(chIdx);});
+}
+}
 });
 this.engine._notifyNoteSubs('loopSnap',chIdx,false);
+}
+_unfreezeModules(ids){
+ids.forEach(id=>{
+const m=this.modules.get(id);
+if(m?.el){
+m.el.style.opacity='1';
+m.el.classList.remove('frozen-mod');
+m.el.title='';
+const badge=m.el.querySelector('.freeze-badge');
+if(badge)badge.remove();
+}
+});
+this._clearMultiSelect();
+}
+_unfreezeChannel(chIdx){
+const frozenIds=this._frozenByChannel[chIdx];
+if(!frozenIds||frozenIds.size===0)return;
+this._unfreezeModules([...frozenIds]);
+delete this._frozenByChannel[chIdx];
+this._updateLooperUI();
 }
 // ===== CABLE STYLE MENU =====
 _setupCableStyleMenu(){
@@ -2614,10 +2653,15 @@ const clrBtn=document.createElement('button');clrBtn.className='ch-btn clr';clrB
 clrBtn.title='Clear recorded loop on channel '+(i+1);
 clrBtn.addEventListener('click',e=>{e.stopPropagation();this.engine.clearLoop(i);this._updateLooperUI();});
 strip.appendChild(clrBtn);
+// Unfreeze button (hidden by default, shown when channel has frozen modules)
+const unfreezeBtn=document.createElement('button');unfreezeBtn.className='ch-unfreeze-btn';unfreezeBtn.textContent='❄';unfreezeBtn.title='Unfreeze modules sent to this channel';
+unfreezeBtn.style.display='none';
+unfreezeBtn.addEventListener('click',e=>{e.stopPropagation();this._unfreezeChannel(i);});
+strip.appendChild(unfreezeBtn);
 // Insert before "+" button if it exists
 if(this._addBtnEl){console_el.insertBefore(strip,this._addBtnEl);}
 else{console_el.appendChild(strip);}
-this._looperEls.push({strip,num,led,recBtn,muteBtn,soloBtn,odBtn,qBtn,lenSel,track,fill,thumb,status,count,clrBtn});
+this._looperEls.push({strip,num,led,recBtn,muteBtn,soloBtn,odBtn,qBtn,lenSel,track,fill,thumb,status,count,clrBtn,unfreezeBtn});
 }
 _updateLooperUI(){
 if(!this._looperEls)return;
@@ -2670,6 +2714,9 @@ els.status.textContent='empty';els.status.className='ch-status';
 }
 // Count
 els.count.textContent=ch.events.length+' ev';
+// Unfreeze button visibility
+const hasFrozen=this._frozenByChannel[i]&&this._frozenByChannel[i].size>0;
+if(els.unfreezeBtn)els.unfreezeBtn.style.display=hasFrozen?'block':'none';
 });
 }
 // Legacy back-compat — kept in case other code references it
