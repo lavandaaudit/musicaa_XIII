@@ -619,19 +619,28 @@ ch.replayTimerIds=ch.replayTimerIds.slice(-200);
 }
 });
 this.stepCallbacks.forEach(cb=>cb(step));
-this.modules.forEach(m=>{if(m.type==='sequencer')m.onClock(step,time);if(m.type==='arpeggiator')m.onClock(step,time);if(m.type==='random')m.onClock(step,time);if(m.type==='drums')m.onClock(step,time);if(m.type==='gross-beat')m.onClock(step,time);if(m.type==='chords')m.onClock(step,time);if(m.type==='percussion')m.onClock(step,time);if(m.type==='automation')m.onClock(step,time);});
+// FIX: frozen modules must not fire their own onClock – their notes are replayed by the looper.
+this.modules.forEach(m=>{
+  if(m._frozenForChannel!==undefined)return; // skip frozen modules — looper handles playback
+  if(m.type==='sequencer')m.onClock(step,time);
+  if(m.type==='arpeggiator')m.onClock(step,time);
+  if(m.type==='random')m.onClock(step,time);
+  if(m.type==='drums')m.onClock(step,time);
+  if(m.type==='gross-beat')m.onClock(step,time);
+  if(m.type==='chords')m.onClock(step,time);
+  if(m.type==='percussion')m.onClock(step,time);
+  if(m.type==='automation')m.onClock(step,time);
+});
 },delay);
 }
 noteOn(freq,fromReplay,fromChannel){
 this.resume();
-// Record event into the channel that is currently recording (skip if from replay)
 if(!fromReplay){
 const ch=this.loops[this.selectedLoop];
 if(ch&&ch.recording){
 const stepDur=0.25*(60/this.tempo);
 const loopDur=stepDur*ch.loopLen;
 let offset=((this.ctx.currentTime-ch.loopStartTime)%loopDur+loopDur)%loopDur;
-// Apply quantize if enabled (snap to nearest step grid)
 if(ch.quantize>0){const qStep=stepDur*ch.quantize;offset=Math.round(offset/qStep)*qStep;offset=((offset%loopDur)+loopDur)%loopDur;}
 ch.events.push({type:'on',freq,offset});
 ch.hasContent=true;
@@ -639,7 +648,24 @@ this._notifyNoteSubs('on',freq,false);
 }
 }
 this.heldNotes.set(freq,(this.heldNotes.get(freq)||0)+1);
-this.modules.forEach(m=>{if(m.type==='note-input')m.onNoteOn(freq);});
+if(fromReplay&&fromChannel!==undefined){
+let hasNoteInput=false;
+this.modules.forEach(m=>{
+if(m.type==='note-input'&&m._frozenForChannel===fromChannel){hasNoteInput=true;m.onNoteOn(freq);}
+});
+if(!hasNoteInput){
+this.modules.forEach(m=>{
+if(m._frozenForChannel===fromChannel){
+if(typeof m.onNoteInput==='function')m.onNoteInput(freq,this.ctx.currentTime);
+if(typeof m.onGateInput==='function')m.onGateInput(1,this.ctx.currentTime);
+}
+});
+}
+}else if(!fromReplay){
+this.modules.forEach(m=>{
+if(m.type==='note-input'&&m._frozenForChannel===undefined)m.onNoteOn(freq);
+});
+}
 if(fromReplay)this._notifyNoteSubs('on',freq,true);
 }
 noteOff(freq,fromReplay,fromChannel){
@@ -649,15 +675,32 @@ if(ch&&ch.recording){
 const stepDur=0.25*(60/this.tempo);
 const loopDur=stepDur*ch.loopLen;
 let offset=((this.ctx.currentTime-ch.loopStartTime)%loopDur+loopDur)%loopDur;
-// Apply quantize if enabled
 if(ch.quantize>0){const qStep=stepDur*ch.quantize;offset=Math.round(offset/qStep)*qStep;offset=((offset%loopDur)+loopDur)%loopDur;}
 ch.events.push({type:'off',freq,offset});
 this._notifyNoteSubs('off',freq,false);
 }
 }
 const c=(this.heldNotes.get(freq)||1)-1;
-if(c<=0){this.heldNotes.delete(freq);this.modules.forEach(m=>{if(m.type==='note-input')m.onNoteOff(freq);});}
-else{this.heldNotes.set(freq,c);}
+if(c<=0){
+this.heldNotes.delete(freq);
+if(fromReplay&&fromChannel!==undefined){
+let hasNoteInput=false;
+this.modules.forEach(m=>{
+if(m.type==='note-input'&&m._frozenForChannel===fromChannel){hasNoteInput=true;m.onNoteOff(freq);}
+});
+if(!hasNoteInput){
+this.modules.forEach(m=>{
+if(m._frozenForChannel===fromChannel){
+if(typeof m.onGateInput==='function')m.onGateInput(0,this.ctx.currentTime);
+}
+});
+}
+}else if(!fromReplay){
+this.modules.forEach(m=>{
+if(m.type==='note-input'&&m._frozenForChannel===undefined)m.onNoteOff(freq);
+});
+}
+}else{this.heldNotes.set(freq,c);}
 if(fromReplay)this._notifyNoteSubs('off',freq,true);
 }
 // ===== WEB MIDI API (for hardware MIDI keyboards like Arturia) =====
@@ -2049,75 +2092,37 @@ _hideSnapToolbar(){
 if(this._snapToolbar){this._snapToolbar.remove();this._snapToolbar=null;}
 }
 _sendToChannel(chIdx){
-// Snapshot: capture current note events from selected modules into the looper channel
 const selIds=this._getAllSelected();
 if(selIds.size<1)return;
 const ch=this.engine.loops[chIdx];if(!ch)return;
-// Collect all automation step values for selected sequencers/drums
-const snapshotData={modIds:[...selIds],stepPatterns:{}};
+const loopLen=ch.loopLen;
+const stepDur=60/this.engine.tempo/4;
+ch.events=[];
+if(ch.replayTimerIds){
+ch.replayTimerIds.forEach(id=>clearTimeout(id));
+ch.replayTimerIds=[];
+}
 selIds.forEach(id=>{
 const m=this.modules.get(id);
-if(m&&(m.type==='sequencer'||m.type==='drums'||m.type==='gross-beat'||m.type==='percussion')){
-if(m._steps)snapshotData.stepPatterns[id]=[...m._steps];
-if(m._gbPattern)snapshotData.stepPatterns[id+'_gb']=[...m._gbPattern];
+if(m&&m.type==='sequencer'&&m._steps){
+m._steps.forEach((s,idx)=>{
+if(s&&s.active&&s.freq){
+const offset=(idx%loopLen)*stepDur;
+ch.events.push({type:'on',freq:s.freq,offset:offset});
+ch.events.push({type:'off',freq:s.freq,offset:offset+stepDur*0.8});
 }
 });
-// Record a full loop cycle of the selected modules' sequencer output into the channel
-// Strategy: clone the sequencer modules, run them through one loop, capture all note events
-// For simplicity: capture the engine's current note events that originate from selected modules during one full loop
-// We do this by recording noteOn/noteOff events for one loop duration
-const loopLen=ch.loopLen;
-const stepDur=60/this.engine.tempo/4; // duration of one step (1/16 note)
-const totalDur=loopLen*stepDur;
-// Create a temporary recorder that captures notes from selected modules
-const recordedEvents=[];
-const origNoteOn=this.engine.noteOn.bind(this.engine);
-const origNoteOff=this.engine.noteOff.bind(this.engine);
-let recActive=true;
-this.engine.noteOn=function(freq){
-origNoteOn(freq);
-// Check if this note came from a selected module's sequencer step
-if(recActive){
-const ev={type:'on',freq,time:this.ctx.currentTime,step:this.currentStep};
-recordedEvents.push(ev);
-// Also record into looper channel
-ch.events.push(ev);
 }
-};
-this.engine.noteOff=function(freq){
-origNoteOff(freq);
-if(recActive){
-const ev={type:'off',freq,time:this.ctx.currentTime,step:this.currentStep};
-recordedEvents.push(ev);
-ch.events.push(ev);
-}
-};
-// Wait one full loop cycle, then stop recording and restore
-setTimeout(()=>{
-recActive=false;
-this.engine.noteOn=origNoteOn;
-this.engine.noteOff=origNoteOff;
-if(recordedEvents.length>0){
-ch.hasContent=true;
-ch.loopLen=loopLen;
-ch.loopStartTime=this.engine.ctx.currentTime;
-}
-this._updateLooperUI();
-},totalDur*1000+200);
-// Start transport if not playing
-if(!this.engine.isPlaying){
-this.engine.resume();this.engine.startTransport();
-document.getElementById('btn-play').classList.add('active');
-}
-// Visually dim the snapshot modules and show they are "frozen"
+});
 this._frozenByChannel[chIdx]=new Set(selIds);
 selIds.forEach(id=>{
 const m=this.modules.get(id);
-if(m?.el){
+if(!m)return;
+m._frozenForChannel=chIdx;
+if(m.el){
 m.el.style.opacity='0.4';
 m.el.classList.add('frozen-mod');
 m.el.title='[Frozen — in looper Ch '+(chIdx+1)+'] — click ❄ to unfreeze';
-// Add unfreeze badge
 let badge=m.el.querySelector('.freeze-badge');
 if(!badge){
 badge=document.createElement('div');badge.className='freeze-badge';badge.textContent='❄';
@@ -2126,11 +2131,24 @@ badge.addEventListener('click',e=>{e.stopPropagation();this._unfreezeChannel(chI
 }
 }
 });
+ch.hasContent=ch.events.length>0;
+ch.loopLen=loopLen;
+ch.loopStartTime=this.engine.ctx.currentTime;
+this._hideSnapToolbar();
+this._clearMultiSelect();
+this._updateLooperUI();
+if(!this.engine.isPlaying){
+this.engine.resume();this.engine.startTransport();
+document.getElementById('btn-play').classList.add('active');
+}
 this.engine._notifyNoteSubs('loopSnap',chIdx,false);
 }
 _unfreezeModules(ids){
 ids.forEach(id=>{
 const m=this.modules.get(id);
+if(!m)return;
+// FIX: remove the channel tag so the module is visible to live noteOn/noteOff again
+delete m._frozenForChannel;
 if(m?.el){
 m.el.style.opacity='1';
 m.el.classList.remove('frozen-mod');
@@ -2487,6 +2505,9 @@ mod.def.outputs.forEach(p=>{const el=mod.portEls[p.id];if(!el)return;const c=thi
 fireConnectionEvent(mod,portId,value,time){
 this.connections.filter(c=>c.fromMod===mod.id&&c.fromPort===portId).forEach(c=>{
 const toMod=this.modules.get(c.toMod);if(!toMod)return;
+if(mod._frozenForChannel!==undefined||toMod._frozenForChannel!==undefined){
+if(mod._frozenForChannel!==toMod._frozenForChannel)return;
+}
 if(c.type==='gate')toMod.onGateInput(value,time);else if(c.type==='note')toMod.onNoteInput(value,time);
 });
 }
