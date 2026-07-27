@@ -76,6 +76,20 @@ header h1::before { content: '◈'; color: var(--accent); margin-right: 8px; opa
 .node-delete { width: 16px; height: 16px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; border-radius: 3px; opacity: 0; transition: all 0.15s; }
 .node:hover .node-delete { opacity: 1; }
 .node-delete:hover { background: var(--red); color: #fff; }
+/* Multi-select visual */
+.node.multi-selected { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan), 0 0 12px rgba(0,204,221,0.15), 0 4px 20px rgba(0,0,0,0.5); }
+/* Rubber-band selection */
+.rubber-band { position: absolute; border: 1px dashed var(--accent); background: rgba(0,232,162,0.06); pointer-events: none; z-index: 100; }
+/* Send-to-channel floating toolbar */
+.snap-toolbar { position: fixed; z-index: 500; background: var(--panel); border: 1px solid var(--accent); border-radius: 6px; padding: 6px 10px; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); animation: tbSlide 0.2s ease-out; }
+@keyframes tbSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.snap-toolbar .tb-label { font-family: var(--font-mono); font-size: 9px; color: var(--accent); letter-spacing: 1px; white-space: nowrap; }
+.snap-toolbar select.tb-ch-sel { background: #0a0a0f; border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 9px; padding: 2px 4px; border-radius: 3px; min-width: 50px; }
+.snap-toolbar select.tb-ch-sel:focus { outline: none; border-color: var(--accent); }
+.snap-toolbar button.tb-send { background: var(--accent); border: none; color: #000; font-family: var(--font-mono); font-size: 9px; font-weight: 700; padding: 3px 10px; border-radius: 3px; cursor: pointer; letter-spacing: 0.5px; transition: all 0.15s; }
+.snap-toolbar button.tb-send:hover { background: #33ffbb; box-shadow: 0 0 10px rgba(0,232,162,0.4); }
+.snap-toolbar button.tb-cancel { background: transparent; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-mono); font-size: 9px; padding: 3px 6px; border-radius: 3px; cursor: pointer; }
+.snap-toolbar button.tb-cancel:hover { border-color: var(--red); color: var(--red); }
 .node-body { padding: 5px 0 6px; }
 .port-row { display: flex; align-items: center; padding: 2px 0; min-height: 20px; }
 .port-row.input { justify-content: flex-start; }
@@ -227,7 +241,7 @@ body.learn-active .palette * { cursor: crosshair !important; }
 .bottom-main-row { display: flex; flex: 1; min-height: 0; overflow: hidden; }
 /* Brand strip — logo + name, far-left of bottom bar */
 .brand-strip { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 10px 5px; border-right: 1px solid var(--border); background: linear-gradient(180deg, #0c0c14 0%, #06060a 100%); flex-shrink: 0; width: 92px; }
-.brand-logo { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(0,232,162,0.25)) brightness(0.95); transition: filter 0.3s; }
+.brand-logo { width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(0,232,162,0.25)) brightness(0.95); transition: filter 0.3s; }
 .brand-logo:hover { filter: drop-shadow(0 0 10px rgba(0,232,162,0.55)) brightness(1.1); }
 .brand-name { font-family: var(--font-mono); font-size: 7px; color: var(--text-dim); letter-spacing: 1.3px; margin-top: 3px; text-align: center; line-height: 1.1; text-transform: lowercase; }
 .brand-name .brand-xiii-foot { color: var(--accent); font-weight: 700; margin-left: 2px; }
@@ -277,8 +291,12 @@ body.learn-active .palette * { cursor: crosshair !important; }
 .step-leds-mini { display: flex; gap: 1px; }
 .step-leds-mini .step-led { width: 5px; height: 5px; }
 
-/* Looper console — 5 vertical channel strips */
-.looper-console { display: flex; gap: 2px; padding: 6px 8px; background: linear-gradient(180deg, #0e0e16 0%, #06060a 100%); border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+/* Looper console — expandable channel strips */
+.looper-console { display: flex; gap: 2px; padding: 6px 8px; background: linear-gradient(180deg, #0e0e16 0%, #06060a 100%); border-left: 1px solid var(--border); border-right: 1px solid var(--border); overflow-x: auto; align-items: stretch; flex-shrink: 0; }
+.looper-console::-webkit-scrollbar { height: 3px; }
+.looper-console::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 2px; }
+.ch-add-btn { width: 36px; min-width: 36px; background: #0a0a12; border: 1px dashed #2a2a3c; border-radius: 4px; color: var(--text-dim); font-family: var(--font-mono); font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+.ch-add-btn:hover { border-color: var(--accent); color: var(--accent); background: #0e0e16; box-shadow: 0 0 8px rgba(0,232,162,0.2); }
 .ch-strip { width: 62px; background: linear-gradient(180deg, #14141e 0%, #0a0a12 100%); border: 1px solid #1f1f2c; border-radius: 4px; display: flex; flex-direction: column; align-items: center; padding: 4px 0 3px; gap: 3px; position: relative; transition: all 0.15s; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
 .ch-strip:hover { border-color: #2a2a3c; }
 .ch-strip.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 12px rgba(0,232,162,0.3), inset 0 1px 0 rgba(255,255,255,0.05); }
@@ -818,6 +836,13 @@ this.loops[idx].loopLen=len;
 this.loops[idx].replayTimerIds.forEach(id=>clearTimeout(id));
 this.loops[idx].replayTimerIds=[];
 this._notifyNoteSubs('loopLen',idx,false);
+}
+// ===== Dynamic channel add =====
+addLoopChannel(){
+const idx=this.loops.length;
+this.loops.push({armed:false,recording:false,events:[],loopLen:24,loopStartTime:0,replayTimerIds:[],muted:false,volume:1,hasContent:false,overdub:false,solo:false,quantize:0});
+this._notifyNoteSubs('loopAdd',idx,false);
+return idx;
 }
 // Legacy back-compat (used by older UI code that may still call these)
 armMidiRec(){this.armLoop(this.selectedLoop);}
@@ -1791,9 +1816,12 @@ class App{
 constructor(){
 this.engine=new AudioEngine();this.modules=new Map();this.connections=[];
 this.nextModId=1;this.nextConnId=1;this.selectedModule=null;
+this.multiSelected=new Set(); // Set of module IDs for multi-select
 this.wsPanX=0;this.wsPanY=0;this.wsZoom=1;
 this._isPanning=false;this._panStartX=0;this._panStartY=0;
 this._dragConn=null;this._dragMod=null;this._dragOffX=0;this._dragOffY=0;
+this._rubberBand=null;this._rbStart=null;this._rbActive=false;
+this._snapToolbar=null; // floating send-to-channel toolbar
 this.cableStyle='smooth';
 this._cableDirty=true;
 this._learnArmed=null; // pointer to Automation module in LEARN mode
@@ -1887,11 +1915,36 @@ const container=document.getElementById('ws-container');
 container.addEventListener('mousedown',e=>{
 if(e.target===container||e.target.id==='ws-bg'||e.target.id==='ws-world'||e.target.tagName==='svg'||e.target.closest('#cables-svg')){
 this.selectModule(null);
+this._clearMultiSelect();
+if(e.button===0&&!e.ctrlKey&&!e.metaKey){
+// Start rubber-band selection
+this._rbStart={x:e.clientX,y:e.clientY};
+this._rbActive=true;
+const rb=document.createElement('div');rb.className='rubber-band';rb.style.display='none';
+container.appendChild(rb);this._rubberBand=rb;
+}
 if(e.button===1||e.button===2){this._isPanning=true;this._panStartX=e.clientX-this.wsPanX;this._panStartY=e.clientY-this.wsPanY;container.classList.add('grabbing');e.preventDefault();}
 }
 });
 window.addEventListener('mousemove',e=>{
 if(this._isPanning){this.wsPanX=e.clientX-this._panStartX;this.wsPanY=e.clientY-this._panStartY;this._updateTransform();}
+// Rubber-band selection update
+if(this._rbActive&&this._rubberBand&&this._rbStart){
+const x1=Math.min(this._rbStart.x,e.clientX);const y1=Math.min(this._rbStart.y,e.clientY);
+const x2=Math.max(this._rbStart.x,e.clientX);const y2=Math.max(this._rbStart.y,e.clientY);
+const w=x2-x1;const h=y2-y1;
+if(w>4||h>4){this._rubberBand.style.display='block';this._rubberBand.style.left=x1+'px';this._rubberBand.style.top=y1+'px';this._rubberBand.style.width=w+'px';this._rubberBand.style.height=h+'px';
+// Highlight nodes inside rubber-band
+this.modules.forEach(m=>{
+if(m.el){
+const nr=m.el.getBoundingClientRect();
+const overlap=nr.left<x2&&nr.right>x1&&nr.top<y2&&nr.bottom>y1;
+m.el.classList.toggle('multi-selected',overlap);
+if(overlap)this.multiSelected.add(m.id);else this.multiSelected.delete(m.id);
+}
+});
+}
+}
 if(this._dragMod){
 const rect=container.getBoundingClientRect();
 const x=(e.clientX-rect.left-this.wsPanX-this._dragOffX)/this.wsZoom;
@@ -1907,6 +1960,13 @@ y:(e.clientY-rect.top-this.wsPanY)/this.wsZoom+5000
 });
 window.addEventListener('mouseup',e=>{
 if(this._isPanning){this._isPanning=false;document.getElementById('ws-container').classList.remove('grabbing');}
+// Rubber-band cleanup
+if(this._rbActive){
+if(this._rubberBand){this._rubberBand.remove();this._rubberBand=null;}
+this._rbStart=null;this._rbActive=false;
+// If modules were selected, show snap toolbar
+if(this.multiSelected.size>=2){this._showSnapToolbar(e);}
+}
 if(this._dragMod)this._dragMod=null;
 if(this._dragConn){
 const port=document.elementFromPoint(e.clientX,e.clientY)?.closest('.port');
@@ -1934,7 +1994,11 @@ this._updateTransform();
 },{passive:false});
 container.addEventListener('contextmenu',e=>{e.preventDefault();this._isPanning=true;this._panStartX=e.clientX-this.wsPanX;this._panStartY=e.clientY-this.wsPanY;container.classList.add('grabbing');});
 window.addEventListener('keydown',e=>{
-if((e.key==='Delete'||e.key==='Backspace')&&e.target.tagName!=='INPUT'&&e.target.tagName!=='SELECT'){if(this.selectedModule)this.removeModule(this.selectedModule.id);}
+if((e.key==='Delete'||e.key==='Backspace')&&e.target.tagName!=='INPUT'&&e.target.tagName!=='SELECT'){
+// Delete all multi-selected modules
+if(this.multiSelected.size>0){[...this.multiSelected].forEach(id=>this.removeModule(id));this.multiSelected.clear();this._hideSnapToolbar();}
+else if(this.selectedModule)this.removeModule(this.selectedModule.id);
+}
 });
 }
 _updateTransform(){
@@ -1942,6 +2006,108 @@ const world=document.getElementById('ws-world');
 world.style.transform=`translate(${this.wsPanX}px,${this.wsPanY}px) scale(${this.wsZoom})`;
 const bg=document.getElementById('ws-bg');
 bg.style.backgroundPosition=`${this.wsPanX%24}px ${this.wsPanY%24}px`;
+}
+// ===== SNAP-TO-CHANNEL TOOLBAR =====
+_showSnapToolbar(e){
+if(this._snapToolbar)this._hideSnapToolbar();
+const selIds=this._getAllSelected();
+if(selIds.size<2)return;
+const tb=document.createElement('div');tb.className='snap-toolbar';
+// Position near mouse
+const cx=e?.clientX||300;const cy=e?.clientY||200;
+tb.style.left=Math.min(cx,window.innerWidth-280)+'px';
+tb.style.top=Math.max(10,cy-50)+'px';
+const label=document.createElement('span');label.className='tb-label';label.textContent='SNAP TO CH';
+tb.appendChild(label);
+const sel=document.createElement('select');sel.className='tb-ch-sel';
+for(let i=0;i<this.engine.loops.length;i++){
+const opt=document.createElement('option');opt.value=i;opt.textContent='Ch '+(i+1);
+if(i===this.engine.selectedLoop)opt.selected=true;
+sel.appendChild(opt);
+}
+tb.appendChild(sel);
+const sendBtn=document.createElement('button');sendBtn.className='tb-send';sendBtn.textContent='SEND';
+const cancelBtn=document.createElement('button');cancelBtn.className='tb-cancel';cancelBtn.textContent='×';
+tb.appendChild(sendBtn);tb.appendChild(cancelBtn);
+document.body.appendChild(tb);this._snapToolbar=tb;
+cancelBtn.addEventListener('click',()=>{this._hideSnapToolbar();});
+sendBtn.addEventListener('click',()=>{
+const chIdx=parseInt(sel.value);
+this._sendToChannel(chIdx);
+this._hideSnapToolbar();
+});
+}
+_hideSnapToolbar(){
+if(this._snapToolbar){this._snapToolbar.remove();this._snapToolbar=null;}
+}
+_sendToChannel(chIdx){
+// Snapshot: capture current note events from selected modules into the looper channel
+const selIds=this._getAllSelected();
+if(selIds.size<1)return;
+const ch=this.engine.loops[chIdx];if(!ch)return;
+// Collect all automation step values for selected sequencers/drums
+const snapshotData={modIds:[...selIds],stepPatterns:{}};
+selIds.forEach(id=>{
+const m=this.modules.get(id);
+if(m&&(m.type==='sequencer'||m.type==='drums'||m.type==='gross-beat'||m.type==='percussion')){
+if(m._steps)snapshotData.stepPatterns[id]=[...m._steps];
+if(m._gbPattern)snapshotData.stepPatterns[id+'_gb']=[...m._gbPattern];
+}
+});
+// Record a full loop cycle of the selected modules' sequencer output into the channel
+// Strategy: clone the sequencer modules, run them through one loop, capture all note events
+// For simplicity: capture the engine's current note events that originate from selected modules during one full loop
+// We do this by recording noteOn/noteOff events for one loop duration
+const loopLen=ch.loopLen;
+const stepDur=60/this.engine.tempo/4; // duration of one step (1/16 note)
+const totalDur=loopLen*stepDur;
+// Create a temporary recorder that captures notes from selected modules
+const recordedEvents=[];
+const origNoteOn=this.engine.noteOn.bind(this.engine);
+const origNoteOff=this.engine.noteOff.bind(this.engine);
+let recActive=true;
+this.engine.noteOn=function(freq){
+origNoteOn(freq);
+// Check if this note came from a selected module's sequencer step
+if(recActive){
+const ev={type:'on',freq,time:this.ctx.currentTime,step:this.currentStep};
+recordedEvents.push(ev);
+// Also record into looper channel
+ch.events.push(ev);
+}
+};
+this.engine.noteOff=function(freq){
+origNoteOff(freq);
+if(recActive){
+const ev={type:'off',freq,time:this.ctx.currentTime,step:this.currentStep};
+recordedEvents.push(ev);
+ch.events.push(ev);
+}
+};
+// Wait one full loop cycle, then stop recording and restore
+setTimeout(()=>{
+recActive=false;
+this.engine.noteOn=origNoteOn;
+this.engine.noteOff=origNoteOff;
+if(recordedEvents.length>0){
+ch.hasContent=true;
+ch.loopLen=loopLen;
+ch.loopStartTime=this.engine.ctx.currentTime;
+}
+this._updateLooperUI();
+},totalDur*1000+200);
+// Start transport if not playing
+if(!this.engine.isPlaying){
+this.engine.resume();this.engine.startTransport();
+document.getElementById('btn-play').classList.add('active');
+}
+// Visually dim the snapshot modules and show they are "frozen"
+selIds.forEach(id=>{
+const m=this.modules.get(id);
+if(m?.el){m.el.style.opacity='0.4';m.el.style.pointerEvents='none';
+m.el.title='[Frozen — in looper Ch '+(chIdx+1)+']';}
+});
+this.engine._notifyNoteSubs('loopSnap',chIdx,false);
 }
 // ===== CABLE STYLE MENU =====
 _setupCableStyleMenu(){
@@ -1982,11 +2148,35 @@ if(m._targets.length!==before&&m.refreshTargetList)m.refreshTargetList();
 if(mod.type==='automation'&&mod._learn){mod.setLearn(false);}
 mod.dispose();this.modules.delete(id);this.engine.modules.delete(id);
 if(this.selectedModule?.id===id)this.selectedModule=null;
+this.multiSelected.delete(id);
 }
-selectModule(mod){
-if(this.selectedModule?.el)this.selectedModule.el.classList.remove('selected');
+selectModule(mod,addToSelection){
+if(!addToSelection){
+// Clear all multi-selection unless Ctrl/Cmd held
+this._clearMultiSelect();
+}
 this.selectedModule=mod;
+if(addToSelection&&mod){
+// Toggle this module in multi-select
+if(this.multiSelected.has(mod.id)){this.multiSelected.delete(mod.id);if(mod.el)mod.el.classList.remove('multi-selected');}
+else{this.multiSelected.add(mod.id);if(mod.el)mod.el.classList.add('multi-selected');}
+// Update selected to last clicked
+if(this.selectedModule?.el&&this.multiSelected.size>0)this.selectedModule.el.classList.remove('selected');
+this.selectedModule=mod;if(mod.el)mod.el.classList.add('selected');
+}else{
 if(mod?.el)mod.el.classList.add('selected');
+}
+}
+_clearMultiSelect(){
+this.multiSelected.forEach(id=>{const m=this.modules.get(id);if(m?.el)m.el.classList.remove('multi-selected');});
+this.multiSelected.clear();
+this._hideSnapToolbar();
+}
+_getAllSelected(){
+// Returns set of IDs including selectedModule if any
+const ids=new Set(this.multiSelected);
+if(this.selectedModule&&!ids.has(this.selectedModule.id))ids.add(this.selectedModule.id);
+return ids;
 }
 _renderModule(mod){
 const def=mod.def;const el=document.createElement('div');el.className='node';el.dataset.id=mod.id;el.style.left=mod.x+'px';el.style.top=mod.y+'px';
@@ -2185,8 +2375,12 @@ grid.appendChild(cell);
 body.appendChild(grid);
 }
 el.appendChild(body);mod.el=el;document.getElementById('ws-world').appendChild(el);
-// Drag
-header.addEventListener('mousedown',e=>{if(e.target.classList.contains('node-delete'))return;this.selectModule(mod);this._dragMod=mod;const rect=el.getBoundingClientRect();this._dragOffX=e.clientX-rect.left;this._dragOffY=e.clientY-rect.top;el.style.zIndex=10;e.stopPropagation();});
+// Drag — Ctrl/Cmd+click for multi-select
+header.addEventListener('mousedown',e=>{if(e.target.classList.contains('node-delete'))return;const multi=e.ctrlKey||e.metaKey;this.selectModule(mod,multi);this._dragMod=mod;const rect=el.getBoundingClientRect();this._dragOffX=e.clientX-rect.left;this._dragOffY=e.clientY-rect.top;el.style.zIndex=10;e.stopPropagation();
+// Show snap toolbar when multi-selected
+if(this._getAllSelected().size>=2){this._showSnapToolbar(e);}
+else{this._hideSnapToolbar();}
+});
 window.addEventListener('mouseup',()=>{if(mod.el)mod.el.style.zIndex=2;},{once:true});
 // Double-click header to rename
 header.querySelector('.node-title').addEventListener('dblclick',e=>{
@@ -2300,12 +2494,31 @@ const leds=document.getElementById('step-leds');
 for(let i=0;i<24;i++){const l=document.createElement('div');l.className='step-led';if(i%4===0)l.classList.add('beat-marker');if(i%4===0&&i>0)l.style.marginLeft='4px';leds.appendChild(l);}
 this.engine.stepCallbacks.push(step=>{leds.querySelectorAll('.step-led').forEach((l,i)=>{l.classList.toggle('current',i===step);});});
 }
-// ===== LOOPER CONSOLE (5-channel mixer) =====
+// ===== LOOPER CONSOLE (expandable channel mixer) =====
 _setupLooper(){
 const console_el=document.getElementById('looper-console');
 console_el.innerHTML='';
 this._looperEls=[];
-for(let i=0;i<5;i++){
+for(let i=0;i<5;i++){this._appendLooperStrip(i,console_el);}
+// "+" button to add new channels
+const addBtn=document.createElement('button');
+addBtn.className='ch-add-btn';
+addBtn.textContent='+';
+addBtn.title='Add new looper channel';
+addBtn.addEventListener('click',e=>{
+e.stopPropagation();
+const idx=this.engine.addLoopChannel();
+this._appendLooperStrip(idx,console_el);
+this.engine.selectLoop(idx);
+this._updateLooperUI();
+});
+console_el.appendChild(addBtn);
+this._addBtnEl=addBtn;
+// Initial selection
+this.engine.selectLoop(0);
+this._updateLooperUI();
+}
+_appendLooperStrip(i,console_el){
 const strip=document.createElement('div');
 strip.className='ch-strip';
 strip.dataset.idx=i;
@@ -2401,12 +2614,10 @@ const clrBtn=document.createElement('button');clrBtn.className='ch-btn clr';clrB
 clrBtn.title='Clear recorded loop on channel '+(i+1);
 clrBtn.addEventListener('click',e=>{e.stopPropagation();this.engine.clearLoop(i);this._updateLooperUI();});
 strip.appendChild(clrBtn);
-console_el.appendChild(strip);
+// Insert before "+" button if it exists
+if(this._addBtnEl){console_el.insertBefore(strip,this._addBtnEl);}
+else{console_el.appendChild(strip);}
 this._looperEls.push({strip,num,led,recBtn,muteBtn,soloBtn,odBtn,qBtn,lenSel,track,fill,thumb,status,count,clrBtn});
-}
-// Initial selection
-this.engine.selectLoop(0);
-this._updateLooperUI();
 }
 _updateLooperUI(){
 if(!this._looperEls)return;
