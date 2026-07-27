@@ -636,7 +636,7 @@ this.modules.forEach(m=>{
 noteOn(freq,fromReplay,fromChannel){
 this.resume();
 if(!fromReplay){
-const ch=this.loops[this.selectedLoop];
+const ch=this.loops.find(c=>c.recording)||this.loops[this.selectedLoop];
 if(ch&&ch.recording){
 const stepDur=0.25*(60/this.tempo);
 const loopDur=stepDur*ch.loopLen;
@@ -670,7 +670,7 @@ if(fromReplay)this._notifyNoteSubs('on',freq,true);
 }
 noteOff(freq,fromReplay,fromChannel){
 if(!fromReplay){
-const ch=this.loops[this.selectedLoop];
+const ch=this.loops.find(c=>c.recording)||this.loops[this.selectedLoop];
 if(ch&&ch.recording){
 const stepDur=0.25*(60/this.tempo);
 const loopDur=stepDur*ch.loopLen;
@@ -803,11 +803,16 @@ this._notifyNoteSubs('loopSelect',idx,false);
 }
 armLoop(idx){
 if(idx<0||idx>=this.loops.length)return;
-// Disarm all others (only one armed at a time)
 this.loops.forEach((ch,i)=>{if(i!==idx)ch.armed=false;});
 this.loops[idx].armed=true;
 this.selectedLoop=idx;
 this.midiRec=this.loops[idx];
+if(!this.isPlaying){
+this.resume();
+this.startTransport();
+const btnPlay=document.getElementById('btn-play');
+if(btnPlay)btnPlay.classList.add('active');
+}
 }
 disarmLoop(idx){
 if(idx<0||idx>=this.loops.length)return;
@@ -2503,6 +2508,24 @@ mod.def.outputs.forEach(p=>{const el=mod.portEls[p.id];if(!el)return;const c=thi
 });
 }
 fireConnectionEvent(mod,portId,value,time){
+if(mod&&mod._frozenForChannel===undefined){
+const recCh=this.engine.loops.find(c=>c.recording);
+if(recCh&&portId==='note'&&value>0){
+const stepDur=0.25*(60/this.engine.tempo);
+const loopDur=stepDur*recCh.loopLen;
+let offset=(((time||this.engine.ctx.currentTime)-recCh.loopStartTime)%loopDur+loopDur)%loopDur;
+if(recCh.quantize>0){const qStep=stepDur*recCh.quantize;offset=Math.round(offset/qStep)*qStep;offset=((offset%loopDur)+loopDur)%loopDur;}
+recCh.events.push({type:'on',freq:value,offset});
+recCh.hasContent=true;
+mod._lastFiredFreq=value;
+}else if(recCh&&portId==='gate'&&value===0&&mod._lastFiredFreq){
+const stepDur=0.25*(60/this.engine.tempo);
+const loopDur=stepDur*recCh.loopLen;
+let offset=(((time||this.engine.ctx.currentTime)-recCh.loopStartTime)%loopDur+loopDur)%loopDur;
+if(recCh.quantize>0){const qStep=stepDur*recCh.quantize;offset=Math.round(offset/qStep)*qStep;offset=((offset%loopDur)+loopDur)%loopDur;}
+recCh.events.push({type:'off',freq:mod._lastFiredFreq,offset});
+}
+}
 this.connections.filter(c=>c.fromMod===mod.id&&c.fromPort===portId).forEach(c=>{
 const toMod=this.modules.get(c.toMod);if(!toMod)return;
 if(mod._frozenForChannel!==undefined||toMod._frozenForChannel!==undefined){
