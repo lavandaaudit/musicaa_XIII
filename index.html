@@ -518,6 +518,33 @@ const MODULE_DEFS={
 'output':{name:'Output',color:'#ff3366',cat:'Output',desc:'Master output + channel router',inputs:[{id:'audio_l',name:'L',type:'audio'},{id:'audio_r',name:'R',type:'audio'},{id:'note_in',name:'NOTE',type:'note'}],outputs:[],controls:[{id:'volume',name:'VOL',type:'range',min:0,max:1,default:0.8,unit:''},{id:'channel',name:'CH',type:'select',options:['off','1','2','3','4','5','6','7','8'],default:'off'}]}
 };
 
+// ===== AUDIO WORKLET PROCESSORS (replace deprecated ScriptProcessorNode) =====
+const WORKLET_SRC=`
+// ---- Bitcrusher Worklet ----
+class BitcrusherProcessor extends AudioWorkletProcessor{
+  constructor(){super();this.bits=8;this.srate=0.5;this.port.onmessage=e=>{if(e.data.bits!==undefined)this.bits=e.data.bits;if(e.data.srate!==undefined)this.srate=e.data.srate;};}
+  process(inputs,outputs){const inp=inputs[0]&&inputs[0][0];const out=outputs[0]&&outputs[0][0];if(!inp||!out)return true;const bits=Math.max(1,Math.round(this.bits));const srate=Math.max(0.01,this.srate);const step=Math.max(1,Math.round(1/srate));let ph=0,last=0;for(let i=0;i<inp.length;i++){ph++;if(ph>=step){ph=0;let s=inp[i];const q=Math.pow(2,bits-1);s=Math.round(s*q)/q;out[i]=s;last=s;}else{out[i]=last;}}return true;}
+}
+// ---- Wavefolder Worklet ----
+class WavefolderProcessor extends AudioWorkletProcessor{
+  constructor(){super();this.amount=2;this.gain=1;this.port.onmessage=e=>{if(e.data.amount!==undefined)this.amount=e.data.amount;if(e.data.gain!==undefined)this.gain=e.data.gain;};}
+  process(inputs,outputs){const inp=inputs[0]&&inputs[0][0];const out=outputs[0]&&outputs[0][0];if(!inp||!out)return true;const amt=this.amount;const g=this.gain;for(let i=0;i<inp.length;i++){let s=inp[i]*g;let folded=s;for(let f=0;f<Math.ceil(amt);f++){folded=Math.abs(folded)*2-1;}out[i]=folded*0.5;}return true;}
+}
+// ---- Shimmer Pitch Shifter Worklet ----
+class ShimmerPitchProcessor extends AudioWorkletProcessor{
+  constructor(){super();this.pitch=12;this.N=8192;this.buf=new Float32Array(this.N);this.rd=0;this.wr=0;this.port.onmessage=e=>{if(e.data.pitch!==undefined)this.pitch=e.data.pitch;};}
+  process(inputs,outputs){const inp=inputs[0]&&inputs[0][0];const out=outputs[0]&&outputs[0][0];if(!inp||!out)return true;const ratio=Math.pow(2,this.pitch/12);const N=this.N;for(let i=0;i<inp.length;i++){const inS=isFinite(inp[i])?Math.max(-1,Math.min(1,inp[i])):0;this.buf[this.wr]=inS;this.wr=(this.wr+1)%N;const idx=Math.floor(this.rd);const fr=this.rd-idx;const s1=this.buf[idx]||0;const s2=this.buf[(idx+1)%N]||0;let s=s1*(1-fr)+s2*fr;if(!isFinite(s))s=0;s=Math.max(-1,Math.min(1,s));out[i]=s*0.85;this.rd=(this.rd+ratio)%N;if(((this.wr-this.rd+N)%N)<200)this.rd=(this.wr-200+N)%N;}return true;}
+}
+// ---- Granular Pass-Through Worklet ----
+class GranularProcessor extends AudioWorkletProcessor{
+  constructor(){super();this.g=0.3;this.port.onmessage=e=>{if(e.data.gain!==undefined)this.g=e.data.gain;};}
+  process(inputs,outputs){const inp=inputs[0]&&inputs[0][0];const out=outputs[0]&&outputs[0][0];if(!inp||!out)return true;const g=this.g;for(let i=0;i<inp.length;i++)out[i]=inp[i]*g;return true;}
+}
+registerProcessor('bitcrusher-processor',BitcrusherProcessor);
+registerProcessor('wavefolder-processor',WavefolderProcessor);
+registerProcessor('shimmer-pitch-processor',ShimmerPitchProcessor);
+registerProcessor('granular-processor',GranularProcessor);
+`;
 // ===== AUDIO ENGINE =====
 class AudioEngine{
 constructor(){
@@ -526,6 +553,10 @@ this.masterGain=this.ctx.createGain();this.masterGain.gain.value=0.85;
 this.limiter=this.ctx.createDynamicsCompressor();this.limiter.threshold.value=-3;this.limiter.knee.value=6;this.limiter.ratio.value=12;this.limiter.attack.value=0.003;this.limiter.release.value=0.15;
 this.analyser=this.ctx.createAnalyser();this.analyser.fftSize=2048;
 this.masterGain.connect(this.limiter);this.limiter.connect(this.analyser);this.analyser.connect(this.ctx.destination);
+// Register AudioWorklet processors (replaces deprecated ScriptProcessorNode)
+this._workletBlob=new Blob([WORKLET_SRC],{type:'application/javascript'});
+this._workletURL=URL.createObjectURL(this._workletBlob);
+this._workletReady=this.ctx.audioWorklet.addModule(this._workletURL).then(()=>{console.log('[worklet] All processors registered');}).catch(err=>{console.warn('[worklet] Registration failed, modules using worklets will be silent:',err);});
 this.channelBuses=Array.from({length:8},()=>{const g=this.ctx.createGain();g.gain.value=1;g.connect(this.masterGain);return g;});
 this.modules=new Map();this.connections=[];this.heldNotes=new Map();
 this.isPlaying=false;this.tempo=120;this.currentStep=0;this.absStep=0;this.nextStepTime=0;this.scheduleAhead=0.1;this.timerID=null;this.stepCallbacks=[];
@@ -956,7 +987,7 @@ case 'chorus':{const inp=ctx.createGain();const voices=[];for(let i=0;i<3;i++){c
 case 'distortion':{const inp=ctx.createGain();const ws=ctx.createWaveShaper();ws.curve=makeDistCurve(20);ws.oversample='4x';const tone=ctx.createBiquadFilter();tone.type='lowpass';tone.frequency.value=3000;const wet=ctx.createGain();wet.gain.value=0.8;const dry=ctx.createGain();dry.gain.value=0.2;const out=ctx.createGain();inp.connect(dry);inp.connect(ws);ws.connect(tone);tone.connect(wet);dry.connect(out);wet.connect(out);this.audioNodes={ws,tone,wet,dry};this.inputNodes.audio=inp;this.inputNodes.drive_cv=ctx.createGain();this.inputNodes.drive_cv.gain.value=1;this.inputNodes.drive_cv.connect(tone.frequency);this.outputNodes.audio=out;break;}
 
 // ===== NEW FX: BITCRUSHER =====
-case 'bitcrusher':{const inp=ctx.createGain();const proc=ctx.createScriptProcessor(4096,1,1);const bitcrush=this;proc.onaudioprocess=function(e){const inp=e.inputBuffer.getChannelData(0);const out=e.outputBuffer.getChannelData(0);const bits=Math.max(1,Math.round(bitcrush.params.bits||8));const srate=Math.max(0.01,bitcrush.params.srate||0.5);const step=Math.max(1,Math.round(1/srate));let ph=0;for(let i=0;i<inp.length;i++){ph++;if(ph>=step){ph=0;let s=inp[i];const quant=Math.pow(2,bits-1);s=Math.round(s*quant)/quant;out[i]=s;}else{out[i]=out[Math.max(0,i-1)]||0;}}};const wet=ctx.createGain();wet.gain.value=0.8;const dry=ctx.createGain();dry.gain.value=0.2;const out=ctx.createGain();inp.connect(proc);inp.connect(dry);proc.connect(wet);dry.connect(out);wet.connect(out);this.audioNodes={proc,wet,dry};this.inputNodes.audio=inp;this.outputNodes.audio=out;break;}
+case 'bitcrusher':{const inp=ctx.createGain();const wet=ctx.createGain();wet.gain.value=0.8;const dry=ctx.createGain();dry.gain.value=0.2;const out=ctx.createGain();inp.connect(dry);dry.connect(out);this.audioNodes={wet,dry};this.inputNodes.audio=inp;this.outputNodes.audio=out;const bc=this;this.engine._workletReady.then(()=>{const proc=ctx.createAudioWorkletNode('bitcrusher-processor');proc.port.postMessage({bits:bc.params.bits||8,srate:bc.params.srate||0.5});inp.connect(proc);proc.connect(wet);wet.connect(out);bc.audioNodes.proc=proc;});break;}
 
 // ===== NEW FX: GROSS BEAT =====
 case 'gross-beat':{const inp=ctx.createGain();const gate=ctx.createGain();gate.gain.value=1;const wet=ctx.createGain();wet.gain.value=0.7;const dry=ctx.createGain();dry.gain.value=0.3;const out=ctx.createGain();inp.connect(dry);inp.connect(gate);gate.connect(wet);dry.connect(out);wet.connect(out);this.audioNodes={gate,wet,dry};this.inputNodes.audio=inp;this.inputNodes.clock=ctx.createGain();this.inputNodes.mix_cv=ctx.createGain();this.inputNodes.mix_cv.gain.value=1;this.inputNodes.mix_cv.connect(wet.gain);this.outputNodes.audio=out;this._gbStep=-1;this._gbPattern=[1,0,0,0,1,0,1,0,1,0,0,1,0,0,1,0];break;}
@@ -1026,7 +1057,7 @@ this.outputNodes.audio=g;
 this._wtBaseFreq=440;
 break;}
 // ===== GRANULAR =====
-case 'granular':{this._grainInterval=null;const inp=ctx.createGain();const out=ctx.createGain();out.gain.value=0.8;const proc=ctx.createScriptProcessor(4096,1,1);const gr=this;proc.onaudioprocess=function(e){const iData=e.inputBuffer.getChannelData(0);const oData=e.outputBuffer.getChannelData(0);for(let i=0;i<iData.length;i++)oData[i]=iData[i]*0.3;};inp.connect(proc);proc.connect(out);this.audioNodes={proc,out,inp};this.inputNodes.audio=inp;this.inputNodes.trigger=ctx.createGain();this.outputNodes.audio=out;this._grainBuf=null;break;}
+case 'granular':{this._grainInterval=null;const inp=ctx.createGain();const out=ctx.createGain();out.gain.value=0.8;this.audioNodes={out,inp};this.inputNodes.audio=inp;this.inputNodes.trigger=ctx.createGain();this.outputNodes.audio=out;this._grainBuf=null;const gr=this;this.engine._workletReady.then(()=>{const proc=ctx.createAudioWorkletNode('granular-processor');proc.port.postMessage({gain:0.3});inp.connect(proc);proc.connect(out);gr.audioNodes.proc=proc;});break;}
 // ===== PLUCK =====
 case 'pluck':{const inp=ctx.createGain();const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=4000;filt.Q.value=1;const out=ctx.createGain();out.gain.value=0.8;inp.connect(filt);filt.connect(out);this.audioNodes={filt,out};this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._pluckBaseFreq=440;break;}
 // ===== BELL (polyphonic ambient temple bell — FM synthesis) =====
@@ -1056,7 +1087,7 @@ case 'comparator':{this._compA=0;this._compB=0;const src=ctx.createConstantSourc
 // ===== RING MODULATOR =====
 case 'ring-mod':{const inp=ctx.createGain();const carrier=ctx.createOscillator();carrier.type='sine';carrier.frequency.value=440;const cGain=ctx.createGain();cGain.gain.value=0.5;carrier.connect(cGain);carrier.start();const mult=ctx.createGain();mult.gain.value=1;const out=ctx.createGain();out.gain.value=0.5;inp.connect(mult.gain);cGain.connect(mult.gain);mult.connect(out);this.audioNodes={carrier,cGain,mult};this.inputNodes.audio=inp;this.inputNodes.carrier=ctx.createGain();this.inputNodes.freq_cv=ctx.createGain();this.inputNodes.freq_cv.gain.value=0;this.inputNodes.freq_cv.connect(carrier.frequency);this.outputNodes.audio=out;break;}
 // ===== WAVEFOLDER =====
-case 'wavefolder':{const inp=ctx.createGain();const proc=ctx.createScriptProcessor(4096,1,1);const wf=this;proc.onaudioprocess=function(e){const iData=e.inputBuffer.getChannelData(0);const oData=e.outputBuffer.getChannelData(0);const amt=wf.params.amount||2;const g=wf.params.gain||1;for(let i=0;i<iData.length;i++){let s=iData[i]*g;let folded=s;for(let f=0;f<Math.ceil(amt);f++){folded=Math.abs(folded)*2-1;}oData[i]=folded*0.5;}};const out=ctx.createGain();out.gain.value=0.5;inp.connect(proc);proc.connect(out);this.audioNodes={proc};this.inputNodes.audio=inp;this.inputNodes.amount_cv=ctx.createGain();this.inputNodes.amount_cv.gain.value=0;this.outputNodes.audio=out;break;}
+case 'wavefolder':{const inp=ctx.createGain();const out=ctx.createGain();out.gain.value=0.5;this.audioNodes={};this.inputNodes.audio=inp;this.inputNodes.amount_cv=ctx.createGain();this.inputNodes.amount_cv.gain.value=0;this.outputNodes.audio=out;const wf=this;this.engine._workletReady.then(()=>{const proc=ctx.createAudioWorkletNode('wavefolder-processor');proc.port.postMessage({amount:wf.params.amount||2,gain:wf.params.gain||1});inp.connect(proc);proc.connect(out);wf.audioNodes.proc=proc;});break;}
 // ===== COMPRESSOR =====
 case 'compressor':{const inp=ctx.createGain();const comp=ctx.createDynamicsCompressor();comp.threshold.value=-20;comp.ratio.value=4;comp.attack.value=0.01;comp.release.value=0.1;const out=ctx.createGain();out.gain.value=1;inp.connect(comp);comp.connect(out);this.audioNodes.comp=comp;this.inputNodes.audio=inp;this.outputNodes.audio=out;break;}
 // ===== EQ =====
@@ -1076,36 +1107,14 @@ const dry=ctx.createGain();dry.gain.value=0.5;
 const wet=ctx.createGain();wet.gain.value=0.5;
 const fb=ctx.createGain();fb.gain.value=0.22;
 const out=ctx.createGain();
-// Pitch shifter (granular)
-const pitchProc=ctx.createScriptProcessor(4096,1,1);
-const psBuf=new Float32Array(8192);
-let psRead=0,psWrite=0,psPhase=0;
-const shThis=this;
-pitchProc.onaudioprocess=function(e){
-const inD=e.inputBuffer.getChannelData(0);const outD=e.outputBuffer.getChannelData(0);
-const ratio=Math.pow(2,(shThis.params.pitch||12)/12);
-for(let i=0;i<inD.length;i++){
-// Sanitize input — guard against NaN/Infinity from feedback loop
-const inSamp=isFinite(inD[i])?Math.max(-1,Math.min(1,inD[i])):0;
-psBuf[psWrite]=inSamp;psWrite=(psWrite+1)%8192;
-const idx=Math.floor(psRead);const fr=psRead-idx;
-const s1=psBuf[idx]||0;const s2=psBuf[(idx+1)%8192]||0;
-let s=s1*(1-fr)+s2*fr;
-// Sanitize output
-if(!isFinite(s))s=0;
-s=Math.max(-1,Math.min(1,s));
-outD[i]=s*0.85;
-psRead=(psRead+ratio)%8192;
-psPhase=(psPhase+ratio*0.5)%6.2831853;
-// Wrap-safe reset: never let psRead go negative
-if(((psWrite-psRead+8192)%8192)<200)psRead=(psWrite-200+8192)%8192;
-}
-};
-summer.connect(pitchProc);pitchProc.connect(conv);
+// Pitch shifter (AudioWorklet — runs on audio thread, no main-thread blocking)
+const shMod=this;
+let pitchProc=null; // created async after worklet loads
+shMod.engine._workletReady.then(()=>{pitchProc=ctx.createAudioWorkletNode('shimmer-pitch-processor');pitchProc.port.postMessage({pitch:shMod.params.pitch||12});summer.connect(pitchProc);pitchProc.connect(conv);shMod.audioNodes.pitchProc=pitchProc;});
 inp.connect(summer);inp.connect(dry);
 conv.connect(wet);conv.connect(fb);fb.connect(summer);
 dry.connect(out);wet.connect(out);
-this.audioNodes={conv,pitchProc,wet,dry,fb,summer};
+this.audioNodes={conv,pitchProc:null,wet,dry,fb,summer};
 this.inputNodes.audio=inp;
 this.inputNodes.mix_cv=ctx.createGain();this.inputNodes.mix_cv.gain.value=1;this.inputNodes.mix_cv.connect(wet.gain);
 this.inputNodes.pitch_cv=ctx.createGain();this.inputNodes.pitch_cv.gain.value=0;
@@ -1190,10 +1199,11 @@ case 'drums':if(id==='master_vol'&&this.audioNodes.mix)this.audioNodes.mix.gain.
 case 'organ':{const drawIds=['d16','d8','d4','d223','d2','d113','d1'];const di=drawIds.indexOf(id);if(di>=0&&this.audioNodes.gains&&this.audioNodes.gains[di]){this.audioNodes.gains[di].gain.setTargetAtTime(value,t,0.02);}break;}
 case 'piano':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);break;
 case 'rhodes':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);if(id==='tremolo'&&this.audioNodes.tremGain)this.audioNodes.tremGain.gain.setTargetAtTime(Math.min(0.49,value),t,0.02);if(this.audioNodes.tremOffset)this.audioNodes.tremOffset.gain.setTargetAtTime(1-Math.min(0.49,value)/2,t,0.02);break;
+case 'bitcrusher':if(this.audioNodes.proc){this.audioNodes.proc.port.postMessage({bits:this.params.bits,srate:this.params.srate});}break;
 case 'bass':if(id==='wave'&&this.audioNodes.osc)this.audioNodes.osc.type=value;if(id==='cutoff'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);if(id==='resonance'&&this.audioNodes.filt)this.audioNodes.filt.Q.setTargetAtTime(value,t,0.02);if(id==='drive'&&this.audioNodes.drive)this.audioNodes.drive.curve=makeDistCurve(value*50);break;
 case 'noise':if(id==='type'){this._noiseType=value;if(this.audioNodes.src){this.audioNodes.src.stop();try{this.audioNodes.src.disconnect();}catch(e){}}const bs=this.engine.ctx.sampleRate*4;const buf=makeNoiseBuffer(this.engine.ctx,4,value);const s=this.engine.ctx.createBufferSource();s.buffer=buf;s.loop=true;s.connect(this.audioNodes.gain);s.start();this.audioNodes.src=s;}break;
 case 'wavetable':if(id==='wave'){this.audioNodes._waveType=value;const wi=this._wtTypes.indexOf(value);if(wi>=0){this._wtWaveIdx=wi;this._updateWtWave();}}if(id==='morph'){this._wtMorph=value;this._updateWtWave();}if(id==='detune'&&this.audioNodes.osc)this.audioNodes.osc.detune.setTargetAtTime(value,t,0.02);break;
-case 'shimmer':if(id==='decay')this.audioNodes.conv.buffer=this._makeIR(value,2);if(id==='feedback'&&this.audioNodes.fb)this.audioNodes.fb.gain.setTargetAtTime(value,t,0.02);if(id==='mix'&&this.audioNodes.wet){this.audioNodes.wet.gain.setTargetAtTime(value,t,0.02);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.02);}break;
+case 'shimmer':if(id==='decay')this.audioNodes.conv.buffer=this._makeIR(value,2);if(id==='feedback'&&this.audioNodes.fb)this.audioNodes.fb.gain.setTargetAtTime(value,t,0.02);if(id==='mix'&&this.audioNodes.wet){this.audioNodes.wet.gain.setTargetAtTime(value,t,0.02);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.02);}if(id==='pitch'&&this.audioNodes.pitchProc){this.audioNodes.pitchProc.port.postMessage({pitch:value});}break;
 case 'percussion':if(id==='master_vol'&&this.audioNodes.mix)this.audioNodes.mix.gain.setTargetAtTime(value,t,0.02);break;
 case 'automation':if(id==='length')this._length=Math.max(2,Math.min(32,Math.round(value)));break;
 case 'pluck':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);if(id==='damping')this._pluckDamping=value;break;
@@ -1205,7 +1215,7 @@ case 'quantizer':if(id==='scale')this._quantScale=value;if(id==='root')this._qua
 case 'clock-div':if(id==='divide')this._clkDiv=value;break;
 case 'logic':if(id==='mode')this._logicMode=value;break;
 case 'ring-mod':if(id==='frequency'&&this.audioNodes.carrier)this.audioNodes.carrier.frequency.setTargetAtTime(value,t,0.02);if(id==='amount'&&this.audioNodes.cGain)this.audioNodes.cGain.gain.setTargetAtTime(value,t,0.02);break;
-case 'wavefolder':break;
+case 'wavefolder':if(this.audioNodes.proc){this.audioNodes.proc.port.postMessage({amount:this.params.amount,gain:this.params.gain});}break;
 case 'compressor':if(id==='threshold'&&this.audioNodes.comp)this.audioNodes.comp.threshold.setTargetAtTime(value,t,0.02);if(id==='ratio'&&this.audioNodes.comp)this.audioNodes.comp.ratio.setTargetAtTime(value,t,0.02);if(id==='attack'&&this.audioNodes.comp)this.audioNodes.comp.attack.setTargetAtTime(value,t,0.02);if(id==='release'&&this.audioNodes.comp)this.audioNodes.comp.release.setTargetAtTime(value,t,0.02);break;
 case 'eq':if(id==='low'&&this.audioNodes.low)this.audioNodes.low.gain.setTargetAtTime(value,t,0.02);if(id==='mid'&&this.audioNodes.mid)this.audioNodes.mid.gain.setTargetAtTime(value,t,0.02);if(id==='high'&&this.audioNodes.high)this.audioNodes.high.gain.setTargetAtTime(value,t,0.02);break;
 case 'tremolo':if(id==='rate'&&this.audioNodes.lfo)this.audioNodes.lfo.frequency.setTargetAtTime(value,t,0.02);if(id==='depth'&&this.audioNodes.lfoG)this.audioNodes.lfoG.gain.setTargetAtTime(Math.min(0.49,value),t,0.02);break;
