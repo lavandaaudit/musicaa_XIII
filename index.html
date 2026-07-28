@@ -509,6 +509,12 @@ const MODULE_DEFS={
 'shimmer':{name:'Shimmer',color:'#77bbff',cat:'FX',desc:'Pitch-shifted reverb',inputs:[{id:'audio',name:'IN',type:'audio'},{id:'mix_cv',name:'MIX CV',type:'cv'},{id:'pitch_cv',name:'PCH CV',type:'cv'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'pitch',name:'PITCH',type:'range',min:-12,max:24,default:12,step:1,unit:'st'},{id:'decay',name:'DECAY',type:'range',min:0.5,max:12,default:4,unit:'s'},{id:'feedback',name:'FB',type:'range',min:0,max:0.7,default:0.36,unit:''},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:0.5,unit:''}]},
 'percussion':{name:'Percussion',color:'#cc8844',cat:'Source',desc:'Percussion synth (clap/shaker/cowbell/conga/rim)',inputs:[{id:'clock',name:'CLOCK',type:'gate'},{id:'reset',name:'RESET',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'clap_tune',name:'CLAP',type:'range',min:0,max:1,default:0.5,unit:''},{id:'shaker_tune',name:'SHAK',type:'range',min:0,max:1,default:0.5,unit:''},{id:'cowbell_tune',name:'COW',type:'range',min:0,max:1,default:0.5,unit:''},{id:'conga_tune',name:'CONG',type:'range',min:0,max:1,default:0.5,unit:''},{id:'rim_tune',name:'RIM',type:'range',min:0,max:1,default:0.5,unit:''},{id:'master_vol',name:'VOL',type:'range',min:0,max:1,default:0.8,unit:''}]},
 'automation':{name:'Automation',color:'#aaff88',cat:'Modulation',desc:'Automate any parameter (Bitwig-style)',inputs:[{id:'clock',name:'CLOCK',type:'gate'},{id:'reset',name:'RESET',type:'gate'}],outputs:[{id:'cv',name:'CV',type:'cv'}],controls:[{id:'length',name:'LEN',type:'range',min:2,max:32,default:16,step:1,unit:''},{id:'slew',name:'SLEW',type:'range',min:0,max:1,default:0.03,unit:'s'},{id:'shape',name:'SHAPE',type:'select',options:['step','linear','smooth'],default:'smooth'},{id:'depth',name:'DEPTH',type:'range',min:0,max:1,default:1,unit:''}]},
+'fm_synth':{name:'FM Synth',color:'#ff6622',cat:'Source',desc:'FM synthesis (2-op)',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:0.3,max:5,default:2,unit:'s'},{id:'harmonic',name:'HARM',type:'range',min:1,max:16,default:2,unit:''},{id:'mod_amt',name:'MOD',type:'range',min:0,max:1,default:0.5,unit:''},{id:'octave',name:'OCT',type:'range',min:-2,max:2,default:0,unit:''}]},
+'string_ens':{name:'Strings',color:'#cc88ff',cat:'Source',desc:'String ensemble',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:0.5,max:8,default:4,unit:'s'},{id:'detune',name:'DETUNE',type:'range',min:0,max:20,default:8,unit:''},{id:'brightness',name:'BRIGHT',type:'range',min:500,max:8000,default:3000,unit:'Hz'},{id:'octave',name:'OCT',type:'range',min:-2,max:2,default:0,unit:''}]},
+'marimba':{name:'Marimba',color:'#ffaa44',cat:'Source',desc:'Marimba / wooden perc',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:0.1,max:3,default:0.8,unit:'s'},{id:'octave',name:'OCT',type:'range',min:-2,max:2,default:0,unit:''}]},
+'chorus_plus':{name:'Chorus+',color:'#44aaff',cat:'FX',desc:'Stereo chorus',inputs:[{id:'audio',name:'IN',type:'audio'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'rate',name:'RATE',type:'range',min:0.1,max:5,default:0.8,unit:'Hz'},{id:'depth',name:'DEPTH',type:'range',min:0,max:10,default:4,unit:'ms'},{id:'voices',name:'VOICES',type:'range',min:2,max:6,default:4,unit:''},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:0.5,unit:''}]},
+'pingpong':{name:'PingPong',color:'#44ffaa',cat:'FX',desc:'Ping-pong delay',inputs:[{id:'audio',name:'IN',type:'audio'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'time',name:'TIME',type:'range',min:0.05,max:2,default:0.375,unit:'s'},{id:'feedback',name:'FB',type:'range',min:0,max:0.9,default:0.4,unit:''},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:0.4,unit:''}]},
+'ringmod':{name:'Ring Mod',color:'#ff44aa',cat:'FX',desc:'Ring modulator',inputs:[{id:'audio',name:'IN',type:'audio'},{id:'mod_cv',name:'MOD CV',type:'cv'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'freq',name:'FREQ',type:'range',min:20,max:5000,default:440,unit:'Hz'},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:0.5,unit:''}]},
 'output':{name:'Output',color:'#ff3366',cat:'Output',desc:'Master output + channel router',inputs:[{id:'audio_l',name:'L',type:'audio'},{id:'audio_r',name:'R',type:'audio'},{id:'note_in',name:'NOTE',type:'note'}],outputs:[],controls:[{id:'volume',name:'VOL',type:'range',min:0,max:1,default:0.8,unit:''},{id:'channel',name:'CH',type:'select',options:['off','1','2','3','4','5','6','7','8'],default:'off'}]}
 };
 
@@ -673,13 +679,10 @@ const targets=this._getChannelNoteInputs(fromChannel);
 if(targets){this.modules.forEach(m=>{if(m.type==='note-input'&&targets.has(m.id))m.onNoteOn(freq);});}
 else{this.modules.forEach(m=>{if(m.type==='note-input')m.onNoteOn(freq);});}
 }else{
-// Live play: if recording to a channel with a bound Output, only trigger that chain
-const selCh=this.loops[this.selectedLoop];
-if(selCh&&selCh.recording){
+// Live play: always route to selected channel's chain
 const targets=this._getChannelNoteInputs(this.selectedLoop);
 if(targets){this.modules.forEach(m=>{if(m.type==='note-input'&&targets.has(m.id))m.onNoteOn(freq);});}
 else{this.modules.forEach(m=>{if(m.type==='note-input')m.onNoteOn(freq);});}
-}else{this.modules.forEach(m=>{if(m.type==='note-input')m.onNoteOn(freq);});}
 }
 if(fromReplay)this._notifyNoteSubs('on',freq,true);
 }
@@ -705,13 +708,10 @@ const targets=this._getChannelNoteInputs(fromChannel);
 if(targets){this.modules.forEach(m=>{if(m.type==='note-input'&&targets.has(m.id))m.onNoteOff(freq);});}
 else{this.modules.forEach(m=>{if(m.type==='note-input')m.onNoteOff(freq);});}
 }else{
-// Live play: if recording to a channel with a bound Output, only trigger that chain
-const selCh=this.loops[this.selectedLoop];
-if(selCh&&selCh.recording){
+// Live play: always route to selected channel's chain
 const targets=this._getChannelNoteInputs(this.selectedLoop);
 if(targets){this.modules.forEach(m=>{if(m.type==='note-input'&&targets.has(m.id))m.onNoteOff(freq);});}
 else{this.modules.forEach(m=>{if(m.type==='note-input')m.onNoteOff(freq);});}
-}else{this.modules.forEach(m=>{if(m.type==='note-input')m.onNoteOff(freq);});}
 }
 }
 else{this.heldNotes.set(freq,c);}
@@ -1147,6 +1147,13 @@ this.inputNodes.reset=ctx.createGain();
 this.outputNodes.cv=g;
 break;}
 
+
+case 'fm_synth':{const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=4000;filt.Q.value=0.7;const masterGain=ctx.createGain();masterGain.gain.value=0.3;filt.connect(masterGain);this.audioNodes={filt,masterGain};this.outputNodes.audio=masterGain;this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._voices=new Map();this._voiceSeq=0;this._maxVoices=10;this._heldFreqs=new Set();this._lastFreq=440;break;}
+case 'string_ens':{const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=3000;filt.Q.value=0.5;const masterGain=ctx.createGain();masterGain.gain.value=0.2;filt.connect(masterGain);this.audioNodes={filt,masterGain};this.outputNodes.audio=masterGain;this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._voices=new Map();this._voiceSeq=0;this._maxVoices=8;this._heldFreqs=new Set();this._lastFreq=440;break;}
+case 'marimba':{const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=6000;filt.Q.value=1;const masterGain=ctx.createGain();masterGain.gain.value=0.45;filt.connect(masterGain);this.audioNodes={filt,masterGain};this.outputNodes.audio=masterGain;this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._voices=new Map();this._voiceSeq=0;this._maxVoices=10;this._heldFreqs=new Set();this._lastFreq=440;break;}
+case 'chorus_plus':{const inp=ctx.createGain();const out=ctx.createGain();out.gain.value=1;const dry=ctx.createGain();dry.gain.value=0.5;const wet=ctx.createGain();wet.gain.value=0.5;const panL=ctx.createStereoPanner();panL.pan.value=-0.6;const panR=ctx.createStereoPanner();panR.pan.value=0.6;inp.connect(dry);dry.connect(out);const voiceData=[];for(let i=0;i<4;i++){const d=ctx.createDelay(0.05);d.delayTime.value=0.005+i*0.003;const l=ctx.createOscillator();l.type='sine';l.frequency.value=0.8+i*0.15;const lg=ctx.createGain();lg.gain.value=0.003;l.connect(lg);lg.connect(d.delayTime);l.start();inp.connect(d);if(i%2===0){d.connect(panL);panL.connect(wet);}else{d.connect(panR);panR.connect(wet);}voiceData.push({delay:d,lfo:l,lfoGain:lg});}wet.connect(out);this.audioNodes={voiceData,wet,dry,panL,panR};this.inputNodes.audio=inp;this.outputNodes.audio=out;break;}
+case 'pingpong':{const inp=ctx.createGain();const delL=ctx.createDelay(2);delL.delayTime.value=0.375;const delR=ctx.createDelay(2);delR.delayTime.value=0.375;const fbL=ctx.createGain();fbL.gain.value=0.4;const fbR=ctx.createGain();fbR.gain.value=0.4;const wet=ctx.createGain();wet.gain.value=0.4;const dry=ctx.createGain();dry.gain.value=0.6;const out=ctx.createGain();const panL=ctx.createStereoPanner();panL.pan.value=-0.7;const panR=ctx.createStereoPanner();panR.pan.value=0.7;inp.connect(dry);dry.connect(out);inp.connect(delL);delL.connect(panL);panL.connect(wet);inp.connect(delR);delR.connect(panR);panR.connect(wet);wet.connect(out);delL.connect(fbL);fbL.connect(delR);delR.connect(fbR);fbR.connect(delL);this.audioNodes={delL,delR,fbL,fbR,wet,dry,panL,panR};this.inputNodes.audio=inp;this.outputNodes.audio=out;break;}
+case 'ringmod':{const inp=ctx.createGain();const carrier=ctx.createOscillator();carrier.type='sine';carrier.frequency.value=440;carrier.start();const ring=ctx.createGain();ring.gain.value=0;const dry=ctx.createGain();dry.gain.value=0.5;const wet=ctx.createGain();wet.gain.value=0.5;const out=ctx.createGain();inp.connect(ring);carrier.connect(ring.gain);inp.connect(dry);ring.connect(wet);dry.connect(out);wet.connect(out);this.audioNodes={carrier,ring,wet,dry};this.inputNodes.audio=inp;this.inputNodes.mod_cv=ctx.createGain();this.inputNodes.mod_cv.gain.value=200;this.inputNodes.mod_cv.connect(carrier.frequency);this.outputNodes.audio=out;break;}
 case 'output':{const iL=ctx.createGain();const iR=ctx.createGain();const vol=ctx.createGain();vol.gain.value=0.8;const pan=ctx.createStereoPanner();pan.pan.value=0;iL.connect(vol);iR.connect(vol);vol.connect(pan);this.audioNodes.vol=vol;this.audioNodes.pan=pan;this._chAudioDest=this.engine.masterGain;pan.connect(this._chAudioDest);this.inputNodes.audio_l=iL;this.inputNodes.audio_r=iR;this.inputNodes.note_in=ctx.createGain();this._chNoteFreq=null;this._chGateOpen=false;break;}
 case 'sequencer':{this._steps=Array(24).fill(null).map(()=>({active:false,freq:440,name:'A4'}));this._currentStep=-1;const defaultNotes=[261.63,329.63,392,523.25,293.66,440,349.23,523.25,261.63,0,392,0,329.63,440,0,523.25,261.63,0,0,392,440,523.25,0,0];for(let i=0;i<24;i++){if(defaultNotes[i]>0){this._steps[i]={active:true,freq:defaultNotes[i],name:freqToName(defaultNotes[i])};}}break;}
 }
@@ -1160,6 +1167,13 @@ case 'filter':if(id==='type'&&this.audioNodes.filter)this.audioNodes.filter.type
 case 'gain':if(id==='gain'&&this.audioNodes.gain)this.audioNodes.gain.gain.setTargetAtTime(value,t,0.02);break;
 case 'delay':if(id==='time'&&this.audioNodes.delay)this.audioNodes.delay.delayTime.setTargetAtTime(value,t,0.02);if(id==='feedback'&&this.audioNodes.fb)this.audioNodes.fb.gain.setTargetAtTime(value,t,0.02);if(id==='mix'&&this.audioNodes.wet){this.audioNodes.wet.gain.setTargetAtTime(value,t,0.02);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.02);}break;
 case 'reverb':if(id==='decay')this.audioNodes.conv.buffer=this._makeIR(value,2);if(id==='mix'){this.audioNodes.wet.gain.setTargetAtTime(value,t,0.02);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.02);}break;
+
+case 'fm_synth':if(id==='harmonic'){};break;
+case 'string_ens':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,this.engine.ctx.currentTime,0.02);break;
+case 'marimba':break;
+case 'chorus_plus':if(id==='rate')this.audioNodes.voiceData.forEach((v,i)=>{if(v.lfo)v.lfo.frequency.setTargetAtTime(value+i*0.15,t,0.02);});if(id==='depth')this.audioNodes.voiceData.forEach((v,i)=>{if(v.lfoGain)v.lfoGain.gain.setTargetAtTime(value/1000,t,0.02);});if(id==='mix'&&this.audioNodes.wet){this.audioNodes.wet.gain.setTargetAtTime(value,t,0.02);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.02);}break;
+case 'pingpong':if(id==='time'){const t2=value*0.5;if(this.audioNodes.delL)this.audioNodes.delL.delayTime.setTargetAtTime(t2,this.engine.ctx.currentTime,0.02);if(this.audioNodes.delR)this.audioNodes.delR.delayTime.setTargetAtTime(t2,this.engine.ctx.currentTime,0.02);}if(id==='feedback'){if(this.audioNodes.fbL)this.audioNodes.fbL.gain.setTargetAtTime(value,this.engine.ctx.currentTime,0.02);if(this.audioNodes.fbR)this.audioNodes.fbR.gain.setTargetAtTime(value,this.engine.ctx.currentTime,0.02);}if(id==='mix'){if(this.audioNodes.wet)this.audioNodes.wet.gain.setTargetAtTime(value,this.engine.ctx.currentTime,0.02);if(this.audioNodes.dry)this.audioNodes.dry.gain.setTargetAtTime(1-value,this.engine.ctx.currentTime,0.02);}break;
+case 'ringmod':if(id==='freq'&&this.audioNodes.carrier)this.audioNodes.carrier.frequency.setTargetAtTime(value,this.engine.ctx.currentTime,0.02);if(id==='mix'){if(this.audioNodes.wet)this.audioNodes.wet.gain.setTargetAtTime(value,this.engine.ctx.currentTime,0.02);if(this.audioNodes.dry)this.audioNodes.dry.gain.setTargetAtTime(1-value,this.engine.ctx.currentTime,0.02);}break;
 case 'output':if(id==='volume'&&this.audioNodes.vol)this.audioNodes.vol.gain.setTargetAtTime(value,t,0.02);if(id==='channel'){this._chBind=value;this._updateChBindVisual();
 // Re-route audio to channel bus or masterGain
 if(this.audioNodes&&this.audioNodes.pan){try{this.audioNodes.pan.disconnect(this._chAudioDest);}catch(e){}
@@ -1212,7 +1226,8 @@ if(this.audioNodes.osc)this.audioNodes.osc.setPeriodicWave(pw);
 onNoteInput(freq,time){
 if(this.type==='oscillator'&&this.audioNodes.osc){const oct=this.params.octave||0;const f=freq*Math.pow(2,oct);this.audioNodes.osc.frequency.setTargetAtTime(f,time||this.engine.ctx.currentTime,0.01);}
 if(this.type==='arpeggiator')this.onNoteOn(freq);
-if(this.type==='organ')this._setOrganFreq(freq,time);
+if(this.type==='organ')this.
+_setOrganFreq(freq,time);
 if(this.type==='piano'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
 if(this.type==='rhodes'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
 if(this.type==='bass')this._setBassFreq(freq,time);
@@ -1220,6 +1235,9 @@ if(this.type==='chords')this._onChordNote(freq);
 if(this.type==='pluck')this._setPluckFreq(freq,time);
 if(this.type==='bell'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
 if(this.type==='kalimba'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='fm_synth'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='string_ens'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='marimba'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
 if(this.type==='drone')this._setDroneFreq(freq,time);
 if(this.type==='wavetable'&&this.audioNodes.osc){const oct=this.params.octave||0;const det=(this.params.detune||0)/1200;const f=freq*Math.pow(2,oct+det);this._wtBaseFreq=f;this.audioNodes.osc.frequency.setTargetAtTime(f,time||this.engine.ctx.currentTime,0.01);}
 if(this.type==='shimmer'&&this.inputNodes.pitch_cv){/* pitch handled by param; cv adds offset */}
@@ -1241,6 +1259,9 @@ if(this.type==='piano'){this._polyGate(value,t);}
 if(this.type==='rhodes'){this._polyGate(value,t);}
 if(this.type==='bell'){this._polyGate(value,t);}
 if(this.type==='kalimba'){this._polyGate(value,t);}
+if(this.type==='fm_synth'){this._polyGate(value,t);}
+if(this.type==='string_ens'){this._polyGate(value,t);}
+if(this.type==='marimba'){this._polyGate(value,t);}
 if(this.type==='drone'){const vca=this.audioNodes.vca;if(!vca)return;const swell=Math.max(0.05,this.params.swell||2);if(value>0){vca.gain.cancelScheduledValues(t);vca.gain.setValueAtTime(Math.max(0,vca.gain.value),t);vca.gain.linearRampToValueAtTime(1,t+swell);}else{vca.gain.cancelScheduledValues(t);vca.gain.setValueAtTime(Math.max(0,vca.gain.value),t);vca.gain.linearRampToValueAtTime(0,t+swell);}}
 if(this.type==='bass'){if(value>0){this.audioNodes.oscG.gain.cancelScheduledValues(t);this.audioNodes.oscG.gain.setValueAtTime(0,t);this.audioNodes.oscG.gain.linearRampToValueAtTime(1,t+0.005);this.audioNodes.subG.gain.cancelScheduledValues(t);this.audioNodes.subG.gain.setValueAtTime(0,t);this.audioNodes.subG.gain.linearRampToValueAtTime(this.params.sub||0.5,t+0.005);}else{this.audioNodes.oscG.gain.cancelScheduledValues(t);this.audioNodes.oscG.gain.setValueAtTime(this.audioNodes.oscG.gain.value,t);this.audioNodes.oscG.gain.linearRampToValueAtTime(0,t+0.15);this.audioNodes.subG.gain.cancelScheduledValues(t);this.audioNodes.subG.gain.setValueAtTime(this.audioNodes.subG.gain.value,t);this.audioNodes.subG.gain.linearRampToValueAtTime(0,t+0.15);}}
 if(this.type==='pluck'&&value>0&&this._pluckBaseFreq>0){const ctx=this.engine.ctx;const freq=this._pluckBaseFreq;const dur=this.params.decay||1;const bright=this.params.brightness||0.5;const damp=this.params.damping||0.3;const oct=this.params.octave||0;const f=freq*Math.pow(2,oct);const nLen=Math.floor(ctx.sampleRate*Math.min(4,dur));const buf=ctx.createBuffer(1,Math.max(1,nLen),ctx.sampleRate);const d=buf.getChannelData(0);const period=Math.floor(ctx.sampleRate/f);const bFilt=1-damp*0.5;const first=(bright*0.5+0.5);d[0]=Math.random()*2-1;if(period>1)d[1]=d[0];for(let i=1;i<nLen-1;i++){d[i]=(bFilt*(d[i]+d[i-1]))*Math.pow(1-i/nLen,0.3/first);if(i===period)d[i]*=0.5;}d[0]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const g=ctx.createGain();g.gain.value=0;const tt=ctx.currentTime;g.gain.setValueAtTime(0,tt);g.gain.linearRampToValueAtTime(0.6,tt+0.005);g.gain.exponentialRampToValueAtTime(0.001,tt+dur);src.connect(g);g.connect(this.audioNodes.filt);src.start(tt);src.stop(tt+dur+0.01);}
@@ -1280,6 +1301,9 @@ if(this.type==='piano')this._spawnPianoVoice(freq,t);
 else if(this.type==='rhodes')this._spawnRhodesVoice(freq,t);
 else if(this.type==='bell')this._spawnBellVoice(freq,t);
 else if(this.type==='kalimba')this._spawnKalimbaVoice(freq,t);
+else if(this.type==='fm_synth')this._spawnFmSynthVoice(freq,t);
+else if(this.type==='string_ens')this._spawnStringEnsVoice(freq,t);
+else if(this.type==='marimba')this._spawnMarimbaVoice(freq,t);
 }
 _spawnPianoVoice(freq,t){
 const ctx=this.engine.ctx;
@@ -1370,11 +1394,11 @@ if(this.type==='piano'&&voice.voiceGain){
 voice.voiceGain.gain.cancelScheduledValues(t);
 voice.voiceGain.gain.setValueAtTime(voice.voiceGain.gain.value,t);
 voice.voiceGain.gain.exponentialRampToValueAtTime(0.001,t+relTime);
-}else if(this.type==='rhodes'&&voice.ampEnv){
+}else if((this.type==='rhodes'||this.type==='string_ens')&&voice.ampEnv){
 voice.ampEnv.gain.cancelScheduledValues(t);
 voice.ampEnv.gain.setValueAtTime(voice.ampEnv.gain.value,t);
 voice.ampEnv.gain.exponentialRampToValueAtTime(0.001,t+relTime);
-}else if((this.type==='bell'||this.type==='kalimba')&&voice.voiceGain){
+}else if((this.type==='bell'||this.type==='kalimba'||this.type==='fm_synth'||this.type==='marimba')&&voice.voiceGain){
 voice.voiceGain.gain.cancelScheduledValues(t);
 voice.voiceGain.gain.setValueAtTime(Math.max(0.001,voice.voiceGain.gain.value),t);
 voice.voiceGain.gain.exponentialRampToValueAtTime(0.001,t+relTime);
@@ -1398,6 +1422,42 @@ _killVoice(freq,t){
 const voice=this._voices.get(freq);
 if(!voice)return;
 this._cleanupVoice(voice,t);
+}
+_spawnFmSynthVoice(freq,t){
+const ctx=this.engine.ctx;const oct=this.params.octave||0;const f=freq*Math.pow(2,oct);const harmonic=this.params.harmonic||2;const modAmt=this.params.mod_amt||0.5;const decay=Math.max(0.3,this.params.decay||2);
+const carrier=ctx.createOscillator();carrier.type='sine';carrier.frequency.value=f;
+const modulator=ctx.createOscillator();modulator.type='sine';modulator.frequency.value=f*harmonic;
+const modGain=ctx.createGain();modGain.gain.value=0;
+modulator.connect(modGain);modGain.connect(carrier.frequency);
+const ampEnv=ctx.createGain();ampEnv.gain.value=0;
+carrier.connect(ampEnv);ampEnv.connect(this.audioNodes.filt);
+modGain.gain.setValueAtTime(modAmt*f*harmonic,t);modGain.gain.exponentialRampToValueAtTime(0.001,t+decay*0.7);
+ampEnv.gain.setValueAtTime(0,t);ampEnv.gain.linearRampToValueAtTime(0.35,t+0.002);ampEnv.gain.exponentialRampToValueAtTime(0.001,t+decay);
+carrier.start(t);modulator.start(t);
+const voice={freq,carrier,modulator,modGain,ampEnv,oscs:[carrier,modulator],voiceGain:ampEnv,seq:this._voiceSeq++,cleanupAt:t+decay+0.5,released:false};
+this._voices.set(freq,voice);setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
+}
+_spawnStringEnsVoice(freq,t){
+const ctx=this.engine.ctx;const oct=this.params.octave||0;const f=freq*Math.pow(2,oct);const det=(this.params.detune||8)/1200;const decay=Math.max(0.5,this.params.decay||4);const numStrings=4;const voiceGain=ctx.createGain();voiceGain.gain.value=0;const oscs=[];
+for(let i=0;i<numStrings;i++){const o=ctx.createOscillator();o.type=i<2?'sawtooth':'triangle';o.frequency.value=f*(1+(i-numStrings/2)*det*0.5);const g=ctx.createGain();g.gain.value=1/numStrings;o.connect(g);g.connect(voiceGain);o.start();oscs.push(o);}
+voiceGain.connect(this.audioNodes.filt);
+voiceGain.gain.setValueAtTime(0,t);voiceGain.gain.linearRampToValueAtTime(0.3,t+0.15);voiceGain.gain.linearRampToValueAtTime(0.25,t+decay*0.6);voiceGain.gain.exponentialRampToValueAtTime(0.001,t+decay);
+const voice={freq,oscs,voiceGain,ampEnv:voiceGain,seq:this._voiceSeq++,cleanupAt:t+decay+0.5,released:false};
+this._voices.set(freq,voice);setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
+}
+_spawnMarimbaVoice(freq,t){
+const ctx=this.engine.ctx;const oct=this.params.octave||0;const f=freq*Math.pow(2,oct);const decay=Math.max(0.1,this.params.decay||0.8);
+const carrier=ctx.createOscillator();carrier.type='sine';carrier.frequency.value=f;
+const modulator=ctx.createOscillator();modulator.type='sine';modulator.frequency.value=f*4;
+const modGain=ctx.createGain();modGain.gain.value=0;
+modulator.connect(modGain);modGain.connect(carrier.frequency);
+const ampEnv=ctx.createGain();ampEnv.gain.value=0;
+carrier.connect(ampEnv);ampEnv.connect(this.audioNodes.filt);
+modGain.gain.setValueAtTime(f*8,t);modGain.gain.exponentialRampToValueAtTime(0.001,t+0.02);
+ampEnv.gain.setValueAtTime(0,t);ampEnv.gain.linearRampToValueAtTime(0.6,t+0.001);ampEnv.gain.exponentialRampToValueAtTime(0.001,t+decay);
+carrier.start(t);modulator.start(t);
+const voice={freq,carrier,modulator,modGain,ampEnv,oscs:[carrier,modulator],voiceGain:ampEnv,seq:this._voiceSeq++,cleanupAt:t+decay+0.5,released:false};
+this._voices.set(freq,voice);setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
 }
 
 _setOrganFreq(freq,time){const t=time||this.engine.ctx.currentTime;this._organBaseFreq=freq;const oct=this.params.octave||0;this.audioNodes.oscs.forEach((o,i)=>{const h=this._organHarmonics[i];o.frequency.setTargetAtTime(freq*h*Math.pow(2,oct),t,0.005);});this.audioNodes.gains.forEach((g,i)=>{const drawIds=['d16','d8','d4','d223','d2','d113','d1'];g.gain.setTargetAtTime(this.params[drawIds[i]]||0,t,0.005);});}
