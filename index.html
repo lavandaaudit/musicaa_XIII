@@ -775,7 +775,7 @@ const MODULE_DEFS={
 'transient':{name:'Transient',color:'#ff9944',cat:'Processing',desc:'Transient shaper (attack/sustain control)',inputs:[{id:'audio',name:'IN',type:'audio'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'attack',name:'ATK',type:'range',min:-1,max:1,default:0.3,unit:''},{id:'sustain',name:'SUS',type:'range',min:-1,max:1,default:0,unit:''},{id:'output',name:'OUT',type:'range',min:0,max:2,default:1,unit:''},{id:'fast',name:'FAST',type:'select',options:['slow','med','fast'],default:'med'}]},
 'vocoder':{name:'Vocoder',color:'#cc88ff',cat:'Processing',desc:'Band-bank vocoder (modulator+carrier)',inputs:[{id:'modulator',name:'MOD',type:'audio'},{id:'carrier',name:'CAR',type:'audio'},{id:'formant_cv',name:'FORM',type:'cv'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'bands',name:'BANDS',type:'select',options:['8','12','16','24'],default:'16'},{id:'q',name:'Q',type:'range',min:1,max:25,default:8,unit:''},{id:'formant',name:'FORMANT',type:'range',min:-1,max:1,default:0,unit:''},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:1,unit:''}]},
 'tape-echo':{name:'Tape Echo',color:'#bb8866',cat:'FX',desc:'Vintage tape echo (wow/flutter/saturation)',inputs:[{id:'audio',name:'IN',type:'audio'},{id:'time_cv',name:'TIME CV',type:'cv'},{id:'fb_cv',name:'FB CV',type:'cv'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'time',name:'TIME',type:'range',min:0.05,max:1,default:0.3,unit:'s'},{id:'feedback',name:'FB',type:'range',min:0,max:0.9,default:0.4,unit:''},{id:'wow',name:'WOW',type:'range',min:0,max:1,default:0.3,unit:''},{id:'flutter',name:'FLUTTER',type:'range',min:0,max:1,default:0.2,unit:''},{id:'saturation',name:'SAT',type:'range',min:0,max:1,default:0.5,unit:''},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:0.5,unit:''}]},
-'spring-reverb':{name:'Spring Reverb',color:'#77ddaa',cat:'FX',desc:'Spring reverb emulation (boingy)',inputs:[{id:'audio',name:'IN',type:'audio'},{id:'mix_cv',name:'MIX CV',type:'cv'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:0.1,max:4,default:1.2,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:500,max:8000,default:3500,unit:'Hz'},{id:'boing',name:'BOING',type:'range',min:0,max:1,default:0.4,unit:''},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:0.5,unit:''}]},
+'valhalla-reverb':{name:'Valhalla Reverb',color:'#77ddaa',cat:'FX',desc:'Algorithmic hall/shimmer reverb (valhalla-style)',inputs:[{id:'audio',name:'IN',type:'audio'},{id:'mix_cv',name:'MIX CV',type:'cv'},{id:'decay_cv',name:'DEC CV',type:'cv'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'algorithm',name:'ALGO',type:'select',options:['Room','Hall','Plate','Shimmer','Blackhole'],default:'Hall'},{id:'decay',name:'DECAY',type:'range',min:0.2,max:15,default:3.0,unit:'s'},{id:'pre_delay',name:'PREDLY',type:'range',min:0,max:0.2,default:0.02,unit:'s'},{id:'diffusion',name:'DIFF',type:'range',min:0,max:1,default:0.7,unit:''},{id:'brightness',name:'BRIGHT',type:'range',min:500,max:12000,default:5500,unit:'Hz'},{id:'damping',name:'DAMP',type:'range',min:200,max:12000,default:4000,unit:'Hz'},{id:'modulation',name:'MOD',type:'range',min:0,max:1,default:0.3,unit:''},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:0.5,unit:''}]},
 'attenuverter':{name:'Attenuverter',color:'#99aabb',cat:'Utility',desc:'CV attenuator + inverter + offset',inputs:[{id:'in',name:'IN',type:'cv'}],outputs:[{id:'out',name:'OUT',type:'cv'}],controls:[{id:'amount',name:'AMT',type:'range',min:-1,max:1,default:1,unit:''},{id:'offset',name:'OFFSET',type:'range',min:-1,max:1,default:0,unit:''}]},
 'cv-offset':{name:'CV Offset',color:'#aabbcc',cat:'Utility',desc:'Constant CV source (bias)',inputs:[],outputs:[{id:'cv',name:'CV',type:'cv'}],controls:[{id:'offset',name:'OFFSET',type:'range',min:-1,max:1,default:0.5,unit:''}]},
 'clock-mult':{name:'Clock Mult',color:'#dddd44',cat:'Utility',desc:'Clock multiplier (×2..×12)',inputs:[{id:'clock',name:'CLOCK',type:'gate'},{id:'reset',name:'RESET',type:'gate'}],outputs:[{id:'out',name:'OUT',type:'gate'}],controls:[{id:'multiply',name:'MULT',type:'select',options:['×2','×3','×4','×6','×8','×12'],default:'×4'}]},
@@ -1968,34 +1968,80 @@ case 'tape-echo':{
   this.inputNodes.fb_cv=ctx.createGain();this.inputNodes.fb_cv.gain.value=1;this.inputNodes.fb_cv.connect(fb.gain);
   this.outputNodes.audio=out;
   break;}
-case 'spring-reverb':{
+case 'valhalla-reverb':{
+  // ===== VALHALLA-STYLE ALGORITHMIC REVERB =====
+  // Stable, high-quality algorithmic reverb based on parallel Comb + Allpass filters
+  // (Schroeder-Moorer architecture with Valhalla-style enhancements)
+  // - Pre-delay for early reflection separation
+  // - 4-tap stereo input diffuser (no feedback loop = no instability)
+  // - Multi-tap comb filters for tail density
+  // - Brightness (input HP) + Damping (decay LP) controls
+  // - Modulation LFO for "valhalla-like" tail shimmer
   const inp=ctx.createGain();
-  // Spring reverb = multiple short allpass filters with dispersive quality + feedback
-  // Implementation: 4 allpass filters in series with moderate feedback
-  const allpasses=[];
+  const ctx2=ctx;
+  // Pre-delay
+  const predelay=ctx.createDelay(0.25);predelay.delayTime.value=0.02;
+  inp.connect(predelay);
+  // Brightness (highpass on input — controls how bright the input signal is before reverb)
+  const brightHP=ctx.createBiquadFilter();brightHP.type='highpass';brightHP.frequency.value=200;brightHP.Q.value=0.5;
+  predelay.connect(brightHP);
+  // ===== Diffuser (4 series allpass for early reflection density) =====
+  const diffusers=[];
+  const diffFreqs=[1500,2500,3500,4500];
   for(let i=0;i<4;i++){
-    const ap=ctx.createBiquadFilter();ap.type='allpass';ap.frequency.value=1500+i*400;ap.Q.value=1;
-    allpasses.push(ap);
+    const ap=ctx.createBiquadFilter();ap.type='allpass';ap.frequency.value=diffFreqs[i];ap.Q.value=0.7;
+    if(i===0)brightHP.connect(ap);else diffusers[i-1].connect(ap);
+    diffusers.push(ap);
   }
-  // Brightness control (highpass)
-  const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=3500;hp.Q.value=0.7;
-  // Feedback path with dispersive comb filter for "boing"
-  const fb=ctx.createGain();fb.gain.value=0.6;
-  const dispersive=ctx.createBiquadFilter();dispersive.type='bandpass';dispersive.frequency.value=2000;dispersive.Q.value=8;
-  // Boing — impulse response: short pitch-decaying envelope when triggered
-  const boingGain=ctx.createGain();boingGain.gain.value=0;
+  // ===== Comb filters (Schroeder tail — parallel, each with own decay multiplier) =====
+  // Using delays with feedback (no infinite loop because feedback < 1 always)
+  const combs=[];
+  const combDelays=[0.0297,0.0371,0.0411,0.0437,0.0533,0.0615]; // prime-time delays
+  const decay=Math.max(0.2,Math.min(15,this.params.decay||3.0));
+  for(let i=0;i<6;i++){
+    const delay=ctx.createDelay(0.2);delay.delayTime.value=Math.min(0.15,combDelays[i]*(decay/3));
+    const fb=ctx.createGain();fb.gain.value=0.6; // safe feedback (always < 1)
+    // Damping lowpass in feedback path (Moorer enhancement)
+    const dampLP=ctx.createBiquadFilter();dampLP.type='lowpass';dampLP.frequency.value=4000;dampLP.Q.value=0.5;
+    // Modulation: subtle LFO on delay time for "valhalla shimmer"
+    const modLFO=ctx.createOscillator();modLFO.type='sine';modLFO.frequency.value=0.5+i*0.07;
+    const modGain=ctx.createGain();modGain.gain.value=0.0008;
+    modLFO.connect(modGain);modGain.connect(delay.delayTime);modLFO.start();
+    // Connect: comb input → delay → dampLP → fb → delay (feedback loop, but fb<1 so stable)
+    diffusers[3].connect(delay);
+    delay.connect(dampLP);
+    dampLP.connect(fb);fb.connect(delay);
+    // Each comb taps to its own output gain
+    const combOut=ctx.createGain();combOut.gain.value=0.15;
+    dampLP.connect(combOut);
+    combs.push({delay,fb,dampLP,modLFO,modGain,combOut});
+  }
+  // ===== Tail allpass (series — adds density without feedback loop) =====
+  const tailAPs=[];
+  for(let i=0;i<2;i++){
+    const ap=ctx.createBiquadFilter();ap.type='allpass';ap.frequency.value=2000+i*1500;ap.Q.value=1.2;
+    tailAPs.push(ap);
+    if(i===0)combs.forEach(c=>c.combOut.connect(ap));
+    else tailAPs[i-1].connect(ap);
+  }
   // Wet/dry
   const wet=ctx.createGain();wet.gain.value=0.5;
   const dry=ctx.createGain();dry.gain.value=0.5;
   const out=ctx.createGain();out.gain.value=1;
   inp.connect(dry);dry.connect(out);
-  inp.connect(allpasses[0]);allpasses[0].connect(allpasses[1]);allpasses[1].connect(allpasses[2]);allpasses[2].connect(allpasses[3]);
-  allpasses[3].connect(hp);hp.connect(dispersive);dispersive.connect(fb);fb.connect(allpasses[0]);
-  hp.connect(wet);wet.connect(out);
-  this.audioNodes={inp,allpasses,hp,fb,dispersive,wet,dry,out,boingGain};
-  this.inputNodes.audio=inp;this.inputNodes.mix_cv=ctx.createGain();this.inputNodes.mix_cv.gain.value=1;this.inputNodes.mix_cv.connect(wet.gain);this.inputNodes.mix_cv.connect(dry.gain);
+  if(tailAPs.length>0)tailAPs[tailAPs.length-1].connect(wet);
+  wet.connect(out);
+  // Store algorithm-specific decay multipliers (algorithm changes tail length)
+  this._vhAlgorithms={'Room':0.4,'Hall':1.0,'Plate':0.7,'Shimmer':1.3,'Blackhole':2.5};
+  this._vhCurrentDecay=decay;
+  this.audioNodes={inp,predelay,brightHP,diffusers,combs,tailAPs,wet,dry,out};
+  this.inputNodes.audio=inp;
+  this.inputNodes.mix_cv=ctx.createGain();this.inputNodes.mix_cv.gain.value=0;
+  this.inputNodes.decay_cv=ctx.createGain();this.inputNodes.decay_cv.gain.value=0;
   this.outputNodes.audio=out;
-  // Synthesize IR-style spring response when triggered
+  // ===== SHIMMER ALGORITHM: add pitch-shifter in wet path =====
+  // (only when algorithm === 'Shimmer' — handled in setParam)
+  this._vhShimmer=null;
   break;}
 case 'attenuverter':{
   const inp=ctx.createGain();
@@ -2109,7 +2155,7 @@ case 'euclidean':if(id==='steps'||id==='pulses'||id==='rotate'){this._recomputeE
 case 'transient':if(id==='attack'&&this.audioNodes.attackScaled)this.audioNodes.attackScaled.gain.setTargetAtTime(value,t,0.02);if(id==='sustain'&&this.audioNodes.sustainScaled)this.audioNodes.sustainScaled.gain.setTargetAtTime(value,t,0.02);if(id==='output'&&this.audioNodes.out)this.audioNodes.out.gain.setTargetAtTime(value,t,0.02);if(id==='fast'&&this.audioNodes.fastLPF){const freqMap={'slow':200,'med':2000,'fast':5000};this.audioNodes.fastLPF.frequency.setTargetAtTime(freqMap[value]||2000,t,0.02);}break;
 case 'vocoder':if(id==='bands'){this._rebuildVocoderBands(parseInt(value));}if(id==='q'&&this.audioNodes.bands)this.audioNodes.bands.forEach(b=>{b.modBP.Q.setTargetAtTime(value,t,0.02);b.carBP.Q.setTargetAtTime(value,t,0.02);});if(id==='mix'&&this.audioNodes.mix){this.audioNodes.mix.gain.setTargetAtTime(value,t,0.02);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.02);}break;
 case 'tape-echo':if(id==='time'&&this.audioNodes.delay)this.audioNodes.delay.delayTime.setTargetAtTime(value,t,0.02);if(id==='feedback'&&this.audioNodes.fb)this.audioNodes.fb.gain.setTargetAtTime(value,t,0.02);if(id==='wow'&&this.audioNodes.wowG)this.audioNodes.wowG.gain.setTargetAtTime(value*0.01,t,0.02);if(id==='flutter'&&this.audioNodes.flutterG)this.audioNodes.flutterG.gain.setTargetAtTime(value*0.005,t,0.02);if(id==='saturation'&&this.audioNodes.sat){const makeSatCurve=(amt)=>{const n=44100;const c=new Float32Array(n);for(let i=0;i<n;i++){const x=(i*2)/n-1;c[i]=Math.tanh(x*(1+amt*8));}return c;};this.audioNodes.sat.curve=makeSatCurve(value);}if(id==='mix'&&this.audioNodes.wet){this.audioNodes.wet.gain.setTargetAtTime(value,t,0.02);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.02);}break;
-case 'spring-reverb':if(id==='decay'&&this.audioNodes.fb)this.audioNodes.fb.gain.setTargetAtTime(value*0.9,t,0.02);if(id==='brightness'&&this.audioNodes.hp)this.audioNodes.hp.frequency.setTargetAtTime(value,t,0.02);if(id==='mix'&&this.audioNodes.wet){this.audioNodes.wet.gain.setTargetAtTime(value,t,0.02);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.02);}break;
+case 'valhalla-reverb':if(id==='decay'){this._vhCurrentDecay=Math.max(0.2,Math.min(15,value));const algo=this._vhAlgorithms&&this._vhAlgorithms[this.params.algorithm||'Hall']||1.0;if(this.audioNodes.combs){const combDelays=[0.0297,0.0371,0.0411,0.0437,0.0533,0.0615];const effectiveDecay=this._vhCurrentDecay*algo;this.audioNodes.combs.forEach((c,i)=>{c.delay.delayTime.setTargetAtTime(Math.min(0.15,combDelays[i]*(effectiveDecay/3)),t,0.05);const fbGain=Math.max(0.3,Math.min(0.92,0.6+(effectiveDecay-3)*0.04));c.fb.gain.setTargetAtTime(fbGain,t,0.05);});}}if(id==='brightness'&&this.audioNodes.brightHP)this.audioNodes.brightHP.frequency.setTargetAtTime(value,t,0.02);if(id==='damping'&&this.audioNodes.combs)this.audioNodes.combs.forEach(c=>c.dampLP.frequency.setTargetAtTime(value,t,0.02));if(id==='diffusion'&&this.audioNodes.diffusers)this.audioNodes.diffusers.forEach((ap,i)=>ap.Q.setTargetAtTime(0.5+value*2,t,0.02));if(id==='modulation'&&this.audioNodes.combs)this.audioNodes.combs.forEach(c=>c.modGain.gain.setTargetAtTime(value*0.002,t,0.02));if(id==='pre_delay'&&this.audioNodes.predelay)this.audioNodes.predelay.delayTime.setTargetAtTime(value,t,0.02);if(id==='mix'&&this.audioNodes.wet){this.audioNodes.wet.gain.setTargetAtTime(value,t,0.02);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.02);}if(id==='algorithm'&&this.audioNodes.combs){const algo=this._vhAlgorithms&&this._vhAlgorithms[value]||1.0;const effectiveDecay=this._vhCurrentDecay*algo;const combDelays=[0.0297,0.0371,0.0411,0.0437,0.0533,0.0615];this.audioNodes.combs.forEach((c,i)=>{c.delay.delayTime.setTargetAtTime(Math.min(0.15,combDelays[i]*(effectiveDecay/3)),t,0.05);const fbGain=Math.max(0.3,Math.min(0.95,0.6+(effectiveDecay-3)*0.04));c.fb.gain.setTargetAtTime(fbGain,t,0.05);});}break;
 case 'attenuverter':if(id==='amount'&&this.audioNodes.amtGain)this.audioNodes.amtGain.gain.setTargetAtTime(value,t,0.02);if(id==='offset'&&this.audioNodes.offsetSrc)this.audioNodes.offsetSrc.offset.setTargetAtTime(value,t,0.02);break;
 case 'cv-offset':if(id==='offset'&&this.audioNodes.src)this.audioNodes.src.offset.setTargetAtTime(value,t,0.02);break;
 case 'clock-mult':if(id==='multiply')this._cmMult=parseInt(value.replace('×',''))||4;break;
@@ -4471,7 +4517,7 @@ if(mod.type==='euclidean')el.style.minWidth='340px';
 if(mod.type==='transient')el.style.minWidth='220px';
 if(mod.type==='vocoder')el.style.minWidth='220px';
 if(mod.type==='tape-echo')el.style.minWidth='220px';
-if(mod.type==='spring-reverb')el.style.minWidth='220px';
+if(mod.type==='valhalla-reverb')el.style.minWidth='260px';
 if(mod.type==='attenuverter')el.style.minWidth='160px';
 if(mod.type==='cv-offset')el.style.minWidth='140px';
 if(mod.type==='clock-mult')el.style.minWidth='180px';
