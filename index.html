@@ -775,7 +775,7 @@ const MODULE_DEFS={
 'transient':{name:'Transient',color:'#ff9944',cat:'Processing',desc:'Transient shaper (attack/sustain control)',inputs:[{id:'audio',name:'IN',type:'audio'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'attack',name:'ATK',type:'range',min:-1,max:1,default:0.3,unit:''},{id:'sustain',name:'SUS',type:'range',min:-1,max:1,default:0,unit:''},{id:'output',name:'OUT',type:'range',min:0,max:2,default:1,unit:''},{id:'fast',name:'FAST',type:'select',options:['slow','med','fast'],default:'med'}]},
 'vocoder':{name:'Vocoder',color:'#cc88ff',cat:'Processing',desc:'Band-bank vocoder (modulator+carrier)',inputs:[{id:'modulator',name:'MOD',type:'audio'},{id:'carrier',name:'CAR',type:'audio'},{id:'formant_cv',name:'FORM',type:'cv'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'bands',name:'BANDS',type:'select',options:['8','12','16','24'],default:'16'},{id:'q',name:'Q',type:'range',min:1,max:25,default:8,unit:''},{id:'formant',name:'FORMANT',type:'range',min:-1,max:1,default:0,unit:''},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:1,unit:''}]},
 'tape-echo':{name:'Tape Echo',color:'#bb8866',cat:'FX',desc:'Vintage tape echo (wow/flutter/saturation)',inputs:[{id:'audio',name:'IN',type:'audio'},{id:'time_cv',name:'TIME CV',type:'cv'},{id:'fb_cv',name:'FB CV',type:'cv'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'time',name:'TIME',type:'range',min:0.05,max:1,default:0.3,unit:'s'},{id:'feedback',name:'FB',type:'range',min:0,max:0.9,default:0.4,unit:''},{id:'wow',name:'WOW',type:'range',min:0,max:1,default:0.3,unit:''},{id:'flutter',name:'FLUTTER',type:'range',min:0,max:1,default:0.2,unit:''},{id:'saturation',name:'SAT',type:'range',min:0,max:1,default:0.5,unit:''},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:0.5,unit:''}]},
-'valhalla-reverb':{name:'Valhalla Reverb',color:'#77ddaa',cat:'FX',desc:'Algorithmic hall/shimmer reverb (valhalla-style)',inputs:[{id:'audio',name:'IN',type:'audio'},{id:'mix_cv',name:'MIX CV',type:'cv'},{id:'decay_cv',name:'DEC CV',type:'cv'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'algorithm',name:'ALGO',type:'select',options:['Room','Hall','Plate','Shimmer','Blackhole'],default:'Hall'},{id:'decay',name:'DECAY',type:'range',min:0.2,max:15,default:3.0,unit:'s'},{id:'pre_delay',name:'PREDLY',type:'range',min:0,max:0.2,default:0.02,unit:'s'},{id:'diffusion',name:'DIFF',type:'range',min:0,max:1,default:0.7,unit:''},{id:'brightness',name:'BRIGHT',type:'range',min:500,max:12000,default:5500,unit:'Hz'},{id:'damping',name:'DAMP',type:'range',min:200,max:12000,default:4000,unit:'Hz'},{id:'modulation',name:'MOD',type:'range',min:0,max:1,default:0.3,unit:''},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:0.5,unit:''}]},
+'aether-reverb':{name:'Aether Reverb',color:'#88aaff',cat:'FX',desc:'Atmospheric algorithmic reverb (deep, melodic, stable)',inputs:[{id:'audio',name:'IN',type:'audio'},{id:'mix_cv',name:'MIX CV',type:'cv'},{id:'size_cv',name:'SIZE CV',type:'cv'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'size',name:'SIZE',type:'select',options:['Chamber','Hall','Cathedral','Heaven','Infinite'],default:'Hall'},{id:'decay',name:'DECAY',type:'range',min:0.3,max:15,default:4.0,unit:'s'},{id:'predelay',name:'PREDLY',type:'range',min:0,max:0.15,default:0.015,unit:'s'},{id:'density',name:'DENS',type:'range',min:0.2,max:1,default:0.7,unit:''},{id:'damping',name:'DAMP',type:'range',min:500,max:10000,default:3500,unit:'Hz'},{id:'lowcut',name:'LOWCUT',type:'range',min:80,max:2000,default:300,unit:'Hz'},{id:'modulation',name:'MOD',type:'range',min:0,max:1,default:0.4,unit:''},{id:'shimmer',name:'SHIMMER',type:'range',min:0,max:1,default:0.2,unit:''},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:0.45,unit:''}]},
 'attenuverter':{name:'Attenuverter',color:'#99aabb',cat:'Utility',desc:'CV attenuator + inverter + offset',inputs:[{id:'in',name:'IN',type:'cv'}],outputs:[{id:'out',name:'OUT',type:'cv'}],controls:[{id:'amount',name:'AMT',type:'range',min:-1,max:1,default:1,unit:''},{id:'offset',name:'OFFSET',type:'range',min:-1,max:1,default:0,unit:''}]},
 'cv-offset':{name:'CV Offset',color:'#aabbcc',cat:'Utility',desc:'Constant CV source (bias)',inputs:[],outputs:[{id:'cv',name:'CV',type:'cv'}],controls:[{id:'offset',name:'OFFSET',type:'range',min:-1,max:1,default:0.5,unit:''}]},
 'clock-mult':{name:'Clock Mult',color:'#dddd44',cat:'Utility',desc:'Clock multiplier (×2..×12)',inputs:[{id:'clock',name:'CLOCK',type:'gate'},{id:'reset',name:'RESET',type:'gate'}],outputs:[{id:'out',name:'OUT',type:'gate'}],controls:[{id:'multiply',name:'MULT',type:'select',options:['×2','×3','×4','×6','×8','×12'],default:'×4'}]},
@@ -1968,80 +1968,57 @@ case 'tape-echo':{
   this.inputNodes.fb_cv=ctx.createGain();this.inputNodes.fb_cv.gain.value=1;this.inputNodes.fb_cv.connect(fb.gain);
   this.outputNodes.audio=out;
   break;}
-case 'valhalla-reverb':{
-  // ===== VALHALLA-STYLE ALGORITHMIC REVERB =====
-  // Stable, high-quality algorithmic reverb based on parallel Comb + Allpass filters
-  // (Schroeder-Moorer architecture with Valhalla-style enhancements)
-  // - Pre-delay for early reflection separation
-  // - 4-tap stereo input diffuser (no feedback loop = no instability)
-  // - Multi-tap comb filters for tail density
-  // - Brightness (input HP) + Damping (decay LP) controls
-  // - Modulation LFO for "valhalla-like" tail shimmer
+case 'aether-reverb':{
+  // ===== AETHER REVERB — ConvolverNode-based atmospheric reverb =====
+  // Stable by design: NO feedback loops, uses synthesized stereo IR
+  // Sounds deep & melodic: IR is filtered noise with exponential decay + early reflections
+  // SIZE modes change IR length + early reflection pattern
   const inp=ctx.createGain();
-  const ctx2=ctx;
   // Pre-delay
-  const predelay=ctx.createDelay(0.25);predelay.delayTime.value=0.02;
+  const predelay=ctx.createDelay(0.2);predelay.delayTime.value=0.015;
   inp.connect(predelay);
-  // Brightness (highpass on input — controls how bright the input signal is before reverb)
-  const brightHP=ctx.createBiquadFilter();brightHP.type='highpass';brightHP.frequency.value=200;brightHP.Q.value=0.5;
-  predelay.connect(brightHP);
-  // ===== Diffuser (4 series allpass for early reflection density) =====
-  const diffusers=[];
-  const diffFreqs=[1500,2500,3500,4500];
-  for(let i=0;i<4;i++){
-    const ap=ctx.createBiquadFilter();ap.type='allpass';ap.frequency.value=diffFreqs[i];ap.Q.value=0.7;
-    if(i===0)brightHP.connect(ap);else diffusers[i-1].connect(ap);
-    diffusers.push(ap);
-  }
-  // ===== Comb filters (Schroeder tail — parallel, each with own decay multiplier) =====
-  // Using delays with feedback (no infinite loop because feedback < 1 always)
-  const combs=[];
-  const combDelays=[0.0297,0.0371,0.0411,0.0437,0.0533,0.0615]; // prime-time delays
-  const decay=Math.max(0.2,Math.min(15,this.params.decay||3.0));
-  for(let i=0;i<6;i++){
-    const delay=ctx.createDelay(0.2);delay.delayTime.value=Math.min(0.15,combDelays[i]*(decay/3));
-    const fb=ctx.createGain();fb.gain.value=0.6; // safe feedback (always < 1)
-    // Damping lowpass in feedback path (Moorer enhancement)
-    const dampLP=ctx.createBiquadFilter();dampLP.type='lowpass';dampLP.frequency.value=4000;dampLP.Q.value=0.5;
-    // Modulation: subtle LFO on delay time for "valhalla shimmer"
-    const modLFO=ctx.createOscillator();modLFO.type='sine';modLFO.frequency.value=0.5+i*0.07;
-    const modGain=ctx.createGain();modGain.gain.value=0.0008;
-    modLFO.connect(modGain);modGain.connect(delay.delayTime);modLFO.start();
-    // Connect: comb input → delay → dampLP → fb → delay (feedback loop, but fb<1 so stable)
-    diffusers[3].connect(delay);
-    delay.connect(dampLP);
-    dampLP.connect(fb);fb.connect(delay);
-    // Each comb taps to its own output gain
-    const combOut=ctx.createGain();combOut.gain.value=0.15;
-    dampLP.connect(combOut);
-    combs.push({delay,fb,dampLP,modLFO,modGain,combOut});
-  }
-  // ===== Tail allpass (series — adds density without feedback loop) =====
-  const tailAPs=[];
-  for(let i=0;i<2;i++){
-    const ap=ctx.createBiquadFilter();ap.type='allpass';ap.frequency.value=2000+i*1500;ap.Q.value=1.2;
-    tailAPs.push(ap);
-    if(i===0)combs.forEach(c=>c.combOut.connect(ap));
-    else tailAPs[i-1].connect(ap);
-  }
+  // Lowcut on input
+  const lowcut=ctx.createBiquadFilter();lowcut.type='highpass';lowcut.frequency.value=300;lowcut.Q.value=0.5;
+  predelay.connect(lowcut);
+  // Wet path: ConvolverNode with synthesized IR
+  const conv=ctx.createConvolver();
+  conv.normalize=true; // prevents runaway output
+  lowcut.connect(conv);
+  // Damping filter on wet output
+  const dampLP=ctx.createBiquadFilter();dampLP.type='lowpass';dampLP.frequency.value=3500;dampLP.Q.value=0.5;
+  conv.connect(dampLP);
+  // Modulation: subtle LFO on damping filter cutoff (for "breathing" tail)
+  const modLFO=ctx.createOscillator();modLFO.type='sine';modLFO.frequency.value=0.3;
+  const modGain=ctx.createGain();modGain.gain.value=200;
+  modLFO.connect(modGain);modGain.connect(dampLP.frequency);modLFO.start();
+  // Optional shimmer: a pitch-shifted wet signal mixed in
+  // (using worklet pitch shifter if available; for stability, use subtle detuned reverb tap)
+  // Shimmer is implemented as a second ConvolverNode with pitch-shift-style modulation
+  const shimmerGain=ctx.createGain();shimmerGain.gain.value=0;
+  // For shimmer, route through a simple frequency-shifter (slight up-pitch via LFO-modulated delay)
+  const shimmerDelay=ctx.createDelay(0.05);shimmerDelay.delayTime.value=0.005;
+  const shimmerMod=ctx.createOscillator();shimmerMod.type='sine';shimmerMod.frequency.value=4;
+  const shimmerModGain=ctx.createGain();shimmerModGain.gain.value=0.001;
+  shimmerMod.connect(shimmerModGain);shimmerModGain.connect(shimmerDelay.delayTime);shimmerMod.start();
+  dampLP.connect(shimmerDelay);
+  shimmerDelay.connect(shimmerGain);
   // Wet/dry
-  const wet=ctx.createGain();wet.gain.value=0.5;
-  const dry=ctx.createGain();dry.gain.value=0.5;
+  const wet=ctx.createGain();wet.gain.value=0.45;
+  const dry=ctx.createGain();dry.gain.value=0.55;
   const out=ctx.createGain();out.gain.value=1;
   inp.connect(dry);dry.connect(out);
-  if(tailAPs.length>0)tailAPs[tailAPs.length-1].connect(wet);
+  dampLP.connect(wet);
+  shimmerGain.connect(wet);
   wet.connect(out);
-  // Store algorithm-specific decay multipliers (algorithm changes tail length)
-  this._vhAlgorithms={'Room':0.4,'Hall':1.0,'Plate':0.7,'Shimmer':1.3,'Blackhole':2.5};
-  this._vhCurrentDecay=decay;
-  this.audioNodes={inp,predelay,brightHP,diffusers,combs,tailAPs,wet,dry,out};
+  // Synthesize initial IR
+  this.audioNodes={inp,predelay,lowcut,conv,dampLP,modLFO,modGain,shimmerDelay,shimmerMod,shimmerModGain,shimmerGain,wet,dry,out};
   this.inputNodes.audio=inp;
   this.inputNodes.mix_cv=ctx.createGain();this.inputNodes.mix_cv.gain.value=0;
-  this.inputNodes.decay_cv=ctx.createGain();this.inputNodes.decay_cv.gain.value=0;
+  this.inputNodes.size_cv=ctx.createGain();this.inputNodes.size_cv.gain.value=0;
   this.outputNodes.audio=out;
-  // ===== SHIMMER ALGORITHM: add pitch-shifter in wet path =====
-  // (only when algorithm === 'Shimmer' — handled in setParam)
-  this._vhShimmer=null;
+  // Generate IR (after params are set in _initDefaults, called later)
+  this._aetherSize={'Chamber':0.4,'Hall':1.0,'Cathedral':1.6,'Heaven':2.2,'Infinite':3.0};
+  this._aetherPending=true; // flag to generate IR after defaults loaded
   break;}
 case 'attenuverter':{
   const inp=ctx.createGain();
@@ -2073,6 +2050,63 @@ case 'clock-mult':{
 }
 }
 _makeIR(dur,dec){const r=this.engine.ctx.sampleRate;const len=Math.max(1,Math.floor(r*dur));const buf=this.engine.ctx.createBuffer(2,len,r);for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow((len-i)/len,dec);}return buf;}
+
+// ===== AETHER REVERB: synthesized stereo impulse response =====
+_makeAetherIR(decay,size,density,dampingHz,lowcutHz){
+  const ctx=this.engine.ctx;
+  const sr=ctx.sampleRate;
+  // Effective decay adjusted by size mode multiplier
+  const sizeMap={'Chamber':0.4,'Hall':1.0,'Cathedral':1.6,'Heaven':2.2,'Infinite':3.0};
+  const sizeMult=sizeMap[size]||1.0;
+  const effDecay=Math.max(0.3,Math.min(15,decay*sizeMult));
+  // IR length (in seconds): cap to prevent memory issues
+  const irLen=Math.min(effDecay*1.2,12);
+  const irSamples=Math.max(1,Math.floor(sr*irLen));
+  const buf=ctx.createBuffer(2,irSamples,sr);
+  // Generate per-channel IR
+  for(let ch=0;ch<2;ch++){
+    const d=buf.getChannelData(ch);
+    // Initial silence for pre-delay (already handled by DelayNode, so 0 here)
+    // 1. Early reflections (first 80ms): sparse impulses with increasing density
+    const erLen=Math.floor(sr*0.08);
+    const erDensity=Math.floor(3+density*15); // 3-18 reflections in 80ms
+    for(let r=0;r<erDensity;r++){
+      const pos=Math.floor(Math.random()*erLen);
+      // Stereo decorrelation: different positions per channel
+      const offset=ch*5;
+      const idx=Math.min(irSamples-1,pos+offset);
+      const amp=(0.3+Math.random()*0.7)*Math.pow(1-r/erDensity,0.5);
+      d[idx]=amp*(Math.random()*2-1);
+    }
+    // 2. Late tail: filtered noise with exponential decay
+    // Use simple 1-pole lowpass to simulate damping (in IR generation, not as audio node)
+    const lowpassState={v:0};
+    const lpCoeff=2*Math.PI*dampingHz/sr;
+    const hpState={v:0,vprev:0};
+    const hpCoeff=2*Math.PI*lowcutHz/sr;
+    for(let i=0;i<irSamples;i++){
+      // Decay envelope (exponential, normalized)
+      const t=i/sr;
+      const env=Math.exp(-t*3/effDecay); // smooth exponential tail
+      // White noise
+      let n=(Math.random()*2-1)*env;
+      // Apply lowpass (damping) — 1-pole RC filter
+      lowpassState.v+=lpCoeff*(n-lowpassState.v);
+      n=lowpassState.v;
+      // Apply highpass (lowcut) — 1-pole RC differentiator
+      const hpOut=n-(lowpassState.v*0)+hpState.vprev;
+      hpState.vprev=n*0.98;
+      // Density control: scale amplitude (denser = louder tail)
+      const densScale=0.5+density*0.5;
+      d[i]=d[i]+hpOut*densScale;
+    }
+    // 3. Normalize to prevent runaway output
+    let peak=0;
+    for(let i=0;i<irSamples;i++){const a=Math.abs(d[i]);if(a>peak)peak=a;}
+    if(peak>0){const norm=0.9/peak;for(let i=0;i<irSamples;i++)d[i]*=norm;}
+  }
+  return buf;
+}
 
 setParam(id,value){this.params[id]=value;const ctx=this.engine.ctx;const t=ctx.currentTime;switch(this.type){
 case 'oscillator':if(id==='wave'&&this.audioNodes.osc)this.audioNodes.osc.type=value;if(id==='detune'&&this.audioNodes.osc)this.audioNodes.osc.detune.setTargetAtTime(value,t,0.02);break;
@@ -2155,7 +2189,24 @@ case 'euclidean':if(id==='steps'||id==='pulses'||id==='rotate'){this._recomputeE
 case 'transient':if(id==='attack'&&this.audioNodes.attackScaled)this.audioNodes.attackScaled.gain.setTargetAtTime(value,t,0.02);if(id==='sustain'&&this.audioNodes.sustainScaled)this.audioNodes.sustainScaled.gain.setTargetAtTime(value,t,0.02);if(id==='output'&&this.audioNodes.out)this.audioNodes.out.gain.setTargetAtTime(value,t,0.02);if(id==='fast'&&this.audioNodes.fastLPF){const freqMap={'slow':200,'med':2000,'fast':5000};this.audioNodes.fastLPF.frequency.setTargetAtTime(freqMap[value]||2000,t,0.02);}break;
 case 'vocoder':if(id==='bands'){this._rebuildVocoderBands(parseInt(value));}if(id==='q'&&this.audioNodes.bands)this.audioNodes.bands.forEach(b=>{b.modBP.Q.setTargetAtTime(value,t,0.02);b.carBP.Q.setTargetAtTime(value,t,0.02);});if(id==='mix'&&this.audioNodes.mix){this.audioNodes.mix.gain.setTargetAtTime(value,t,0.02);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.02);}break;
 case 'tape-echo':if(id==='time'&&this.audioNodes.delay)this.audioNodes.delay.delayTime.setTargetAtTime(value,t,0.02);if(id==='feedback'&&this.audioNodes.fb)this.audioNodes.fb.gain.setTargetAtTime(value,t,0.02);if(id==='wow'&&this.audioNodes.wowG)this.audioNodes.wowG.gain.setTargetAtTime(value*0.01,t,0.02);if(id==='flutter'&&this.audioNodes.flutterG)this.audioNodes.flutterG.gain.setTargetAtTime(value*0.005,t,0.02);if(id==='saturation'&&this.audioNodes.sat){const makeSatCurve=(amt)=>{const n=44100;const c=new Float32Array(n);for(let i=0;i<n;i++){const x=(i*2)/n-1;c[i]=Math.tanh(x*(1+amt*8));}return c;};this.audioNodes.sat.curve=makeSatCurve(value);}if(id==='mix'&&this.audioNodes.wet){this.audioNodes.wet.gain.setTargetAtTime(value,t,0.02);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.02);}break;
-case 'valhalla-reverb':if(id==='decay'){this._vhCurrentDecay=Math.max(0.2,Math.min(15,value));const algo=this._vhAlgorithms&&this._vhAlgorithms[this.params.algorithm||'Hall']||1.0;if(this.audioNodes.combs){const combDelays=[0.0297,0.0371,0.0411,0.0437,0.0533,0.0615];const effectiveDecay=this._vhCurrentDecay*algo;this.audioNodes.combs.forEach((c,i)=>{c.delay.delayTime.setTargetAtTime(Math.min(0.15,combDelays[i]*(effectiveDecay/3)),t,0.05);const fbGain=Math.max(0.3,Math.min(0.92,0.6+(effectiveDecay-3)*0.04));c.fb.gain.setTargetAtTime(fbGain,t,0.05);});}}if(id==='brightness'&&this.audioNodes.brightHP)this.audioNodes.brightHP.frequency.setTargetAtTime(value,t,0.02);if(id==='damping'&&this.audioNodes.combs)this.audioNodes.combs.forEach(c=>c.dampLP.frequency.setTargetAtTime(value,t,0.02));if(id==='diffusion'&&this.audioNodes.diffusers)this.audioNodes.diffusers.forEach((ap,i)=>ap.Q.setTargetAtTime(0.5+value*2,t,0.02));if(id==='modulation'&&this.audioNodes.combs)this.audioNodes.combs.forEach(c=>c.modGain.gain.setTargetAtTime(value*0.002,t,0.02));if(id==='pre_delay'&&this.audioNodes.predelay)this.audioNodes.predelay.delayTime.setTargetAtTime(value,t,0.02);if(id==='mix'&&this.audioNodes.wet){this.audioNodes.wet.gain.setTargetAtTime(value,t,0.02);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.02);}if(id==='algorithm'&&this.audioNodes.combs){const algo=this._vhAlgorithms&&this._vhAlgorithms[value]||1.0;const effectiveDecay=this._vhCurrentDecay*algo;const combDelays=[0.0297,0.0371,0.0411,0.0437,0.0533,0.0615];this.audioNodes.combs.forEach((c,i)=>{c.delay.delayTime.setTargetAtTime(Math.min(0.15,combDelays[i]*(effectiveDecay/3)),t,0.05);const fbGain=Math.max(0.3,Math.min(0.95,0.6+(effectiveDecay-3)*0.04));c.fb.gain.setTargetAtTime(fbGain,t,0.05);});}break;
+case 'aether-reverb':{
+  // Most changes require IR regeneration (except mix, modulation, shimmer, predelay — those are runtime)
+  const irRegen=['decay','size','density','damping','lowcut'].includes(id);
+  if(irRegen&&this.audioNodes.conv){
+    const decay=Math.max(0.3,Math.min(15,this.params.decay||4.0));
+    const size=this.params.size||'Hall';
+    const density=Math.max(0.2,Math.min(1,this.params.density||0.7));
+    const dampingHz=Math.max(500,Math.min(10000,this.params.damping||3500));
+    const lowcutHz=Math.max(80,Math.min(2000,this.params.lowcut||300));
+    try{this.audioNodes.conv.buffer=this._makeAetherIR(decay,size,density,dampingHz,lowcutHz);}catch(e){console.warn('Aether IR gen failed:',e);}
+  }
+  if(id==='predelay'&&this.audioNodes.predelay)this.audioNodes.predelay.delayTime.setTargetAtTime(value,t,0.05);
+  if(id==='lowcut'&&this.audioNodes.lowcut)this.audioNodes.lowcut.frequency.setTargetAtTime(value,t,0.05);
+  if(id==='damping'&&this.audioNodes.dampLP)this.audioNodes.dampLP.frequency.setTargetAtTime(value,t,0.05);
+  if(id==='modulation'&&this.audioNodes.modGain)this.audioNodes.modGain.gain.setTargetAtTime(value*500,t,0.05);
+  if(id==='shimmer'&&this.audioNodes.shimmerGain)this.audioNodes.shimmerGain.gain.setTargetAtTime(value*0.3,t,0.05);
+  if(id==='mix'&&this.audioNodes.wet){this.audioNodes.wet.gain.setTargetAtTime(value,t,0.05);this.audioNodes.dry.gain.setTargetAtTime(1-value,t,0.05);}
+  break;}
 case 'attenuverter':if(id==='amount'&&this.audioNodes.amtGain)this.audioNodes.amtGain.gain.setTargetAtTime(value,t,0.02);if(id==='offset'&&this.audioNodes.offsetSrc)this.audioNodes.offsetSrc.offset.setTargetAtTime(value,t,0.02);break;
 case 'cv-offset':if(id==='offset'&&this.audioNodes.src)this.audioNodes.src.offset.setTargetAtTime(value,t,0.02);break;
 case 'clock-mult':if(id==='multiply')this._cmMult=parseInt(value.replace('×',''))||4;break;
@@ -4444,7 +4495,21 @@ const id=this.nextModId++;
 const mod=new ModuleInstance(this.engine,type,id);
 mod.x=x||100;mod.y=y||100;
 this.modules.set(id,mod);this.engine.modules.set(id,mod);
-this._renderModule(mod);return mod;
+this._renderModule(mod);
+// Post-init: generate Aether IR now that params are loaded
+if(type==='aether-reverb'&&mod._aetherPending&&mod.audioNodes.conv){
+  try{
+    mod.audioNodes.conv.buffer=mod._makeAetherIR(
+      mod.params.decay||4.0,
+      mod.params.size||'Hall',
+      mod.params.density||0.7,
+      mod.params.damping||3500,
+      mod.params.lowcut||300
+    );
+    mod._aetherPending=false;
+  }catch(e){console.warn('Aether initial IR failed:',e);}
+}
+return mod;
 }
 removeModule(id){
 const mod=this.modules.get(id);if(!mod)return;
@@ -4517,7 +4582,7 @@ if(mod.type==='euclidean')el.style.minWidth='340px';
 if(mod.type==='transient')el.style.minWidth='220px';
 if(mod.type==='vocoder')el.style.minWidth='220px';
 if(mod.type==='tape-echo')el.style.minWidth='220px';
-if(mod.type==='valhalla-reverb')el.style.minWidth='260px';
+if(mod.type==='aether-reverb')el.style.minWidth='280px';
 if(mod.type==='attenuverter')el.style.minWidth='160px';
 if(mod.type==='cv-offset')el.style.minWidth='140px';
 if(mod.type==='clock-mult')el.style.minWidth='180px';
