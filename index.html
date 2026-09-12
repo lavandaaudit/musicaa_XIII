@@ -778,7 +778,18 @@ const MODULE_DEFS={
 'spring-reverb':{name:'Spring Reverb',color:'#77ddaa',cat:'FX',desc:'Spring reverb emulation (boingy)',inputs:[{id:'audio',name:'IN',type:'audio'},{id:'mix_cv',name:'MIX CV',type:'cv'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:0.1,max:4,default:1.2,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:500,max:8000,default:3500,unit:'Hz'},{id:'boing',name:'BOING',type:'range',min:0,max:1,default:0.4,unit:''},{id:'mix',name:'MIX',type:'range',min:0,max:1,default:0.5,unit:''}]},
 'attenuverter':{name:'Attenuverter',color:'#99aabb',cat:'Utility',desc:'CV attenuator + inverter + offset',inputs:[{id:'in',name:'IN',type:'cv'}],outputs:[{id:'out',name:'OUT',type:'cv'}],controls:[{id:'amount',name:'AMT',type:'range',min:-1,max:1,default:1,unit:''},{id:'offset',name:'OFFSET',type:'range',min:-1,max:1,default:0,unit:''}]},
 'cv-offset':{name:'CV Offset',color:'#aabbcc',cat:'Utility',desc:'Constant CV source (bias)',inputs:[],outputs:[{id:'cv',name:'CV',type:'cv'}],controls:[{id:'offset',name:'OFFSET',type:'range',min:-1,max:1,default:0.5,unit:''}]},
-'clock-mult':{name:'Clock Mult',color:'#dddd44',cat:'Utility',desc:'Clock multiplier (×2..×12)',inputs:[{id:'clock',name:'CLOCK',type:'gate'},{id:'reset',name:'RESET',type:'gate'}],outputs:[{id:'out',name:'OUT',type:'gate'}],controls:[{id:'multiply',name:'MULT',type:'select',options:['×2','×3','×4','×6','×8','×12'],default:'×4'}]}
+'clock-mult':{name:'Clock Mult',color:'#dddd44',cat:'Utility',desc:'Clock multiplier (×2..×12)',inputs:[{id:'clock',name:'CLOCK',type:'gate'},{id:'reset',name:'RESET',type:'gate'}],outputs:[{id:'out',name:'OUT',type:'gate'}],controls:[{id:'multiply',name:'MULT',type:'select',options:['×2','×3','×4','×6','×8','×12'],default:'×4'}]},
+// ===== NEW INSTRUMENTS: Wurlitzer, DX7 E.Piano, Music Box, Glass Harmonica =====
+'wurlitzer':{name:'Wurlitzer',color:'#cc9955',cat:'Source',desc:'Wurlitzer EP-200 (reed + transistor, brighter than Rhodes)',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'reed',name:'REED',type:'range',min:0,max:1,default:0.7,unit:''},{id:'bark',name:'BARK',type:'range',min:0,max:1,default:0.4,unit:''},{id:'decay',name:'DECAY',type:'range',min:0.3,max:6,default:2.0,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:800,max:8000,default:3800,unit:'Hz'},{id:'tremolo',name:'TREM',type:'range',min:0,max:1,default:0.2,unit:''},{id:'octave',name:'OCT',type:'range',min:-2,max:2,default:0,step:1,unit:''}]},
+'dx7-epiano':{name:'DX7 E.Piano',color:'#44ccff',cat:'Source',desc:'FM electric piano (DX7-style, glassy)',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'mod_amt',name:'MOD',type:'range',min:0,max:1,default:0.65,unit:''},{id:'ratio',name:'RATIO',type:'select',options:['1:1','2:1','3:1','4:1','14:1'],default:'2:1'},{id:'decay',name:'DECAY',type:'range',min:0.3,max:8,default:3.0,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:800,max:8000,default:4200,unit:'Hz'},{id:'feedback',name:'FEEDBACK',type:'range',min:0,max:1,default:0.3,unit:''},{id:'octave',name:'OCT',type:'range',min:-2,max:2,default:0,step:1,unit:''}]},
+'music-box':{name:'Music Box',color:'#ffddaa',cat:'Source',desc:'Mechanical music box (comb+tine, delicate)',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:0.5,max:6,default:2.5,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:1500,max:9000,default:5000,unit:'Hz'},{id:'comb',name:'COMB',type:'range',min:0,max:1,default:0.5,unit:''},{id:'teeth',name:'TEETH',type:'range',min:1,max:5,default:3,step:1,unit:''},{id:'octave',name:'OCT',type:'range',min:-1,max:3,default:1,step:1,unit:''}]},
+'glass-harmonica':{name:'Glass Harmonica',color:'#aaeeff',cat:'Source',desc:'Glass bowls (friction, ethereal ambient)',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:1,max:20,default:8,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:1000,max:8000,default:3000,unit:'Hz'},{id:'friction',name:'FRICTION',type:'range',min:0,max:1,default:0.5,unit:''},{id:'inharmonic',name:'INHARM',type:'range',min:1,max:5,default:1.5,step:0.1,unit:''},{id:'octave',name:'OCT',type:'range',min:-3,max:2,default:0,step:1,unit:''}]},
+// ===== NEW STRING INSTRUMENTS: Harp, Sitar, Koto, Pizzicato Strings, Cello Bow =====
+'harp':{name:'Harp',color:'#ddccaa',cat:'Source',desc:'Classical harp (nylon strings, long decay, poly)',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:0.5,max:10,default:4,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:1000,max:8000,default:4000,unit:'Hz'},{id:'strings',name:'STRINGS',type:'range',min:1,max:3,default:2,step:1,unit:''},{id:'nail',name:'NAIL',type:'range',min:0,max:1,default:0.3,unit:''},{id:'octave',name:'OCT',type:'range',min:-2,max:2,default:0,step:1,unit:''}]},
+'sitar':{name:'Sitar',color:'#cc9944',cat:'Source',desc:'Indian sitar (jawari bridge + sympathetic strings)',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:0.5,max:8,default:3,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:1500,max:9000,default:5500,unit:'Hz'},{id:'jawari',name:'JAWARI',type:'range',min:0,max:1,default:0.7,unit:''},{id:'symp',name:'SYMP',type:'range',min:0,max:1,default:0.5,unit:''},{id:'drone',name:'DRONE',type:'range',min:0,max:1,default:0.3,unit:''},{id:'octave',name:'OCT',type:'range',min:-2,max:1,default:0,step:1,unit:''}]},
+'koto':{name:'Koto',color:'#bb8866',cat:'Source',desc:'Japanese koto (nylon strings, plectrum attack)',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:0.5,max:6,default:2.5,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:1500,max:9000,default:5000,unit:'Hz'},{id:'plectrum',name:'PLCTR',type:'range',min:0,max:1,default:0.6,unit:''},{id:'body',name:'BODY',type:'range',min:0,max:1,default:0.4,unit:''},{id:'octave',name:'OCT',type:'range',min:-2,max:1,default:0,step:1,unit:''}]},
+'pizzicato':{name:'Pizz Strings',color:'#aa9988',cat:'Source',desc:'Pizzicato strings (plucked violin section)',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'decay',name:'DECAY',type:'range',min:0.1,max:1.5,default:0.5,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:800,max:5000,default:2500,unit:'Hz'},{id:'section',name:'SECTION',type:'range',min:1,max:5,default:3,step:1,unit:''},{id:'damping',name:'DAMP',type:'range',min:0,max:1,default:0.4,unit:''},{id:'octave',name:'OCT',type:'range',min:-2,max:1,default:0,step:1,unit:''}]},
+'cello-bow':{name:'Cello Bow',color:'#bb9977',cat:'Source',desc:'Sustained bowed cello (slow attack, vibrato)',inputs:[{id:'note',name:'NOTE',type:'note'},{id:'gate',name:'GATE',type:'gate'}],outputs:[{id:'audio',name:'OUT',type:'audio'}],controls:[{id:'attack',name:'ATK',type:'range',min:0.05,max:2,default:0.4,unit:'s'},{id:'release',name:'REL',type:'range',min:0.1,max:3,default:0.8,unit:'s'},{id:'brightness',name:'BRIGHT',type:'range',min:800,max:5000,default:2500,unit:'Hz'},{id:'vibrato',name:'VIB',type:'range',min:0,max:1,default:0.3,unit:''},{id:'vib_rate',name:'VIB.HZ',type:'range',min:2,max:10,default:5,unit:'Hz'},{id:'octave',name:'OCT',type:'range',min:-2,max:1,default:0,step:1,unit:''}]}
 };
 
 // ===== AUDIO WORKLET PROCESSORS (replace deprecated ScriptProcessorNode) =====
@@ -1255,14 +1266,14 @@ _initAudio(){
 const ctx=this.engine.ctx;
 switch(this.type){
 case 'note-input':this._heldFreqs=new Set();this._lastFreq=440;break;
-case 'oscillator':{const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=440;const g=ctx.createGain();g.gain.value=1;o.connect(g);o.start();this.audioNodes.osc=o;this.audioNodes.gain=g;this.inputNodes.fm=ctx.createGain();this.inputNodes.fm.gain.value=0;this.inputNodes.fm.connect(o.frequency);this.inputNodes.freq=ctx.createGain();this.inputNodes.freq.gain.value=0;this.inputNodes.freq.connect(o.frequency);this.outputNodes.audio=g;break;}
+case 'oscillator':{const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=440;const g=ctx.createGain();g.gain.value=1;o.connect(g);o.start();this.audioNodes.osc=o;this.audioNodes.gain=g;this.inputNodes.fm=ctx.createGain();this.inputNodes.fm.gain.value=200;this.inputNodes.fm.connect(o.frequency);this.inputNodes.freq=ctx.createGain();this.inputNodes.freq.gain.value=1;this.inputNodes.freq.connect(o.frequency);this.outputNodes.audio=g;break;}
 case 'lfo':{const l=ctx.createOscillator();l.type='sine';l.frequency.value=2;const d=ctx.createGain();d.gain.value=0.5;l.connect(d);l.start();this.audioNodes.lfo=l;this.audioNodes.depth=d;this.outputNodes.cv=d;break;}
 case 'arpeggiator':{this._heldNotes=[];this._arpIndex=0;this._arpStep=0;this._subStep=0;break;}
 case 'random':{this._lastVal=0;this._walkVal=0.5;const s=ctx.createConstantSource();s.offset.value=0.5;s.start();const g=ctx.createGain();g.gain.value=1;s.connect(g);this.audioNodes.src=s;this.audioNodes.gain=g;this.outputNodes.cv=g;break;}
 case 'noise':{const bs=ctx.sampleRate*4;const buf=makeNoiseBuffer(ctx,4,'white');const s=ctx.createBufferSource();s.buffer=buf;s.loop=true;const g=ctx.createGain();g.gain.value=0.3;s.connect(g);s.start();this.audioNodes.src=s;this.audioNodes.gain=g;this._noiseType='white';this.outputNodes.audio=g;break;}
 case 'envelope':{const e=ctx.createGain();e.gain.value=0;this.audioNodes.env=e;this.outputNodes.cv=e;this._envState='idle';break;}
-case 'filter':{const f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=5000;f.Q.value=1;this.audioNodes.filter=f;this.inputNodes.audio=ctx.createGain();this.inputNodes.audio.connect(f);this.inputNodes.cutoff_cv=ctx.createGain();this.inputNodes.cutoff_cv.gain.value=0;this.inputNodes.cutoff_cv.connect(f.frequency);this.inputNodes.res_cv=ctx.createGain();this.inputNodes.res_cv.gain.value=0;this.inputNodes.res_cv.connect(f.Q);this.outputNodes.audio=f;break;}
-case 'gain':{const g=ctx.createGain();g.gain.value=1;this.audioNodes.gain=g;this.inputNodes.audio=ctx.createGain();this.inputNodes.audio.connect(g);this.inputNodes.cv=ctx.createGain();this.inputNodes.cv.gain.value=0;this.inputNodes.cv.connect(g.gain);this.outputNodes.audio=g;break;}
+case 'filter':{const f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=5000;f.Q.value=1;this.audioNodes.filter=f;this.inputNodes.audio=ctx.createGain();this.inputNodes.audio.connect(f);this.inputNodes.cutoff_cv=ctx.createGain();this.inputNodes.cutoff_cv.gain.value=3000;this.inputNodes.cutoff_cv.connect(f.frequency);this.inputNodes.res_cv=ctx.createGain();this.inputNodes.res_cv.gain.value=5;this.inputNodes.res_cv.connect(f.Q);this.outputNodes.audio=f;break;}
+case 'gain':{const g=ctx.createGain();g.gain.value=1;this.audioNodes.gain=g;this.inputNodes.audio=ctx.createGain();this.inputNodes.audio.connect(g);this.inputNodes.cv=ctx.createGain();this.inputNodes.cv.gain.value=1;this.inputNodes.cv.connect(g.gain);this.outputNodes.audio=g;break;}
 case 'mixer':{const g1=ctx.createGain();g1.gain.value=0.75;const g2=ctx.createGain();g2.gain.value=0.75;const g3=ctx.createGain();g3.gain.value=0.75;const g4=ctx.createGain();g4.gain.value=0.75;const mx=ctx.createGain();mx.gain.value=0.22;g1.connect(mx);g2.connect(mx);g3.connect(mx);g4.connect(mx);this.inputNodes.in1=g1;this.inputNodes.in2=g2;this.inputNodes.in3=g3;this.inputNodes.in4=g4;this.audioNodes.mix=mx;this.outputNodes.audio=mx;break;}
 case 'delay':{const inp=ctx.createGain();const del=ctx.createDelay(2);del.delayTime.value=0.3;const fb=ctx.createGain();fb.gain.value=0.4;const wet=ctx.createGain();wet.gain.value=0.5;const dry=ctx.createGain();dry.gain.value=0.5;const out=ctx.createGain();inp.connect(dry);inp.connect(del);del.connect(fb);fb.connect(del);del.connect(wet);dry.connect(out);wet.connect(out);this.audioNodes.delay=del;this.audioNodes.fb=fb;this.audioNodes.wet=wet;this.audioNodes.dry=dry;this.inputNodes.audio=inp;this.inputNodes.time_cv=ctx.createGain();this.inputNodes.time_cv.gain.value=0.5;this.inputNodes.time_cv.connect(del.delayTime);this.inputNodes.fb_cv=ctx.createGain();this.inputNodes.fb_cv.gain.value=1;this.inputNodes.fb_cv.connect(fb.gain);this.outputNodes.audio=out;break;}
 case 'reverb':{const inp=ctx.createGain();const conv=ctx.createConvolver();conv.buffer=this._makeIR(2,2);const wet=ctx.createGain();wet.gain.value=0.5;const dry=ctx.createGain();dry.gain.value=0.5;const out=ctx.createGain();inp.connect(dry);inp.connect(conv);conv.connect(wet);dry.connect(out);wet.connect(out);this.audioNodes.conv=conv;this.audioNodes.wet=wet;this.audioNodes.dry=dry;this.inputNodes.audio=inp;this.inputNodes.mix_cv=ctx.createGain();this.inputNodes.mix_cv.gain.value=1;this.inputNodes.mix_cv.connect(wet.gain);this.outputNodes.audio=out;break;}
@@ -1402,8 +1413,8 @@ this._wtWaveIdx=0;this._wtMorph=0;
 const pw0=interpPeriodicWave(ctx,this._wtCoeffs[0],this._wtCoeffs[1],0);
 const o=ctx.createOscillator();o.setPeriodicWave(pw0);o.frequency.value=440;const g=ctx.createGain();g.gain.value=0.8;o.connect(g);o.start();
 this.audioNodes.osc=o;this.audioNodes.gain=g;this.audioNodes._waveType='sine';
-this.inputNodes.morph_cv=ctx.createGain();this.inputNodes.morph_cv.gain.value=0;
-this.inputNodes.freq=ctx.createGain();this.inputNodes.freq.gain.value=0;this.inputNodes.freq.connect(o.frequency);
+this.inputNodes.morph_cv=ctx.createGain();this.inputNodes.morph_cv.gain.value=1;
+this.inputNodes.freq=ctx.createGain();this.inputNodes.freq.gain.value=1;this.inputNodes.freq.connect(o.frequency);
 this.outputNodes.audio=g;
 this._wtBaseFreq=440;
 break;}
@@ -1417,6 +1428,110 @@ case 'bell':{const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.freque
 case 'drone':{const oscs=[];const gains=[];const numV=3;for(let i=0;i<numV;i++){const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=110*(1+(i-1)*0.003);const g=ctx.createGain();g.gain.value=0.32/numV;o.connect(g);o.start();oscs.push(o);gains.push(g);}const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=500;filt.Q.value=3;gains.forEach(g=>g.connect(filt));const vca=ctx.createGain();vca.gain.value=0;filt.connect(vca);const mix=ctx.createGain();mix.gain.value=0.55;vca.connect(mix);const lfo=ctx.createOscillator();lfo.type='sine';lfo.frequency.value=0.07;const lfoG=ctx.createGain();lfoG.gain.value=180;lfo.connect(lfoG);lfoG.connect(filt.frequency);lfo.start();this.audioNodes={oscs,gains,filt,vca,mix,lfo,lfoG};this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._droneBaseFreq=110;this.outputNodes.audio=mix;break;}
 // ===== KALIMBA (polyphonic thumb piano — plucked tine + body resonance) =====
 case 'kalimba':{const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=3500;filt.Q.value=1.2;const body=ctx.createBiquadFilter();body.type='lowpass';body.frequency.value=1200;body.Q.value=2;const masterGain=ctx.createGain();masterGain.gain.value=0.55;filt.connect(masterGain);body.connect(masterGain);this.audioNodes={filt,body,masterGain};this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();this.inputNodes.gate.gain.value=0;this._voices=new Map();this._voiceSeq=0;this._maxVoices=12;this._heldFreqs=new Set();this._lastFreq=440;this.outputNodes.audio=masterGain;break;}
+// ===== NEW INSTRUMENTS: Wurlitzer, DX7 E.Piano, Music Box, Glass Harmonica =====
+case 'wurlitzer':{
+// Wurlitzer EP-200: reed vibration + transistor amp = brighter, more "bark" than Rhodes
+const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=3800;filt.Q.value=0.7;
+const masterGain=ctx.createGain();masterGain.gain.value=0.3;
+// Tremolo LFO (faster and deeper than Rhodes — characteristic Wurli tremolo)
+const tremLfo=ctx.createOscillator();tremLfo.type='sine';tremLfo.frequency.value=5.5;
+const tremGain=ctx.createGain();tremGain.gain.value=0.2;
+const tremOffset=ctx.createGain();tremOffset.gain.value=1-0.2/2;
+tremLfo.connect(tremGain);tremGain.connect(tremOffset.gain);tremLfo.start();
+filt.connect(tremOffset);tremOffset.connect(masterGain);
+this.audioNodes={filt,masterGain,tremLfo,tremGain,tremOffset};
+this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();
+this.outputNodes.audio=masterGain;
+this._voices=new Map();this._heldFreqs=new Set();this._lastFreq=440;this._maxVoices=10;this._voiceSeq=0;
+break;}
+case 'dx7-epiano':{
+// DX7 E.Piano: cascade of 2 FM operators (carrier 1 : modulator 2:1 ratio), glassy
+const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=4200;filt.Q.value=0.4;
+const masterGain=ctx.createGain();masterGain.gain.value=0.3;
+filt.connect(masterGain);
+this.audioNodes={filt,masterGain};
+this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();
+this.outputNodes.audio=masterGain;
+this._voices=new Map();this._heldFreqs=new Set();this._lastFreq=440;this._maxVoices=10;this._voiceSeq=0;
+break;}
+case 'music-box':{
+// Music Box: comb teeth vibrating → bandpass resonator + multiple tine harmonics
+const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=5000;filt.Q.value=2.5;
+const body=ctx.createBiquadFilter();body.type='lowpass';body.frequency.value=3500;body.Q.value=0.5;
+const masterGain=ctx.createGain();masterGain.gain.value=0.42;
+filt.connect(masterGain);body.connect(masterGain);
+this.audioNodes={filt,body,masterGain};
+this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();
+this.outputNodes.audio=masterGain;
+this._voices=new Map();this._heldFreqs=new Set();this._lastFreq=440;this._maxVoices=12;this._voiceSeq=0;
+break;}
+case 'glass-harmonica':{
+// Glass Harmonica: multiple inharmonic partials with friction noise + very long decay
+const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=3000;filt.Q.value=0.7;
+const masterGain=ctx.createGain();masterGain.gain.value=0.34;
+filt.connect(masterGain);
+this.audioNodes={filt,masterGain};
+this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();
+this.outputNodes.audio=masterGain;
+this._voices=new Map();this._heldFreqs=new Set();this._lastFreq=440;this._maxVoices=8;this._voiceSeq=0;
+break;}
+// ===== NEW STRING INSTRUMENTS: _initAudio =====
+case 'harp':{
+// Harp: nylon strings via sine + slight triangle harmonic, with nail attack transient
+const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=4000;filt.Q.value=0.5;
+const masterGain=ctx.createGain();masterGain.gain.value=0.32;
+filt.connect(masterGain);
+this.audioNodes={filt,masterGain};
+this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();
+this.outputNodes.audio=masterGain;
+this._voices=new Map();this._heldFreqs=new Set();this._lastFreq=440;this._maxVoices=10;this._voiceSeq=0;
+break;}
+case 'sitar':{
+// Sitar: bright sawtooth through jawari filter (bandpass + slight buzzing) + sympathetic resonance
+const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=5500;filt.Q.value=1.5;
+const jawariBP=ctx.createBiquadFilter();jawariBP.type='bandpass';jawariBP.frequency.value=3000;jawariBP.Q.value=4;
+const masterGain=ctx.createGain();masterGain.gain.value=0.3;
+filt.connect(masterGain);jawariBP.connect(masterGain);
+this.audioNodes={filt,jawariBP,masterGain};
+this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();
+this.outputNodes.audio=masterGain;
+this._voices=new Map();this._heldFreqs=new Set();this._lastFreq=440;this._maxVoices=8;this._voiceSeq=0;
+// Drone oscillator (always running while note is held)
+this._droneOsc=null;this._droneGain=ctx.createGain();this._droneGain.gain.value=0;
+this._droneGain.connect(masterGain);
+break;}
+case 'koto':{
+// Koto: nylon string (sawtooth + sine harmonic), sharp plectrum attack, body resonance
+const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=5000;filt.Q.value=2;
+const body=ctx.createBiquadFilter();body.type='lowpass';body.frequency.value=1500;body.Q.value=3;
+const masterGain=ctx.createGain();masterGain.gain.value=0.4;
+filt.connect(masterGain);body.connect(masterGain);
+this.audioNodes={filt,body,masterGain};
+this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();
+this.outputNodes.audio=masterGain;
+this._voices=new Map();this._heldFreqs=new Set();this._lastFreq=440;this._maxVoices=10;this._voiceSeq=0;
+break;}
+case 'pizzicato':{
+// Pizzicato Strings: short plucked violin (Karplus-Strong-like via sawtooth + body resonance)
+const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=2500;filt.Q.value=3;
+const body=ctx.createBiquadFilter();body.type='lowpass';body.frequency.value=2000;body.Q.value=1.5;
+const masterGain=ctx.createGain();masterGain.gain.value=0.36;
+filt.connect(masterGain);body.connect(masterGain);
+this.audioNodes={filt,body,masterGain};
+this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();
+this.outputNodes.audio=masterGain;
+this._voices=new Map();this._heldFreqs=new Set();this._lastFreq=440;this._maxVoices=12;this._voiceSeq=0;
+break;}
+case 'cello-bow':{
+// Cello Bow: sustained bowed sawtooth with slow attack + vibrato LFO (per voice)
+const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.frequency.value=2500;filt.Q.value=0.7;
+const masterGain=ctx.createGain();masterGain.gain.value=0.3;
+filt.connect(masterGain);
+this.audioNodes={filt,masterGain};
+this.inputNodes.note=ctx.createGain();this.inputNodes.gate=ctx.createGain();
+this.outputNodes.audio=masterGain;
+this._voices=new Map();this._heldFreqs=new Set();this._lastFreq=440;this._maxVoices=8;this._voiceSeq=0;
+break;}
 // ===== MULT (1 in -> 4 out, any signal type) =====
 case 'mult':{const inp=ctx.createGain();inp.gain.value=1;const o1=ctx.createGain();o1.gain.value=1;const o2=ctx.createGain();o2.gain.value=1;const o3=ctx.createGain();o3.gain.value=1;const o4=ctx.createGain();o4.gain.value=1;inp.connect(o1);inp.connect(o2);inp.connect(o3);inp.connect(o4);this.inputNodes.in=inp;this.outputNodes.out1=o1;this.outputNodes.out2=o2;this.outputNodes.out3=o3;this.outputNodes.out4=o4;break;}
 // ===== CV MIXER =====
@@ -1436,9 +1551,9 @@ case 'env-follower':{const inp=ctx.createGain();const rect=ctx.createWaveShaper(
 // ===== COMPARATOR =====
 case 'comparator':{this._compA=0;this._compB=0;const src=ctx.createConstantSource();src.offset.value=0;src.start();const g=ctx.createGain();g.gain.value=1;src.connect(g);this.audioNodes.src=src;this.audioNodes.gain=g;this.inputNodes.a=ctx.createGain();this.inputNodes.b=ctx.createGain();this.outputNodes.gate=g;break;}
 // ===== RING MODULATOR =====
-case 'ring-mod':{const inp=ctx.createGain();const carrier=ctx.createOscillator();carrier.type='sine';carrier.frequency.value=440;const cGain=ctx.createGain();cGain.gain.value=0.5;carrier.connect(cGain);carrier.start();const mult=ctx.createGain();mult.gain.value=1;const out=ctx.createGain();out.gain.value=0.5;inp.connect(mult.gain);cGain.connect(mult.gain);mult.connect(out);this.audioNodes={carrier,cGain,mult};this.inputNodes.audio=inp;this.inputNodes.carrier=ctx.createGain();this.inputNodes.freq_cv=ctx.createGain();this.inputNodes.freq_cv.gain.value=0;this.inputNodes.freq_cv.connect(carrier.frequency);this.outputNodes.audio=out;break;}
+case 'ring-mod':{const inp=ctx.createGain();const carrier=ctx.createOscillator();carrier.type='sine';carrier.frequency.value=440;const cGain=ctx.createGain();cGain.gain.value=0.5;carrier.connect(cGain);carrier.start();const mult=ctx.createGain();mult.gain.value=1;const out=ctx.createGain();out.gain.value=0.5;inp.connect(mult.gain);cGain.connect(mult.gain);mult.connect(out);this.audioNodes={carrier,cGain,mult};this.inputNodes.audio=inp;this.inputNodes.carrier=ctx.createGain();this.inputNodes.freq_cv=ctx.createGain();this.inputNodes.freq_cv.gain.value=200;this.inputNodes.freq_cv.connect(carrier.frequency);this.outputNodes.audio=out;break;}
 // ===== WAVEFOLDER =====
-case 'wavefolder':{const inp=ctx.createGain();const out=ctx.createGain();out.gain.value=0.5;this.audioNodes={};this.inputNodes.audio=inp;this.inputNodes.amount_cv=ctx.createGain();this.inputNodes.amount_cv.gain.value=0;this.outputNodes.audio=out;const wf=this;this.engine._workletReady.then(()=>{const proc=ctx.createAudioWorkletNode('wavefolder-processor');proc.port.postMessage({amount:wf.params.amount||2,gain:wf.params.gain||1});inp.connect(proc);proc.connect(out);wf.audioNodes.proc=proc;});break;}
+case 'wavefolder':{const inp=ctx.createGain();const out=ctx.createGain();out.gain.value=0.5;this.audioNodes={};this.inputNodes.audio=inp;this.inputNodes.amount_cv=ctx.createGain();this.inputNodes.amount_cv.gain.value=1;this.outputNodes.audio=out;const wf=this;this.engine._workletReady.then(()=>{const proc=ctx.createAudioWorkletNode('wavefolder-processor');proc.port.postMessage({amount:wf.params.amount||2,gain:wf.params.gain||1});inp.connect(proc);proc.connect(out);wf.audioNodes.proc=proc;});break;}
 // ===== COMPRESSOR =====
 case 'compressor':{const inp=ctx.createGain();const comp=ctx.createDynamicsCompressor();comp.threshold.value=-20;comp.ratio.value=4;comp.attack.value=0.01;comp.release.value=0.1;const out=ctx.createGain();out.gain.value=1;inp.connect(comp);comp.connect(out);this.audioNodes.comp=comp;this.inputNodes.audio=inp;this.outputNodes.audio=out;break;}
 // ===== EQ =====
@@ -1468,7 +1583,7 @@ dry.connect(out);wet.connect(out);
 this.audioNodes={conv,pitchProc:null,wet,dry,fb,summer};
 this.inputNodes.audio=inp;
 this.inputNodes.mix_cv=ctx.createGain();this.inputNodes.mix_cv.gain.value=1;this.inputNodes.mix_cv.connect(wet.gain);
-this.inputNodes.pitch_cv=ctx.createGain();this.inputNodes.pitch_cv.gain.value=0;
+this.inputNodes.pitch_cv=ctx.createGain();this.inputNodes.pitch_cv.gain.value=1;
 this.outputNodes.audio=out;
 break;}
 
@@ -1555,11 +1670,11 @@ case 'marimba':{const filt=ctx.createBiquadFilter();filt.type='lowpass';filt.fre
 case 'chorus_plus':{const inp=ctx.createGain();const out=ctx.createGain();out.gain.value=1;const dry=ctx.createGain();dry.gain.value=0.5;const wet=ctx.createGain();wet.gain.value=0.5;const panL=ctx.createStereoPanner();panL.pan.value=-0.6;const panR=ctx.createStereoPanner();panR.pan.value=0.6;inp.connect(dry);dry.connect(out);const voiceData=[];for(let i=0;i<4;i++){const d=ctx.createDelay(0.05);d.delayTime.value=0.005+i*0.003;const l=ctx.createOscillator();l.type='sine';l.frequency.value=0.8+i*0.15;const lg=ctx.createGain();lg.gain.value=0.003;l.connect(lg);lg.connect(d.delayTime);l.start();inp.connect(d);if(i%2===0){d.connect(panL);panL.connect(wet);}else{d.connect(panR);panR.connect(wet);}voiceData.push({delay:d,lfo:l,lfoGain:lg});}wet.connect(out);this.audioNodes={voiceData,wet,dry,panL,panR};this.inputNodes.audio=inp;this.outputNodes.audio=out;break;}
 case 'pingpong':{const inp=ctx.createGain();const delL=ctx.createDelay(2);delL.delayTime.value=0.375;const delR=ctx.createDelay(2);delR.delayTime.value=0.375;const fbL=ctx.createGain();fbL.gain.value=0.4;const fbR=ctx.createGain();fbR.gain.value=0.4;const wet=ctx.createGain();wet.gain.value=0.4;const dry=ctx.createGain();dry.gain.value=0.6;const out=ctx.createGain();const panL=ctx.createStereoPanner();panL.pan.value=-0.7;const panR=ctx.createStereoPanner();panR.pan.value=0.7;inp.connect(dry);dry.connect(out);inp.connect(delL);delL.connect(panL);panL.connect(wet);inp.connect(delR);delR.connect(panR);panR.connect(wet);wet.connect(out);delL.connect(fbL);fbL.connect(delR);delR.connect(fbR);fbR.connect(delL);this.audioNodes={delL,delR,fbL,fbR,wet,dry,panL,panR};this.inputNodes.audio=inp;this.outputNodes.audio=out;break;}
 case 'ringmod':{const inp=ctx.createGain();const carrier=ctx.createOscillator();carrier.type='sine';carrier.frequency.value=440;carrier.start();const ring=ctx.createGain();ring.gain.value=0;const dry=ctx.createGain();dry.gain.value=0.5;const wet=ctx.createGain();wet.gain.value=0.5;const out=ctx.createGain();inp.connect(ring);carrier.connect(ring.gain);inp.connect(dry);ring.connect(wet);dry.connect(out);wet.connect(out);this.audioNodes={carrier,ring,wet,dry};this.inputNodes.audio=inp;this.inputNodes.mod_cv=ctx.createGain();this.inputNodes.mod_cv.gain.value=200;this.inputNodes.mod_cv.connect(carrier.frequency);this.outputNodes.audio=out;break;}
-case 'auto-filter':{const inp=ctx.createGain();const f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=500;f.Q.value=5;const analyser=ctx.createAnalyser();analyser.fftSize=256;const splitter=ctx.createChannelSplitter(2);inp.connect(splitter);splitter.connect(analyser,0);inp.connect(f);const out=ctx.createGain();out.gain.value=1;f.connect(out);this.audioNodes={filter:f,out,analyser,splitter};this.inputNodes.audio=inp;this.inputNodes.cutoff_cv=ctx.createGain();this.inputNodes.cutoff_cv.gain.value=0;this.inputNodes.cutoff_cv.connect(f.frequency);this.inputNodes.res_cv=ctx.createGain();this.inputNodes.res_cv.gain.value=0;this.inputNodes.res_cv.connect(f.Q);this.outputNodes.audio=out;this._afBaseCutoff=500;this._afSens=0.8;this._afAtk=0.005;this._afRel=0.2;this._afEnv=0;const afTimeBuf=new Uint8Array(analyser.frequencyBinCount);this._afAnalyse=()=>{if(!this.engine||!this.engine.isPlaying||!this.audioNodes.analyser)return;this.audioNodes.analyser.getByteFrequencyData(afTimeBuf);let sum=0;for(let i=0;i<afTimeBuf.length;i++)sum+=afTimeBuf[i];const rms=sum/afTimeBuf.length/255;const atk=this._afAtk;const rel=this._afRel;const coeff=rms>this._afEnv?(1-Math.exp(-1/(atk*ctx.sampleRate))):(1-Math.exp(-1/(rel*ctx.sampleRate)));this._afEnv+=(rms-this._afEnv)*coeff;const base=this._afBaseCutoff;const sens=this._afSens;const modCutoff=Math.min(18000,Math.max(20,base+this._afEnv*sens*16000));if(this.audioNodes.filter)this.audioNodes.filter.frequency.setTargetAtTime(modCutoff,ctx.currentTime,0.008);requestAnimationFrame(this._afAnalyse);};break;}
+case 'auto-filter':{const inp=ctx.createGain();const f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=500;f.Q.value=5;const analyser=ctx.createAnalyser();analyser.fftSize=256;const splitter=ctx.createChannelSplitter(2);inp.connect(splitter);splitter.connect(analyser,0);inp.connect(f);const out=ctx.createGain();out.gain.value=1;f.connect(out);this.audioNodes={filter:f,out,analyser,splitter};this.inputNodes.audio=inp;this.inputNodes.cutoff_cv=ctx.createGain();this.inputNodes.cutoff_cv.gain.value=3000;this.inputNodes.cutoff_cv.connect(f.frequency);this.inputNodes.res_cv=ctx.createGain();this.inputNodes.res_cv.gain.value=5;this.inputNodes.res_cv.connect(f.Q);this.outputNodes.audio=out;this._afBaseCutoff=500;this._afSens=0.8;this._afAtk=0.005;this._afRel=0.2;this._afEnv=0;const afTimeBuf=new Uint8Array(analyser.frequencyBinCount);this._afAnalyse=()=>{if(!this.engine||!this.engine.isPlaying||!this.audioNodes.analyser)return;this.audioNodes.analyser.getByteFrequencyData(afTimeBuf);let sum=0;for(let i=0;i<afTimeBuf.length;i++)sum+=afTimeBuf[i];const rms=sum/afTimeBuf.length/255;const atk=this._afAtk;const rel=this._afRel;const coeff=rms>this._afEnv?(1-Math.exp(-1/(atk*ctx.sampleRate))):(1-Math.exp(-1/(rel*ctx.sampleRate)));this._afEnv+=(rms-this._afEnv)*coeff;const base=this._afBaseCutoff;const sens=this._afSens;const modCutoff=Math.min(18000,Math.max(20,base+this._afEnv*sens*16000));if(this.audioNodes.filter)this.audioNodes.filter.frequency.setTargetAtTime(modCutoff,ctx.currentTime,0.008);requestAnimationFrame(this._afAnalyse);};break;}
 case 'saturator':{const inp=ctx.createGain();const ws=ctx.createWaveShaper();ws.curve=makeSatCurve(30,0.6);ws.oversample='4x';const dry=ctx.createGain();dry.gain.value=0;const wet=ctx.createGain();wet.gain.value=1;const out=ctx.createGain();inp.connect(ws);ws.connect(wet);inp.connect(dry);dry.connect(out);wet.connect(out);this.audioNodes={ws,dry,wet};this.inputNodes.audio=inp;this.inputNodes.drive_cv=ctx.createGain();this.inputNodes.drive_cv.gain.value=0.5;this.inputNodes.drive_cv.connect(ws);this.outputNodes.audio=out;break;}
 case 'booster':{const inp=ctx.createGain();const g=ctx.createGain();g.gain.value=1.5;const clipper=ctx.createWaveShaper();clipper.curve=makeSoftClipCurve();clipper.oversample='4x';const out=ctx.createGain();inp.connect(g);g.connect(clipper);clipper.connect(out);this.audioNodes={gain:g,clipper};this.inputNodes.audio=inp;this.inputNodes.gain_cv=ctx.createGain();this.inputNodes.gain_cv.gain.value=1;this.inputNodes.gain_cv.connect(g.gain);this.outputNodes.audio=out;this._clipMode='soft';break;}
 case 'groove':{const GROOVE_TEMPLATES={'none':new Float32Array(16),'swing':new Float32Array([0,0.33,0,0.33,0,0.33,0,0.33,0,0.33,0,0.33,0,0.33,0,0.33]),'dotted':new Float32Array([0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5]),'triplet':new Float32Array([0,0.167,0.333,0,0.167,0.333,0,0.167,0.333,0,0.167,0.333,0,0.167,0.333,0,0.167]),'bossa':new Float32Array([0,0.2,0.1,0.25,0,0.15,0.05,0.25,0,0.2,0.1,0.25,0,0.15,0.05,0.25]),'samba':new Float32Array([0,0.1,0.3,0,0.15,0.05,0.25,0,0.1,0.3,0,0.15,0.05,0.25,0,0.1]),'dub':new Float32Array([0,0.02,0.35,0.08,0,0.15,0.38,0.05,0,0.02,0.35,0.08,0,0.15,0.38,0.05]),'trap':new Float32Array([0,0.4,0.05,0.38,0.02,0.35,0,0.42,0,0.4,0.05,0.38,0.02,0.35,0,0.42]),'shuffle':new Float32Array([0,0.25,0,0.25,0,0.25,0,0.25,0,0.25,0,0.25,0,0.25,0,0.25]),' MPC':new Float32Array([0,0.28,0.05,0.3,0.02,0.26,0.08,0.32,0,0.28,0.05,0.3,0.02,0.26,0.08,0.32])};this._grooveTemplates=GROOVE_TEMPLATES;this._grooveStep=-1;const src=ctx.createConstantSource();src.offset.value=0;src.start();const g=ctx.createGain();g.gain.value=1;src.connect(g);this.audioNodes={src,gain:g};this.outputNodes.cv=g;break;}
-case 'sidechain':{const inp=ctx.createGain();const vca=ctx.createGain();vca.gain.value=1;const scInp=ctx.createGain();const scAnalyser=ctx.createAnalyser();scAnalyser.fftSize=256;scInp.connect(scAnalyser);const out=ctx.createGain();inp.connect(vca);vca.connect(out);this.audioNodes={vca,scAnalyser,scInp};this.inputNodes.audio=inp;this.inputNodes.sidechain=scInp;this.inputNodes.thresh_cv=ctx.createGain();this.inputNodes.thresh_cv.gain.value=0;this.outputNodes.audio=out;this._scThresh=-20;this._scRatio=8;this._scAtk=0.005;this._scRel=0.15;this._scEnv=0;const scBuf=new Uint8Array(scAnalyser.frequencyBinCount);this._scAnalyse=()=>{if(!this.engine||!this.engine.isPlaying||!this.audioNodes.scAnalyser)return;this.audioNodes.scAnalyser.getByteFrequencyData(scBuf);let sum=0;for(let i=0;i<scBuf.length;i++)sum+=scBuf[i];const rms=sum/scBuf.length/255;const atk=this._scAtk;const rel=this._scRel;const coeff=rms>this._scEnv?(1-Math.exp(-1/(atk*ctx.sampleRate))):(1-Math.exp(-1/(rel*ctx.sampleRate)));this._scEnv+=(rms-this._scEnv)*coeff;const thresh=this._scThresh;const threshNorm=Math.max(0.001,(thresh+60)/60);const dbVal=this._scEnv>0.0001?20*Math.log10(this._scEnv):-100;let gainReduction=0;if(dbVal>thresh){gainReduction=Math.min(1,((dbVal-thresh)*this._scRatio/40));}const vcaGain=1-gainReduction;if(this.audioNodes.vca)this.audioNodes.vca.gain.setTargetAtTime(vcaGain,ctx.currentTime,0.005);requestAnimationFrame(this._scAnalyse);};break;}
+case 'sidechain':{const inp=ctx.createGain();const vca=ctx.createGain();vca.gain.value=1;const scInp=ctx.createGain();const scAnalyser=ctx.createAnalyser();scAnalyser.fftSize=256;scInp.connect(scAnalyser);const out=ctx.createGain();inp.connect(vca);vca.connect(out);this.audioNodes={vca,scAnalyser,scInp};this.inputNodes.audio=inp;this.inputNodes.sidechain=scInp;this.inputNodes.thresh_cv=ctx.createGain();this.inputNodes.thresh_cv.gain.value=1;this.outputNodes.audio=out;this._scThresh=-20;this._scRatio=8;this._scAtk=0.005;this._scRel=0.15;this._scEnv=0;const scBuf=new Uint8Array(scAnalyser.frequencyBinCount);this._scAnalyse=()=>{if(!this.engine||!this.engine.isPlaying||!this.audioNodes.scAnalyser)return;this.audioNodes.scAnalyser.getByteFrequencyData(scBuf);let sum=0;for(let i=0;i<scBuf.length;i++)sum+=scBuf[i];const rms=sum/scBuf.length/255;const atk=this._scAtk;const rel=this._scRel;const coeff=rms>this._scEnv?(1-Math.exp(-1/(atk*ctx.sampleRate))):(1-Math.exp(-1/(rel*ctx.sampleRate)));this._scEnv+=(rms-this._scEnv)*coeff;const thresh=this._scThresh;const threshNorm=Math.max(0.001,(thresh+60)/60);const dbVal=this._scEnv>0.0001?20*Math.log10(this._scEnv):-100;let gainReduction=0;if(dbVal>thresh){gainReduction=Math.min(1,((dbVal-thresh)*this._scRatio/40));}const vcaGain=1-gainReduction;if(this.audioNodes.vca)this.audioNodes.vca.gain.setTargetAtTime(vcaGain,ctx.currentTime,0.005);requestAnimationFrame(this._scAnalyse);};break;}
 case 'output':{const iL=ctx.createGain();const iR=ctx.createGain();const vol=ctx.createGain();vol.gain.value=0.8;const pan=ctx.createStereoPanner();pan.pan.value=0;iL.connect(vol);iR.connect(vol);vol.connect(pan);this.audioNodes.vol=vol;this.audioNodes.pan=pan;this._chAudioDest=this.engine.masterGain;pan.connect(this._chAudioDest);this.inputNodes.audio_l=iL;this.inputNodes.audio_r=iR;this.inputNodes.note_in=ctx.createGain();this._chNoteFreq=null;this._chGateOpen=false;break;}
 case 'sequencer':{this._steps=Array(48).fill(null).map(()=>({active:false,freq:440,name:'A4',prob:1}));this._currentStep=-1;const defaultNotes=[261.63,329.63,392,523.25,293.66,440,349.23,523.25,261.63,0,392,0,329.63,440,0,523.25,261.63,0,0,392,440,523.25,0,0];for(let i=0;i<24;i++){if(defaultNotes[i]>0){this._steps[i]={active:true,freq:defaultNotes[i],name:freqToName(defaultNotes[i]),prob:1};}}break;}
 case 'macro':{
@@ -1825,7 +1940,7 @@ case 'vocoder':{
   const out=ctx.createGain();out.gain.value=1;mix.connect(out);
   this.audioNodes={modInp,carInp,mix,dry,out,bands};
   this.inputNodes.modulator=modInp;this.inputNodes.carrier=carInp;
-  this.inputNodes.formant_cv=ctx.createGain();this.inputNodes.formant_cv.gain.value=0;
+  this.inputNodes.formant_cv=ctx.createGain();this.inputNodes.formant_cv.gain.value=1;
   this.outputNodes.audio=out;
   break;}
 case 'tape-echo':{
@@ -1849,8 +1964,8 @@ case 'tape-echo':{
   inp.connect(dry);inp.connect(delay);delay.connect(wet);dry.connect(out);wet.connect(out);
   this.audioNodes={inp,delay,fb,sat,wet,dry,out,wowLFO,wowG,flutterLFO,flutterG};
   this.inputNodes.audio=inp;
-  this.inputNodes.time_cv=ctx.createGain();this.inputNodes.time_cv.gain.value=0;
-  this.inputNodes.fb_cv=ctx.createGain();this.inputNodes.fb_cv.gain.value=0;
+  this.inputNodes.time_cv=ctx.createGain();this.inputNodes.time_cv.gain.value=1;this.inputNodes.time_cv.connect(delay.delayTime);
+  this.inputNodes.fb_cv=ctx.createGain();this.inputNodes.fb_cv.gain.value=1;this.inputNodes.fb_cv.connect(fb.gain);
   this.outputNodes.audio=out;
   break;}
 case 'spring-reverb':{
@@ -1878,7 +1993,7 @@ case 'spring-reverb':{
   allpasses[3].connect(hp);hp.connect(dispersive);dispersive.connect(fb);fb.connect(allpasses[0]);
   hp.connect(wet);wet.connect(out);
   this.audioNodes={inp,allpasses,hp,fb,dispersive,wet,dry,out,boingGain};
-  this.inputNodes.audio=inp;this.inputNodes.mix_cv=ctx.createGain();this.inputNodes.mix_cv.gain.value=0;
+  this.inputNodes.audio=inp;this.inputNodes.mix_cv=ctx.createGain();this.inputNodes.mix_cv.gain.value=1;this.inputNodes.mix_cv.connect(wet.gain);this.inputNodes.mix_cv.connect(dry.gain);
   this.outputNodes.audio=out;
   // Synthesize IR-style spring response when triggered
   break;}
@@ -1948,6 +2063,17 @@ case 'drums':if(id==='master_vol'&&this.audioNodes.mix)this.audioNodes.mix.gain.
 case 'organ':{const drawIds=['d16','d8','d4','d223','d2','d113','d1'];const di=drawIds.indexOf(id);if(di>=0&&this.audioNodes.gains&&this.audioNodes.gains[di]){this.audioNodes.gains[di].gain.setTargetAtTime(value,t,0.02);}break;}
 case 'piano':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);break;
 case 'rhodes':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);if(id==='tremolo'&&this.audioNodes.tremGain)this.audioNodes.tremGain.gain.setTargetAtTime(Math.min(0.49,value),t,0.02);if(this.audioNodes.tremOffset)this.audioNodes.tremOffset.gain.setTargetAtTime(1-Math.min(0.49,value)/2,t,0.02);break;
+// ===== NEW INSTRUMENTS: setParam =====
+case 'wurlitzer':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);if(id==='tremolo'&&this.audioNodes.tremGain){this.audioNodes.tremGain.gain.setTargetAtTime(Math.min(0.49,value),t,0.02);if(this.audioNodes.tremOffset)this.audioNodes.tremOffset.gain.setTargetAtTime(1-Math.min(0.49,value)/2,t,0.02);}break;
+case 'dx7-epiano':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);break;
+case 'music-box':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);break;
+case 'glass-harmonica':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);break;
+// ===== NEW STRING INSTRUMENTS: setParam =====
+case 'harp':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);break;
+case 'sitar':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);if(id==='jawari'&&this.audioNodes.jawariBP)this.audioNodes.jawariBP.Q.setTargetAtTime(2+value*8,t,0.02);break;
+case 'koto':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);if(id==='body'&&this.audioNodes.body)this.audioNodes.body.frequency.setTargetAtTime(800+value*2000,t,0.02);break;
+case 'pizzicato':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);if(id==='body'&&this.audioNodes.body)this.audioNodes.body.frequency.setTargetAtTime(value*1.2,t,0.02);break;
+case 'cello-bow':if(id==='brightness'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);break;
 case 'bitcrusher':if(this.audioNodes.proc){this.audioNodes.proc.port.postMessage({bits:this.params.bits,srate:this.params.srate});}break;
 case 'bass':if(id==='wave'&&this.audioNodes.osc)this.audioNodes.osc.type=value;if(id==='cutoff'&&this.audioNodes.filt)this.audioNodes.filt.frequency.setTargetAtTime(value,t,0.02);if(id==='resonance'&&this.audioNodes.filt)this.audioNodes.filt.Q.setTargetAtTime(value,t,0.02);if(id==='drive'&&this.audioNodes.drive)this.audioNodes.drive.curve=makeDistCurve(value*50);break;
 case 'noise':if(id==='type'){this._noiseType=value;if(this.audioNodes.src){this.audioNodes.src.stop();try{this.audioNodes.src.disconnect();}catch(e){}}const bs=this.engine.ctx.sampleRate*4;const buf=makeNoiseBuffer(this.engine.ctx,4,value);const s=this.engine.ctx.createBufferSource();s.buffer=buf;s.loop=true;s.connect(this.audioNodes.gain);s.start();this.audioNodes.src=s;}break;
@@ -2014,6 +2140,15 @@ if(this.type==='kalimba'){this._heldFreqs=this._heldFreqs||new Set();this._heldF
 if(this.type==='fm_synth'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
 if(this.type==='string_ens'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
 if(this.type==='marimba'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='wurlitzer'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='dx7-epiano'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='music-box'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='glass-harmonica'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='harp'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='sitar'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='koto'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='pizzicato'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
+if(this.type==='cello-bow'){this._heldFreqs=this._heldFreqs||new Set();this._heldFreqs.add(freq);this._lastFreq=freq;}
 if(this.type==='drone')this._setDroneFreq(freq,time);
 if(this.type==='wavetable'&&this.audioNodes.osc){const oct=this.params.octave||0;const det=(this.params.detune||0)/1200;const f=freq*Math.pow(2,oct+det);this._wtBaseFreq=f;this.audioNodes.osc.frequency.setTargetAtTime(f,time||this.engine.ctx.currentTime,0.01);}
 if(this.type==='shimmer'&&this.inputNodes.pitch_cv){/* pitch handled by param; cv adds offset */}
@@ -2038,6 +2173,15 @@ if(this.type==='kalimba'){this._polyGate(value,t);}
 if(this.type==='fm_synth'){this._polyGate(value,t);}
 if(this.type==='string_ens'){this._polyGate(value,t);}
 if(this.type==='marimba'){this._polyGate(value,t);}
+if(this.type==='wurlitzer'){this._polyGate(value,t);}
+if(this.type==='dx7-epiano'){this._polyGate(value,t);}
+if(this.type==='music-box'){this._polyGate(value,t);}
+if(this.type==='glass-harmonica'){this._polyGate(value,t);}
+if(this.type==='harp'){this._polyGate(value,t);}
+if(this.type==='sitar'){this._polyGate(value,t);if(this.type==='sitar'&&value<=0){/* drone off handled in releaseVoice */}}
+if(this.type==='koto'){this._polyGate(value,t);}
+if(this.type==='pizzicato'){this._polyGate(value,t);}
+if(this.type==='cello-bow'){this._polyGate(value,t);}
 if(this.type==='drone'){const vca=this.audioNodes.vca;if(!vca)return;const swell=Math.max(0.05,this.params.swell||2);if(value>0){vca.gain.cancelScheduledValues(t);vca.gain.setValueAtTime(Math.max(0,vca.gain.value),t);vca.gain.linearRampToValueAtTime(1,t+swell);}else{vca.gain.cancelScheduledValues(t);vca.gain.setValueAtTime(Math.max(0,vca.gain.value),t);vca.gain.linearRampToValueAtTime(0,t+swell);}}
 if(this.type==='bass'){if(value>0){this.audioNodes.oscG.gain.cancelScheduledValues(t);this.audioNodes.oscG.gain.setValueAtTime(0,t);this.audioNodes.oscG.gain.linearRampToValueAtTime(1,t+0.005);this.audioNodes.subG.gain.cancelScheduledValues(t);this.audioNodes.subG.gain.setValueAtTime(0,t);this.audioNodes.subG.gain.linearRampToValueAtTime(this.params.sub||0.5,t+0.005);}else{this.audioNodes.oscG.gain.cancelScheduledValues(t);this.audioNodes.oscG.gain.setValueAtTime(this.audioNodes.oscG.gain.value,t);this.audioNodes.oscG.gain.linearRampToValueAtTime(0,t+0.15);this.audioNodes.subG.gain.cancelScheduledValues(t);this.audioNodes.subG.gain.setValueAtTime(this.audioNodes.subG.gain.value,t);this.audioNodes.subG.gain.linearRampToValueAtTime(0,t+0.15);}}
 if(this.type==='pluck'&&value>0&&this._pluckBaseFreq>0){const ctx=this.engine.ctx;const freq=this._pluckBaseFreq;const dur=this.params.decay||1;const bright=this.params.brightness||0.5;const damp=this.params.damping||0.3;const oct=this.params.octave||0;const f=freq*Math.pow(2,oct);const nLen=Math.floor(ctx.sampleRate*Math.min(4,dur));const buf=ctx.createBuffer(1,Math.max(1,nLen),ctx.sampleRate);const d=buf.getChannelData(0);const period=Math.floor(ctx.sampleRate/f);const bFilt=1-damp*0.5;const first=(bright*0.5+0.5);d[0]=Math.random()*2-1;if(period>1)d[1]=d[0];for(let i=1;i<nLen-1;i++){d[i]=(bFilt*(d[i]+d[i-1]))*Math.pow(1-i/nLen,0.3/first);if(i===period)d[i]*=0.5;}d[0]=Math.random()*2-1;const src=ctx.createBufferSource();src.buffer=buf;const g=ctx.createGain();g.gain.value=0;const tt=ctx.currentTime;g.gain.setValueAtTime(0,tt);g.gain.linearRampToValueAtTime(0.6,tt+0.005);g.gain.exponentialRampToValueAtTime(0.001,tt+dur);src.connect(g);g.connect(this.audioNodes.filt);src.start(tt);src.stop(tt+dur+0.01);}
@@ -2137,6 +2281,15 @@ else if(this.type==='kalimba')this._spawnKalimbaVoice(freq,t);
 else if(this.type==='fm_synth')this._spawnFmSynthVoice(freq,t);
 else if(this.type==='string_ens')this._spawnStringEnsVoice(freq,t);
 else if(this.type==='marimba')this._spawnMarimbaVoice(freq,t);
+else if(this.type==='wurlitzer')this._spawnWurlitzerVoice(freq,t);
+else if(this.type==='dx7-epiano')this._spawnDx7EpianoVoice(freq,t);
+else if(this.type==='music-box')this._spawnMusicBoxVoice(freq,t);
+else if(this.type==='glass-harmonica')this._spawnGlassHarmonicaVoice(freq,t);
+else if(this.type==='harp')this._spawnHarpVoice(freq,t);
+else if(this.type==='sitar')this._spawnSitarVoice(freq,t);
+else if(this.type==='koto')this._spawnKotoVoice(freq,t);
+else if(this.type==='pizzicato')this._spawnPizzicatoVoice(freq,t);
+else if(this.type==='cello-bow')this._spawnCelloBowVoice(freq,t);
 }
 _spawnPianoVoice(freq,t){
 const ctx=this.engine.ctx;
@@ -2222,19 +2375,25 @@ setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
 _releaseVoice(voice,t){
 if(!voice||voice.released)return;
 voice.released=true;
-const relTime=0.3;
+const relTime=(this.type==='cello-bow')?Math.max(0.1,this.params.release||0.8):0.3;
 if(this.type==='piano'&&voice.voiceGain){
 voice.voiceGain.gain.cancelScheduledValues(t);
 voice.voiceGain.gain.setValueAtTime(voice.voiceGain.gain.value,t);
 voice.voiceGain.gain.exponentialRampToValueAtTime(0.001,t+relTime);
-}else if((this.type==='rhodes'||this.type==='string_ens')&&voice.ampEnv){
+}else if((this.type==='rhodes'||this.type==='string_ens'||this.type==='wurlitzer'||this.type==='dx7-epiano'||this.type==='cello-bow')&&voice.ampEnv){
 voice.ampEnv.gain.cancelScheduledValues(t);
 voice.ampEnv.gain.setValueAtTime(voice.ampEnv.gain.value,t);
 voice.ampEnv.gain.exponentialRampToValueAtTime(0.001,t+relTime);
-}else if((this.type==='bell'||this.type==='kalimba'||this.type==='fm_synth'||this.type==='marimba')&&voice.voiceGain){
+}else if((this.type==='bell'||this.type==='kalimba'||this.type==='fm_synth'||this.type==='marimba'||this.type==='music-box'||this.type==='glass-harmonica'||this.type==='harp'||this.type==='sitar'||this.type==='koto'||this.type==='pizzicato')&&voice.voiceGain){
 voice.voiceGain.gain.cancelScheduledValues(t);
 voice.voiceGain.gain.setValueAtTime(Math.max(0.001,voice.voiceGain.gain.value),t);
 voice.voiceGain.gain.exponentialRampToValueAtTime(0.001,t+relTime);
+}
+// Sitar: also release drone
+if(this.type==='sitar'&&voice.droneG){
+voice.droneG.gain.cancelScheduledValues(t);
+voice.droneG.gain.setValueAtTime(Math.max(0.001,voice.droneG.gain.value),t);
+voice.droneG.gain.exponentialRampToValueAtTime(0.001,t+relTime);
 }
 // Always cleanup this voice's nodes after release (regardless of Map state)
 setTimeout(()=>this._cleanupVoice(voice,this.engine.ctx.currentTime),(relTime+0.1)*1000);
@@ -2242,8 +2401,8 @@ setTimeout(()=>this._cleanupVoice(voice,this.engine.ctx.currentTime),(relTime+0.
 _cleanupVoice(voice,t){
 if(!voice||voice._cleaned)return;
 voice._cleaned=true;
-const stop=[voice.oscs,voice.carrier,voice.modulator,voice.tineSrc];
-const disc=[voice.oscs,voice.voiceGain,voice.carrier,voice.modulator,voice.modGain,voice.ampEnv,voice.tineSrc,voice.tineGain,voice.tineFilt,voice.extra];
+const stop=[voice.oscs,voice.carrier,voice.modulator,voice.tineSrc,voice.noiseSrc,voice.plectrumSrc,voice.pluckSrc,voice.nailSrc,voice.droneOsc,voice.extra,voice.extra2];
+const disc=[voice.oscs,voice.voiceGain,voice.carrier,voice.modulator,voice.modGain,voice.ampEnv,voice.tineSrc,voice.tineGain,voice.tineFilt,voice.extra,voice.extra2,voice.noiseSrc,voice.noiseGain,voice.noiseFilt,voice.plectrumSrc,voice.plectrumGain,voice.plectrumFilt,voice.pluckSrc,voice.pluckGain,voice.pluckFilt,voice.nailSrc,voice.nailGain,voice.nailFilt,voice.droneOsc,voice.droneG,voice.sympGains];
 stop.forEach(n=>{if(Array.isArray(n))n.forEach(x=>{try{x.stop(t+0.05);}catch(e){}});else if(n){try{n.stop(t+0.05);}catch(e){}}});
 setTimeout(()=>{
 disc.forEach(n=>{if(Array.isArray(n))n.forEach(x=>{try{x.disconnect();}catch(e){}});else if(n){try{n.disconnect();}catch(e){}}});
@@ -2292,11 +2451,366 @@ carrier.start(t);modulator.start(t);
 const voice={freq,carrier,modulator,modGain,ampEnv,oscs:[carrier,modulator],voiceGain:ampEnv,seq:this._voiceSeq++,cleanupAt:t+decay+0.5,released:false};
 this._voices.set(freq,voice);setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
 }
-
-_setOrganFreq(freq,time){const t=time||this.engine.ctx.currentTime;this._organBaseFreq=freq;const oct=this.params.octave||0;this.audioNodes.oscs.forEach((o,i)=>{const h=this._organHarmonics[i];o.frequency.setTargetAtTime(freq*h*Math.pow(2,oct),t,0.005);});this.audioNodes.gains.forEach((g,i)=>{const drawIds=['d16','d8','d4','d223','d2','d113','d1'];g.gain.setTargetAtTime(this.params[drawIds[i]]||0,t,0.005);});}
+// ===== NEW INSTRUMENT VOICES =====
+_spawnWurlitzerVoice(freq,t){
+const ctx=this.engine.ctx;
+const oct=this.params.octave||0;
+const f=freq*Math.pow(2,oct);
+const reedAmt=this.params.reed!==undefined?this.params.reed:0.7;
+const barkAmt=this.params.bark!==undefined?this.params.bark:0.4;
+const decay=Math.max(0.3,this.params.decay||2.0);
+// Carrier (sawtooth — brighter than Rhodes sine, more "reed-like")
+const carrier=ctx.createOscillator();carrier.type='sawtooth';
+carrier.frequency.value=f;
+// Modulator (sine, 2:1 ratio — characteristic Wurli "bark" on attack)
+const modulator=ctx.createOscillator();modulator.type='sine';
+modulator.frequency.value=f*2;
+const modGain=ctx.createGain();modGain.gain.value=0;
+modulator.connect(modGain);modGain.connect(carrier.frequency);
+// Bark envelope: very short, intense burst on attack
+modGain.gain.setValueAtTime(0,t);
+modGain.gain.linearRampToValueAtTime(barkAmt*f*3,t+0.001);
+modGain.gain.exponentialRampToValueAtTime(0.001,t+0.08);
+// Amp envelope
+const ampEnv=ctx.createGain();ampEnv.gain.value=0;
+carrier.connect(ampEnv);ampEnv.connect(this.audioNodes.filt);
+ampEnv.gain.setValueAtTime(0,t);
+ampEnv.gain.linearRampToValueAtTime(reedAmt*0.5,t+0.003);
+ampEnv.gain.exponentialRampToValueAtTime(0.001,t+decay);
+carrier.start(t);modulator.start(t);
+const voice={freq,carrier,modulator,modGain,ampEnv,oscs:[carrier,modulator],seq:this._voiceSeq++,cleanupAt:t+decay+0.5,released:false};
+this._voices.set(freq,voice);
+setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
+}
+_spawnDx7EpianoVoice(freq,t){
+const ctx=this.engine.ctx;
+const oct=this.params.octave||0;
+const f=freq*Math.pow(2,oct);
+const modAmt=this.params.mod_amt!==undefined?this.params.mod_amt:0.65;
+const ratioStr=this.params.ratio||'2:1';
+const ratioMap={'1:1':1,'2:1':2,'3:1':3,'4:1':4,'14:1':14};
+const ratio=ratioMap[ratioStr]||2;
+const feedbackAmt=this.params.feedback!==undefined?this.params.feedback:0.3;
+const decay=Math.max(0.3,this.params.decay||3.0);
+// Operator 1 (modulator) — feeds itself via feedback for "glassy" texture
+const op1=ctx.createOscillator();op1.type='sine';
+op1.frequency.value=f*ratio;
+const op1fb=ctx.createGain();op1fb.gain.value=feedbackAmt*0.5;
+op1.connect(op1fb);op1fb.connect(op1.frequency);
+// Op1 → Op2 (carrier) via modGain
+const modGain=ctx.createGain();modGain.gain.value=0;
+op1.connect(modGain);
+// Operator 2 (carrier)
+const op2=ctx.createOscillator();op2.type='sine';
+op2.frequency.value=f;
+modGain.connect(op2.frequency);
+// Amp envelope (DX7 E.Piano characteristic: 2-stage decay)
+const ampEnv=ctx.createGain();ampEnv.gain.value=0;
+op2.connect(ampEnv);ampEnv.connect(this.audioNodes.filt);
+// Mod envelope: starts strong, decays quickly
+modGain.gain.setValueAtTime(modAmt*f*ratio,t);
+modGain.gain.exponentialRampToValueAtTime(0.001,t+decay*0.4);
+// Amp env: fast attack, double-decay (initial quick drop then long tail)
+ampEnv.gain.setValueAtTime(0,t);
+ampEnv.gain.linearRampToValueAtTime(0.45,t+0.002);
+ampEnv.gain.exponentialRampToValueAtTime(0.15,t+0.3); // initial quick decay
+ampEnv.gain.exponentialRampToValueAtTime(0.001,t+decay); // long tail
+op1.start(t);op2.start(t);
+const voice={freq,carrier:op2,modulator:op1,modGain,ampEnv,extra:op1fb,oscs:[op1,op2],seq:this._voiceSeq++,cleanupAt:t+decay+0.5,released:false};
+this._voices.set(freq,voice);
+setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
+}
+_spawnMusicBoxVoice(freq,t){
+const ctx=this.engine.ctx;
+const oct=this.params.octave||1;
+const f=freq*Math.pow(2,oct);
+const decay=Math.max(0.5,this.params.decay||2.5);
+const teeth=Math.max(1,Math.round(this.params.teeth||3));
+const combAmt=this.params.comb!==undefined?this.params.comb:0.5;
+// Multiple tine harmonics (sine oscillators at integer multiples)
+const oscs=[];
+const voiceGain=ctx.createGain();voiceGain.gain.value=0;
+const harmonics=[1,2.0,3.0,4.0,5.0];
+for(let i=0;i<teeth&&i<harmonics.length;i++){
+  const o=ctx.createOscillator();o.type='sine';
+  o.frequency.value=f*harmonics[i];
+  const g=ctx.createGain();g.gain.value=1/(i+1.5); // higher harmonics quieter
+  o.connect(g);g.connect(voiceGain);o.start();
+  oscs.push(o);
+}
+voiceGain.connect(this.audioNodes.filt);
+// Short attack, long exponential decay (music box characteristic)
+voiceGain.gain.setValueAtTime(0,t);
+voiceGain.gain.linearRampToValueAtTime(0.55*combAmt+0.15,t+0.001);
+voiceGain.gain.exponentialRampToValueAtTime(0.001,t+decay);
+// Add subtle "tine click" via filtered noise burst
+const tineBuf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.02),ctx.sampleRate);
+const tdata=tineBuf.getChannelData(0);
+for(let i=0;i<tdata.length;i++)tdata[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.003));
+const tineSrc=ctx.createBufferSource();tineSrc.buffer=tineBuf;
+const tineFilt=ctx.createBiquadFilter();tineFilt.type='highpass';tineFilt.frequency.value=6000;
+const tineGain=ctx.createGain();tineGain.gain.value=0.15*combAmt;
+tineSrc.connect(tineFilt);tineFilt.connect(tineGain);tineGain.connect(this.audioNodes.filt);
+tineSrc.start(t);
+const voice={freq,oscs,voiceGain,tineSrc,tineGain,tineFilt,seq:this._voiceSeq++,cleanupAt:t+decay+0.5,released:false};
+this._voices.set(freq,voice);
+setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
+}
+_spawnGlassHarmonicaVoice(freq,t){
+const ctx=this.engine.ctx;
+const oct=this.params.octave||0;
+const f=freq*Math.pow(2,oct);
+const decay=Math.max(1,this.params.decay||8);
+const inharmonic=this.params.inharmonic!==undefined?this.params.inharmonic:1.5;
+const friction=this.params.friction!==undefined?this.params.friction:0.5;
+// Multiple inharmonic partials (like rubbed glass bowls)
+const oscs=[];
+const voiceGain=ctx.createGain();voiceGain.gain.value=0;
+// Partials: 1, 2.7, 4.2, 6.1, 8.5 (inharmonic)
+const partials=[1,inharmonic*1.0+1.7,inharmonic*2+1.2,inharmonic*3+1.6,inharmonic*5+1];
+const amps=[1,0.4,0.25,0.15,0.08];
+for(let i=0;i<partials.length;i++){
+  const o=ctx.createOscillator();o.type='sine';
+  o.frequency.value=f*partials[i];
+  const g=ctx.createGain();g.gain.value=amps[i];
+  o.connect(g);g.connect(voiceGain);o.start();
+  oscs.push(o);
+}
+voiceGain.connect(this.audioNodes.filt);
+// Friction attack: slow rise (like finger rubbing the bowl), then very long decay
+voiceGain.gain.setValueAtTime(0,t);
+voiceGain.gain.linearRampToValueAtTime(0.3*friction+0.1,t+0.05+0.1*friction); // slow attack
+voiceGain.gain.exponentialRampToValueAtTime(0.001,t+decay);
+// Add subtle breath/friction noise (filtered)
+const noiseBuf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.3),ctx.sampleRate);
+const ndata=noiseBuf.getChannelData(0);
+for(let i=0;i<ndata.length;i++)ndata[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.05));
+const noiseSrc=ctx.createBufferSource();noiseSrc.buffer=noiseBuf;
+const noiseFilt=ctx.createBiquadFilter();noiseFilt.type='bandpass';noiseFilt.frequency.value=f*2;noiseFilt.Q.value=8;
+const noiseGain=ctx.createGain();noiseGain.gain.value=0.05*friction;
+noiseSrc.connect(noiseFilt);noiseFilt.connect(noiseGain);noiseGain.connect(this.audioNodes.filt);
+noiseSrc.start(t);
+const voice={freq,oscs,voiceGain,noiseSrc,noiseGain,noiseFilt,seq:this._voiceSeq++,cleanupAt:t+decay+0.5,released:false};
+this._voices.set(freq,voice);
+setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
+}
+// ===== NEW STRING INSTRUMENT VOICES =====
+_spawnHarpVoice(freq,t){
+const ctx=this.engine.ctx;
+const oct=this.params.octave||0;
+const f=freq*Math.pow(2,oct);
+const decay=Math.max(0.5,this.params.decay||4);
+const strings=Math.max(1,Math.round(this.params.strings||2));
+const nailAmt=this.params.nail!==undefined?this.params.nail:0.3;
+// Multiple strings (slight detune for chorus-like richness — typical of harp)
+const oscs=[];
+const voiceGain=ctx.createGain();voiceGain.gain.value=0;
+for(let i=0;i<strings;i++){
+  // Each string: fundamental sine + slight triangle harmonic
+  const o=ctx.createOscillator();o.type='sine';
+  const detune=(i-(strings-1)/2)*5; // ±5 cents spread
+  o.frequency.value=f*Math.pow(2,detune/1200);
+  const g=ctx.createGain();g.gain.value=1/strings;
+  o.connect(g);g.connect(voiceGain);o.start();
+  oscs.push(o);
+  // Triangle harmonic (octave up, quieter)
+  const o2=ctx.createOscillator();o2.type='triangle';
+  o2.frequency.value=f*2*Math.pow(2,detune/1200);
+  const g2=ctx.createGain();g2.gain.value=0.15/strings;
+  o2.connect(g2);g2.connect(voiceGain);o2.start();
+  oscs.push(o2);
+}
+voiceGain.connect(this.audioNodes.filt);
+// Harp envelope: medium attack, very long exp decay
+voiceGain.gain.setValueAtTime(0,t);
+voiceGain.gain.linearRampToValueAtTime(0.5,t+0.008);
+voiceGain.gain.exponentialRampToValueAtTime(0.001,t+decay);
+// Nail attack: short noise burst (finger nail plucking string)
+let nailSrc=null,nailGain=null,nailFilt=null;
+if(nailAmt>0.01){
+  const nailBuf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.015),ctx.sampleRate);
+  const nd=nailBuf.getChannelData(0);
+  for(let i=0;i<nd.length;i++)nd[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.002));
+  nailSrc=ctx.createBufferSource();nailSrc.buffer=nailBuf;
+  nailFilt=ctx.createBiquadFilter();nailFilt.type='highpass';nailFilt.frequency.value=5000;
+  nailGain=ctx.createGain();nailGain.gain.value=nailAmt*0.18;
+  nailSrc.connect(nailFilt);nailFilt.connect(nailGain);nailGain.connect(this.audioNodes.filt);
+  nailSrc.start(t);
+}
+const voice={freq,oscs,voiceGain,nailSrc,nailGain,nailFilt,seq:this._voiceSeq++,cleanupAt:t+decay+0.5,released:false};
+this._voices.set(freq,voice);
+setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
+}
+_spawnSitarVoice(freq,t){
+const ctx=this.engine.ctx;
+const oct=this.params.octave||0;
+const f=freq*Math.pow(2,oct);
+const decay=Math.max(0.5,this.params.decay||3);
+const jawariAmt=this.params.jawari!==undefined?this.params.jawari:0.7;
+const sympAmt=this.params.symp!==undefined?this.params.symp:0.5;
+const droneAmt=this.params.drone!==undefined?this.params.drone:0.3;
+// Main string: sawtooth (bright, buzzy)
+const mainOsc=ctx.createOscillator();mainOsc.type='sawtooth';mainOsc.frequency.value=f;
+// Buzzing via WaveShaper (slight clipping = jawari bridge effect)
+const buzzShaper=ctx.createWaveShaper();
+const buzzCrv=new Float32Array(256);
+for(let i=0;i<256;i++){const x=(i/128)-1;buzzCrv[i]=Math.tanh(x*3)*0.7+(x*0.3);}
+buzzShaper.curve=buzzCrv;
+const mainGain=ctx.createGain();mainGain.gain.value=0;
+mainOsc.connect(buzzShaper);buzzShaper.connect(mainGain);
+mainGain.connect(this.audioNodes.filt);mainGain.connect(this.audioNodes.jawariBP);
+// Envelope: sharp attack, long buzz decay
+mainGain.gain.setValueAtTime(0,t);
+mainGain.gain.linearRampToValueAtTime(jawariAmt*0.6,t+0.003);
+mainGain.gain.exponentialRampToValueAtTime(0.001,t+decay);
+mainOsc.start(t);
+// Sympathetic strings: 5 oscillators at scale degrees (perfect 5th, octave, 4th, major 3rd, minor 7th)
+const oscs=[mainOsc];
+const sympGains=[];
+const sympRatios=[1.5,2,1.333,1.25,1.778]; // sympathetic resonance at consonant intervals
+for(let i=0;i<5;i++){
+  const so=ctx.createOscillator();so.type='sine';
+  so.frequency.value=f*sympRatios[i];
+  const sg=ctx.createGain();sg.gain.value=0;
+  so.connect(sg);sg.connect(this.audioNodes.filt);
+  // Sympathetic strings resonante after main string attack
+  sg.gain.setValueAtTime(0,t);
+  sg.gain.linearRampToValueAtTime(sympAmt*0.08,t+0.05);
+  sg.gain.exponentialRampToValueAtTime(0.001,t+decay*0.8);
+  so.start(t);
+  oscs.push(so);sympGains.push(sg);
+}
+// Drone: low tonic (always while note held, slowly fades)
+let droneOsc=null,droneG=null;
+if(droneAmt>0.01&&this._droneGain){
+  droneOsc=ctx.createOscillator();droneOsc.type='sawtooth';
+  droneOsc.frequency.value=f*0.25; // 2 octaves below for tanpura-like drone
+  droneG=ctx.createGain();droneG.gain.value=0;
+  droneOsc.connect(droneG);droneG.connect(this._droneGain);
+  droneG.gain.setValueAtTime(0,t);
+  droneG.gain.linearRampToValueAtTime(droneAmt*0.4,t+0.5);
+  droneOsc.start(t);
+}
+const voice={freq,oscs,voiceGain:mainGain,carrier:mainOsc,modulator:droneOsc,ampEnv:mainGain,extra:buzzShaper,sympGains,droneOsc,droneG,seq:this._voiceSeq++,cleanupAt:t+decay+0.5,released:false};
+this._voices.set(freq,voice);
+setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
+}
+_spawnKotoVoice(freq,t){
+const ctx=this.engine.ctx;
+const oct=this.params.octave||0;
+const f=freq*Math.pow(2,oct);
+const decay=Math.max(0.5,this.params.decay||2.5);
+const plectrumAmt=this.params.plectrum!==undefined?this.params.plectrum:0.6;
+const bodyAmt=this.params.body!==undefined?this.params.body:0.4;
+// Main string: sawtooth (brighter than harp, more "plucky")
+const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=f;
+// Subtle detuned second string for thickness
+const o2=ctx.createOscillator();o2.type='sawtooth';o2.frequency.value=f*1.003;
+// Sine harmonic (octave up)
+const o3=ctx.createOscillator();o3.type='sine';o3.frequency.value=f*2;
+const voiceGain=ctx.createGain();voiceGain.gain.value=0;
+const g1=ctx.createGain();g1.gain.value=0.5;
+const g2=ctx.createGain();g2.gain.value=0.3;
+const g3=ctx.createGain();g3.gain.value=0.15;
+o.connect(g1);o2.connect(g2);o3.connect(g3);
+g1.connect(voiceGain);g2.connect(voiceGain);g3.connect(voiceGain);
+// Send to both bandpass (bright attack) and body (warm resonance)
+voiceGain.connect(this.audioNodes.filt);voiceGain.connect(this.audioNodes.body);
+// Sharp attack (plectrum pluck)
+voiceGain.gain.setValueAtTime(0,t);
+voiceGain.gain.linearRampToValueAtTime(0.5*plectrumAmt+0.2,t+0.002);
+voiceGain.gain.exponentialRampToValueAtTime(0.001,t+decay);
+o.start(t);o2.start(t);o3.start(t);
+// Plectrum click: very short high-freq transient
+const plectrumBuf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.008),ctx.sampleRate);
+const pdata=plectrumBuf.getChannelData(0);
+for(let i=0;i<pdata.length;i++)pdata[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.0015));
+const plectrumSrc=ctx.createBufferSource();plectrumSrc.buffer=plectrumBuf;
+const plectrumFilt=ctx.createBiquadFilter();plectrumFilt.type='highpass';plectrumFilt.frequency.value=7000;
+const plectrumGain=ctx.createGain();plectrumGain.gain.value=plectrumAmt*0.2;
+plectrumSrc.connect(plectrumFilt);plectrumFilt.connect(plectrumGain);plectrumGain.connect(this.audioNodes.filt);
+plectrumSrc.start(t);
+const voice={freq,oscs:[o,o2,o3],voiceGain,plectrumSrc,plectrumGain,plectrumFilt,seq:this._voiceSeq++,cleanupAt:t+decay+0.5,released:false};
+this._voices.set(freq,voice);
+setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
+}
+_spawnPizzicatoVoice(freq,t){
+const ctx=this.engine.ctx;
+const oct=this.params.octave||0;
+const f=freq*Math.pow(2,oct);
+const decay=Math.max(0.1,this.params.decay||0.5);
+const section=Math.max(1,Math.round(this.params.section||3));
+const damping=this.params.damping!==undefined?this.params.damping:0.4;
+// Section: multiple detuned voices for "ensemble" sound
+const oscs=[];
+const voiceGain=ctx.createGain();voiceGain.gain.value=0;
+for(let i=0;i<section;i++){
+  // Karplus-Strong-like: short noise burst feeding into comb-like decay
+  const o=ctx.createOscillator();o.type='sawtooth';
+  const detune=(i-(section-1)/2)*7; // ±7 cents spread for ensemble
+  o.frequency.value=f*Math.pow(2,detune/1200);
+  const g=ctx.createGain();g.gain.value=1/section;
+  o.connect(g);g.connect(voiceGain);o.start();
+  oscs.push(o);
+}
+voiceGain.connect(this.audioNodes.filt);voiceGain.connect(this.audioNodes.body);
+// Short envelope with strong damping (pizzicato = muted string)
+const effectiveDecay=decay*(1-damping*0.5);
+voiceGain.gain.setValueAtTime(0,t);
+voiceGain.gain.linearRampToValueAtTime(0.55,t+0.001);
+voiceGain.gain.exponentialRampToValueAtTime(0.001,t+effectiveDecay);
+// Pluck transient: noise burst at start
+const pluckBuf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.01),ctx.sampleRate);
+const pdata=pluckBuf.getChannelData(0);
+for(let i=0;i<pdata.length;i++)pdata[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.001));
+const pluckSrc=ctx.createBufferSource();pluckSrc.buffer=pluckBuf;
+const pluckFilt=ctx.createBiquadFilter();pluckFilt.type='bandpass';pluckFilt.frequency.value=1500;pluckFilt.Q.value=2;
+const pluckGain=ctx.createGain();pluckGain.gain.value=0.25;
+pluckSrc.connect(pluckFilt);pluckFilt.connect(pluckGain);pluckGain.connect(this.audioNodes.filt);
+pluckSrc.start(t);
+const voice={freq,oscs,voiceGain,pluckSrc,pluckGain,pluckFilt,seq:this._voiceSeq++,cleanupAt:t+decay+0.5,released:false};
+this._voices.set(freq,voice);
+setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(decay+0.6)*1000);
+}
+_spawnCelloBowVoice(freq,t){
+const ctx=this.engine.ctx;
+const oct=this.params.octave||0;
+const f=freq*Math.pow(2,oct);
+const atk=Math.max(0.05,this.params.attack||0.4);
+const rel=Math.max(0.1,this.params.release||0.8);
+const vibAmt=this.params.vibrato!==undefined?this.params.vibrato:0.3;
+const vibRate=this.params.vib_rate||5;
+// Sustained bowed sawtooth (cello timbre — sawtooth through warm lowpass)
+const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=f;
+// Vibrato LFO modulates pitch (delayed start — vibrato fades in after attack)
+const vibLFO=ctx.createOscillator();vibLFO.type='sine';vibLFO.frequency.value=vibRate;
+const vibGain=ctx.createGain();vibGain.gain.value=0;
+vibLFO.connect(vibGain);vibGain.connect(o.frequency);
+// Slight detuned second oscillator for richness
+const o2=ctx.createOscillator();o2.type='sawtooth';o2.frequency.value=f*1.005;
+const voiceGain=ctx.createGain();voiceGain.gain.value=0;
+const g1=ctx.createGain();g1.gain.value=0.6;
+const g2=ctx.createGain();g2.gain.value=0.4;
+o.connect(g1);o2.connect(g2);g1.connect(voiceGain);g2.connect(voiceGain);
+voiceGain.connect(this.audioNodes.filt);
+// Slow attack (bow friction ramping up), sustain while held
+voiceGain.gain.setValueAtTime(0,t);
+voiceGain.gain.linearRampToValueAtTime(0.45,t+atk);
+// Vibrato fades in after attack
+vibGain.gain.setValueAtTime(0,t);
+vibGain.gain.linearRampToValueAtTime(vibAmt*f*0.015,t+atk);
+o.start(t);o2.start(t);vibLFO.start(t);
+// Note: this voice stays sustained — release handled by _releaseVoice
+const voice={freq,oscs:[o,o2,vibLFO],voiceGain,carrier:o,modulator:o2,extra:vibLFO,extra2:vibGain,ampEnv:voiceGain,seq:this._voiceSeq++,cleanupAt:t+atk+30,released:false};
+this._voices.set(freq,voice);
+// Long timeout for sustained voices (will be cleaned up on release)
+setTimeout(()=>this._cleanupVoice(voice,ctx.currentTime),(atk+30)*1000);
+}
 
 // ===== PIANO: set frequency with envelope =====
 _setPianoFreq(freq,time){const t=time||this.engine.ctx.currentTime;this._pianoBaseFreq=freq;const oct=this.params.octave||0;const det=(this.params.detune||3);this.audioNodes.oscs.forEach((o,i)=>{const f=freq*Math.pow(2,oct)*(1+(i-1)*det/1200);o.frequency.setTargetAtTime(f,t,0.005);});}
+
+_setOrganFreq(freq,time){const t=time||this.engine.ctx.currentTime;this._organBaseFreq=freq;const oct=this.params.octave||0;this.audioNodes.oscs.forEach((o,i)=>{const h=this._organHarmonics[i];o.frequency.setTargetAtTime(freq*h*Math.pow(2,oct),t,0.005);});this.audioNodes.gains.forEach((g,i)=>{const drawIds=['d16','d8','d4','d223','d2','d113','d1'];g.gain.setTargetAtTime(this.params[drawIds[i]]||0,t,0.005);});}
 
 // ===== BASS: set frequency =====
 _setBassFreq(freq,time){const t=time||this.engine.ctx.currentTime;this._bassBaseFreq=freq;const oct=this.params.octave||-1;this.audioNodes.osc.frequency.setTargetAtTime(freq*Math.pow(2,oct),t,0.005);this.audioNodes.sub.frequency.setTargetAtTime(freq*Math.pow(2,oct)*0.5,t,0.005);}
@@ -3961,6 +4475,17 @@ if(mod.type==='spring-reverb')el.style.minWidth='220px';
 if(mod.type==='attenuverter')el.style.minWidth='160px';
 if(mod.type==='cv-offset')el.style.minWidth='140px';
 if(mod.type==='clock-mult')el.style.minWidth='180px';
+// NEW INSTRUMENTS widths
+if(mod.type==='wurlitzer')el.style.minWidth='220px';
+if(mod.type==='dx7-epiano')el.style.minWidth='220px';
+if(mod.type==='music-box')el.style.minWidth='220px';
+if(mod.type==='glass-harmonica')el.style.minWidth='220px';
+// NEW STRING INSTRUMENTS widths
+if(mod.type==='harp')el.style.minWidth='220px';
+if(mod.type==='sitar')el.style.minWidth='220px';
+if(mod.type==='koto')el.style.minWidth='220px';
+if(mod.type==='pizzicato')el.style.minWidth='220px';
+if(mod.type==='cello-bow')el.style.minWidth='220px';
 const header=document.createElement('div');header.className='node-header';
 header.innerHTML=`<div class="node-color" style="background:${def.color};color:${def.color}"></div><span class="node-title" style="color:${def.color}">${mod.label}</span><button class="node-delete" title="Delete (Del)">×</button>`;
 el.appendChild(header);
